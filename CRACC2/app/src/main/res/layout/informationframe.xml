@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <FrameLayout
+        android:id="@+id/informationframe"
+        android:layout_width="match_parent"
+        app:layout_heightPercent="80%"
+        app:layout_marginTopPercent="13%">
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/informationlayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.percent.PercentRelativeLayout
+                android:id="@+id/informationlayouttop"
+                android:layout_width="match_parent"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/informationboardtop"
+                app:layout_heightPercent="20%">
+
+                <Button
+                    android:id="@+id/informationicon"
+                    android:layout_alignParentTop="true"
+                    android:background="@drawable/gameicon"
+                    android:textColor="#000000"
+                    app:layout_heightPercent="70%"
+                    app:layout_marginLeftPercent="41%"
+                    app:layout_widthPercent="18%" />
+
+                <TextView
+                    android:id="@+id/informationtext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/informationicon"
+                    android:text="@string/name"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    app:layout_marginLeftPercent="33%"
+                    app:layout_marginTopPercent="2%" />
+
+
+            </android.support.percent.PercentRelativeLayout>
+
+            <android.support.percent.PercentRelativeLayout
+                android:id="@+id/informationlayoutbottom"
+                android:layout_width="match_parent"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/informaitonboardwhite"
+                app:layout_heightPercent="80%">
+
+                <android.support.percent.PercentRelativeLayout
+                    android:id="@+id/starlayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentTop="true"
+                    app:layout_heightPercent="20%">
+
+                    <Button
+                        android:id="@+id/star1"
+                        android:layout_alignParentTop="true"
+                        android:background="@drawable/star2"
+                        android:textColor="#000000"
+                        app:layout_heightPercent="50%"
+                        app:layout_marginLeftPercent="15%"
+                        app:layout_marginTopPercent="10%"
+                        app:layout_widthPercent="12%" />
+
+                    <Button
+                        android:id="@+id/star2"
+                        android:layout_alignParentTop="true"
+                        android:layout_toEndOf="@id/star1"
+                        android:background="@drawable/star2"
+                        android:textColor="#000000"
+                        app:layout_heightPercent="50%"
+                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_marginTopPercent="10%"
+                        app:layout_widthPercent="12%" />
+
+                    <Button
+                        android:id="@+id/star3"
+                        android:layout_alignParentTop="true"
+                        android:layout_toEndOf="@id/star2"
+                        android:background="@drawable/star2"
+                        android:textColor="#000000"
+                        app:layout_heightPercent="50%"
+                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_marginTopPercent="10%"
+                        app:layout_widthPercent="12%" />
+
+                    <Button
+                        android:id="@+id/star4"
+                        android:layout_alignParentTop="true"
+                        android:layout_toEndOf="@id/star3"
+                        android:background="@drawable/star2"
+                        android:textColor="#000000"
+                        app:layout_heightPercent="50%"
+                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_marginTopPercent="10%"
+                        app:layout_widthPercent="12%" />
+
+                    <Button
+                        android:id="@+id/star5"
+                        android:layout_alignParentTop="true"
+                        android:layout_toEndOf="@id/star4"
+                        android:background="@drawable/star2"
+                        android:textColor="#000000"
+                        app:layout_heightPercent="50%"
+                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_marginTopPercent="10%"
+                        app:layout_widthPercent="12%" />
+
+                </android.support.percent.PercentRelativeLayout>
+
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/informationcommentlayout"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/starlayout"
+                    app:layout_marginTopPercent="1%"
+
+                    app:layout_widthPercent="50%">
+
+                    <TextView
+                        android:id="@+id/age"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="5sp"
+                        android:gravity="end"
+                        android:text="@string/age"
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/lastgame"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/age"
+                        android:layout_marginTop="5sp"
+                        android:gravity="end"
+                        android:text="@string/lastgame"
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/play"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/lastgame"
+                        android:layout_marginTop="5sp"
+                        android:gravity="end"
+                        android:text="@string/play"
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/canceled"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/play"
+                        android:layout_marginTop="5sp"
+                        android:gravity="end"
+                        android:text="@string/canceled"
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/comment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/comment"
+                    android:textColor="#9418f2"
+                    android:textSize="22sp"
+                    app:layout_marginTopPercent="54%" />
+
+            </android.support.percent.PercentRelativeLayout>
+
+
+        </android.support.percent.PercentRelativeLayout>
+    </FrameLayout>
+
+
+</android.support.percent.PercentRelativeLayout>

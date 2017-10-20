@@ -43,13 +43,14 @@ public class MapsActivity extends AppCompatActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-    private static final String TAG = MapsActivity.class.getSimpleName();
+
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
+    private static final String TAG = MapsActivity.class.getSimpleName();
     private View mapView;
     private Button location;
     private Button management;
@@ -160,23 +161,28 @@ public class MapsActivity extends AppCompatActivity
     }
 
     public void interest(View v) {
+        hideControlboard();
         interest.setVisibility(View.VISIBLE);
     }
 
     public void community(View v) {
+        hideControlboard();
         community.setVisibility(View.VISIBLE);
+    }
+    public void clean(View v ) {
+        hideControlboard();
     }
 
     public void creategame(View v) {
+        hideControlboard();
         creategame.setVisibility(View.VISIBLE);
         controlboardrest.setVisibility(View.VISIBLE);
-        controlboard.setVisibility(View.GONE);
     }
 
     public void information(View v) {
+        hideControlboard();
         information.setVisibility(View.VISIBLE);
         controlboardrest.setVisibility(View.VISIBLE);
-        controlboard.setVisibility(View.GONE);
     }
 
 
@@ -187,8 +193,7 @@ public class MapsActivity extends AppCompatActivity
 
 
     private void hideManagement() {
-        gamemanagementrest.setVisibility(View.GONE);
-        gamemanagement.setVisibility(View.GONE);
+        hideControlboard();
     }
 
     private void displayControlboard() {
@@ -203,6 +208,10 @@ public class MapsActivity extends AppCompatActivity
         information.setVisibility(View.GONE);
         community.setVisibility(View.GONE);
         interest.setVisibility(View.GONE);
+        chatboardrest.setVisibility(View.GONE);
+        chatboard.setVisibility(View.GONE);
+        gamemanagementrest.setVisibility(View.GONE);
+        gamemanagement.setVisibility(View.GONE);
     }
 
     private void displayChatboard() {
@@ -212,9 +221,11 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void hideChatboard() {
-        chatboardrest.setVisibility(View.GONE);
-        chatboard.setVisibility(View.GONE);
+        hideControlboard();
     }
+
+
+/*------------------------------ The code below is for google map and check permission----------------------*/
 
     private void getMyLocation() {
         LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
@@ -231,7 +242,6 @@ public class MapsActivity extends AppCompatActivity
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
     }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;

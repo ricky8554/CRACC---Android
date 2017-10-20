@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <FrameLayout
+        android:id="@+id/interestframe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/interestlayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/informaitonboardwhite">
+
+            <android.support.percent.PercentRelativeLayout
+                android:id="@+id/interestlayouttop"
+                android:layout_width="match_parent"
+                android:background="#5672ff"
+                app:layout_heightPercent="10%">
+
+                <TextView
+                    android:id="@+id/interesttext"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    android:paddingStart="5sp"
+                    android:text="@string/interestedot"
+                    android:textColor="#ffffff"
+                    android:textSize="25sp"
+                    app:layout_marginBottomPercent="10%" />
+
+                <android.support.percent.PercentRelativeLayout
+                    android:id="@+id/interestlayouttopright"
+                    android:layout_width="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:background="#5672ff"
+                    app:layout_marginBottomPercent="10%"
+                    app:layout_widthPercent="13%"
+                    android:onClick="clean">
+
+                    <Button
+                        android:id="@+id/exit"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/cross"
+                        app:layout_heightPercent="25%"
+                        app:layout_marginBottomPercent="10%"
+                        app:layout_marginRightPercent="30%"
+                        app:layout_widthPercent="30%" />
+
+                </android.support.percent.PercentRelativeLayout>
+            </android.support.percent.PercentRelativeLayout>
+
+
+        </android.support.percent.PercentRelativeLayout>
+
+    </FrameLayout>
+
+</android.support.percent.PercentRelativeLayout>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <FrameLayout
+        android:id="@+id/creategame"
+        android:layout_width="match_parent"
+        app:layout_heightPercent="80%"
+        app:layout_marginTopPercent="13%">
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/creategamelayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/creategame">
+
+            <TextView
+                android:id="@+id/creategametext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/creategame"
+                android:textColor="#000000"
+                android:textSize="30sp"
+                app:layout_marginLeftPercent="25%"
+                app:layout_marginTopPercent="1%" />
+
+            <Button
+                android:id="@+id/gameicon"
+                android:background="@drawable/gameicon"
+                android:text="Type"
+                android:textColor="#000000"
+                app:layout_heightPercent="13%"
+                app:layout_marginLeftPercent="41%"
+                app:layout_marginTopPercent="10%"
+                app:layout_widthPercent="18%" />
+
+            <EditText
+                android:id="@+id/createname"
+                android:layout_below="@id/gameicon"
+                android:background="@drawable/tpyeinboxblack"
+                android:ems="7"
+                android:gravity="center"
+                android:hint="@string/gamename"
+                android:inputType="textPassword"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_heightPercent="7%"
+                app:layout_marginLeftPercent="10%"
+                app:layout_marginTopPercent="4%"
+                app:layout_widthPercent="80%" />
+
+            <EditText
+                android:id="@+id/createlocation"
+                android:layout_below="@id/createname"
+                android:background="@drawable/tpyeinboxblack"
+                android:ems="7"
+                android:gravity="center"
+                android:hint="@string/location"
+                android:inputType="textPassword"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_heightPercent="7%"
+                app:layout_marginLeftPercent="10%"
+                app:layout_marginTopPercent="4%"
+                app:layout_widthPercent="80%" />
+
+            <EditText
+                android:id="@+id/createdate"
+                android:layout_below="@id/createlocation"
+                android:background="@drawable/tpyeinboxblack"
+                android:ems="7"
+                android:gravity="center"
+                android:hint="@string/date"
+                android:inputType="textPassword"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_heightPercent="7%"
+                app:layout_marginLeftPercent="10%"
+                app:layout_marginTopPercent="4%"
+                app:layout_widthPercent="80%" />
+
+            <EditText
+                android:id="@+id/createtime"
+                android:layout_below="@id/createdate"
+                android:background="@drawable/tpyeinboxblack"
+                android:ems="7"
+                android:gravity="center"
+                android:hint="@string/time"
+                android:inputType="textPassword"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_heightPercent="7%"
+                app:layout_marginLeftPercent="10%"
+                app:layout_marginTopPercent="4%"
+                app:layout_widthPercent="80%" />
+
+            <EditText
+                android:id="@+id/createpeople"
+                android:layout_below="@id/createtime"
+                android:background="@drawable/tpyeinboxblack"
+                android:ems="7"
+                android:gravity="center"
+                android:hint="@string/numpeople"
+                android:inputType="textPassword"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_heightPercent="7%"
+                app:layout_marginLeftPercent="10%"
+                app:layout_marginTopPercent="4%"
+                app:layout_widthPercent="80%" />
+
+            <Button
+                android:id="@+id/createbutton"
+                android:layout_below="@id/createpeople"
+                android:background="@drawable/createbutton"
+                android:text="Create"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                app:layout_heightPercent="15%"
+                app:layout_marginLeftPercent="25%"
+                app:layout_marginTopPercent="5%"
+                app:layout_widthPercent="50%" />
+
+
+        </android.support.percent.PercentRelativeLayout>
+    </FrameLayout>
+    </android.support.percent.PercentRelativeLayout>

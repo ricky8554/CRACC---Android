@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.cracc.cracc2.MapsActivity">
 
-
+    <!--This fragment support the Google map view-->
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -16,13 +16,15 @@
         android:layout_height="match_parent"
         tools:context=".MapLocationActivity" />
 
+    <!--This layout set the size and location of the location button it contain the location button
+    in it-->
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/locationlayout"
         android:layout_alignParentEnd="true"
         android:gravity="center"
-        app:layout_heightPercent="7.6%"
+        android:layout_width="30sp"
         app:layout_marginTopPercent="60%"
-        app:layout_widthPercent="12.8%">
+        android:layout_height="30sp">
 
         <Button
             android:id="@+id/location"
@@ -32,686 +34,63 @@
 
     </RelativeLayout>
 
-
-    <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/operatebar"
+    <!--This layout contain the top control bar which included game management button, chat button,
+    and main control button(image icon), the sublayout is operatorbar.xml-->
+    <include
         android:layout_width="match_parent"
-        android:layout_alignParentTop="true"
-        android:background="#13D2DC"
-        app:layout_heightPercent="10%">
+        android:layout_height="match_parent"
+        layout="@layout/operatorbar" />
 
-
-        <Button
-            android:id="@+id/mainicon"
-            android:layout_centerInParent="true"
-            android:background="@drawable/iconbutton"
-            app:layout_heightPercent="85%"
-            app:layout_widthPercent="12%" />
-
-        <Button
-            android:id="@+id/chatbutton"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/chat"
-            app:layout_heightPercent="75%"
-            app:layout_marginRightPercent="3%"
-            app:layout_widthPercent="13%" />
-
-        <Button
-            android:id="@+id/management"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/management"
-            app:layout_heightPercent="75%"
-            app:layout_marginLeftPercent="3%"
-            app:layout_widthPercent="10%" />
-
-    </android.support.percent.PercentRelativeLayout>
-
+    <!--The layout contain the game management board, the sublayout is gamemanagement.xml-->
     <include
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/gamemanagement" />
 
+    <!--The layout contain the chat board, the sublayout is chatboard.xml-->
     <include
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/chatboard" />
 
-
-    <FrameLayout
-        android:id="@+id/controlboardrest"
+    <!--The layout contain the control board call by the main icon, the layout included create
+    new game button, information button, interested button, community button, logout button,
+     the sublayout is controlboard.xml-->
+    <include
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentEnd="true" />
+        layout="@layout/controlboard" />
 
-    <FrameLayout
-        android:id="@+id/controlboard"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/controlboard"
-        app:layout_heightPercent="60%"
-        app:layout_marginLeftPercent="20%"
-        app:layout_marginTopPercent="10%"
-        app:layout_widthPercent="60%">
-
-        <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/controlboardmainlayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/controlboardlogoutlayout"
-                android:layout_width="match_parent"
-                android:layout_alignParentBottom="true"
-                android:onClick="logout"
-                app:layout_heightPercent="15%"
-                app:layout_marginBottomPercent="5%">
-
-                <Button
-                    android:id="@+id/controlboardlogout"
-                    android:layout_alignParentStart="true"
-                    android:background="@drawable/logout"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
-
-                <TextView
-                    android:id="@+id/controlboardlogouttext"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/logout"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
-            </android.support.percent.PercentRelativeLayout>
-
-            <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/controlboardlogolayout"
-                android:layout_width="match_parent"
-                android:layout_above="@id/controlboardlogoutlayout"
-                android:onClick="community"
-                app:layout_heightPercent="15%"
-
-                >
-
-                <Button
-                    android:id="@+id/controlboardlogo"
-                    android:layout_alignParentStart="true"
-                    android:background="@drawable/crackccblack"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
-
-                <TextView
-                    android:id="@+id/controlboardlogotext"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/community"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
-            </android.support.percent.PercentRelativeLayout>
-
-
-            <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/controlboardinterestlayout"
-                android:layout_width="match_parent"
-                android:layout_above="@id/controlboardlogolayout"
-                android:onClick="interest"
-                app:layout_heightPercent="15%"
-
-                >
-
-                <Button
-                    android:id="@+id/controlboardinterest"
-                    android:layout_alignParentStart="true"
-                    android:background="@drawable/interested"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
-
-                <TextView
-                    android:id="@+id/controlboardinteresttext"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/interested"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
-            </android.support.percent.PercentRelativeLayout>
-
-
-            <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/controlboardinformationlayout"
-                android:layout_width="match_parent"
-                android:layout_above="@id/controlboardinterestlayout"
-                android:onClick="information"
-                app:layout_heightPercent="15%">
-
-                <Button
-                    android:id="@+id/controlboardinformation"
-                    android:layout_alignParentStart="true"
-                    android:background="@drawable/information"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
-
-                <TextView
-                    android:id="@+id/controlboardinformationtext"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/information"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
-            </android.support.percent.PercentRelativeLayout>
-
-
-            <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/controlboardcreategamelayout"
-                android:layout_width="match_parent"
-                android:layout_above="@id/controlboardinformationlayout"
-                android:onClick="creategame"
-                app:layout_heightPercent="15%"
-
-                >
-
-                <Button
-                    android:id="@+id/controlboardcreategame"
-                    android:layout_alignParentStart="true"
-                    android:background="@drawable/plus"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
-
-                <TextView
-                    android:id="@+id/controlboardplustext"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="@string/createnewgame"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
-
-            </android.support.percent.PercentRelativeLayout>
-
-            <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/controlboardbarlayout"
-                android:layout_width="match_parent"
-                app:layout_heightPercent="18%">
-
-                <Button
-                    android:id="@+id/controlboardbaricon"
-                    android:layout_alignParentStart="true"
-                    android:background="@drawable/iconbutton"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="5%"
-                    app:layout_marginTopPercent="10%"
-                    app:layout_widthPercent="25%" />
-
-                <TextView
-                    android:id="@+id/controlboardbartext"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:text="@string/name"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="35%" />
-
-
-            </android.support.percent.PercentRelativeLayout>
-        </android.support.percent.PercentRelativeLayout>
-
-
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/creategame"
+    <!--The layout is the frame for create game page call by create game button,
+     the sublayout is creategameframe.xml-->
+    <include
         android:layout_width="match_parent"
-        app:layout_heightPercent="80%"
-        app:layout_marginTopPercent="13%">
+        android:layout_height="match_parent"
+        layout="@layout/creategameframe" />
 
-        <android.support.percent.PercentRelativeLayout
-            android:id="@+id/creategamelayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/creategame">
-
-            <TextView
-                android:id="@+id/creategametext"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/creategame"
-                android:textColor="#000000"
-                android:textSize="30sp"
-                app:layout_marginLeftPercent="25%"
-                app:layout_marginTopPercent="1%" />
-
-            <Button
-                android:id="@+id/gameicon"
-                android:background="@drawable/gameicon"
-                android:text="Type"
-                android:textColor="#000000"
-                app:layout_heightPercent="13%"
-                app:layout_marginLeftPercent="41%"
-                app:layout_marginTopPercent="10%"
-                app:layout_widthPercent="18%" />
-
-            <EditText
-                android:id="@+id/createname"
-                android:layout_below="@id/gameicon"
-                android:background="@drawable/tpyeinboxblack"
-                android:ems="7"
-                android:gravity="center"
-                android:hint="@string/gamename"
-                android:inputType="textPassword"
-                android:paddingStart="10sp"
-                android:textColor="#000000"
-                android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%" />
-
-            <EditText
-                android:id="@+id/createlocation"
-                android:layout_below="@id/createname"
-                android:background="@drawable/tpyeinboxblack"
-                android:ems="7"
-                android:gravity="center"
-                android:hint="@string/location"
-                android:inputType="textPassword"
-                android:paddingStart="10sp"
-                android:textColor="#000000"
-                android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%" />
-
-            <EditText
-                android:id="@+id/createdate"
-                android:layout_below="@id/createlocation"
-                android:background="@drawable/tpyeinboxblack"
-                android:ems="7"
-                android:gravity="center"
-                android:hint="@string/date"
-                android:inputType="textPassword"
-                android:paddingStart="10sp"
-                android:textColor="#000000"
-                android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%" />
-
-            <EditText
-                android:id="@+id/createtime"
-                android:layout_below="@id/createdate"
-                android:background="@drawable/tpyeinboxblack"
-                android:ems="7"
-                android:gravity="center"
-                android:hint="@string/time"
-                android:inputType="textPassword"
-                android:paddingStart="10sp"
-                android:textColor="#000000"
-                android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%" />
-
-            <EditText
-                android:id="@+id/createpeople"
-                android:layout_below="@id/createtime"
-                android:background="@drawable/tpyeinboxblack"
-                android:ems="7"
-                android:gravity="center"
-                android:hint="@string/numpeople"
-                android:inputType="textPassword"
-                android:paddingStart="10sp"
-                android:textColor="#000000"
-                android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%" />
-
-            <Button
-                android:id="@+id/createbutton"
-                android:layout_below="@id/createpeople"
-                android:background="@drawable/createbutton"
-                android:text="Create"
-                android:textColor="#FFFFFF"
-                android:textSize="30sp"
-                app:layout_heightPercent="15%"
-                app:layout_marginLeftPercent="25%"
-                app:layout_marginTopPercent="5%"
-                app:layout_widthPercent="50%" />
-
-
-        </android.support.percent.PercentRelativeLayout>
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/informationframe"
+    <!--The layout is the frame for information page call by information button,
+     the sublayout is creategameframe.xml-->
+    <include
         android:layout_width="match_parent"
-        app:layout_heightPercent="80%"
-        app:layout_marginTopPercent="13%">
+        android:layout_height="match_parent"
+        layout="@layout/informationframe" />
 
-        <android.support.percent.PercentRelativeLayout
-            android:id="@+id/informationlayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.percent.PercentRelativeLayout
-                android:id="@+id/informationlayouttop"
-                android:layout_width="match_parent"
-                android:layout_alignParentTop="true"
-                android:background="@drawable/informationboardtop"
-                app:layout_heightPercent="20%">
-
-                <Button
-                    android:id="@+id/informationicon"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/gameicon"
-                    android:textColor="#000000"
-                    app:layout_heightPercent="70%"
-                    app:layout_marginLeftPercent="41%"
-                    app:layout_widthPercent="18%" />
-
-                <TextView
-                    android:id="@+id/informationtext"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/informationicon"
-                    android:text="@string/name"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="33%"
-                    app:layout_marginTopPercent="2%" />
-
-
-            </android.support.percent.PercentRelativeLayout>
-
-            <android.support.percent.PercentRelativeLayout
-                android:id="@+id/informationlayoutbottom"
-                android:layout_width="match_parent"
-                android:layout_alignParentBottom="true"
-                android:background="@drawable/informaitonboardwhite"
-                app:layout_heightPercent="80%">
-
-                <android.support.percent.PercentRelativeLayout
-                    android:id="@+id/starlayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentTop="true"
-                    app:layout_heightPercent="20%">
-
-                    <Button
-                        android:id="@+id/star1"
-                        android:layout_alignParentTop="true"
-                        android:background="@drawable/star2"
-                        android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="15%"
-                        app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%" />
-
-                    <Button
-                        android:id="@+id/star2"
-                        android:layout_alignParentTop="true"
-                        android:layout_toEndOf="@id/star1"
-                        android:background="@drawable/star2"
-                        android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
-                        app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%" />
-
-                    <Button
-                        android:id="@+id/star3"
-                        android:layout_alignParentTop="true"
-                        android:layout_toEndOf="@id/star2"
-                        android:background="@drawable/star2"
-                        android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
-                        app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%" />
-
-                    <Button
-                        android:id="@+id/star4"
-                        android:layout_alignParentTop="true"
-                        android:layout_toEndOf="@id/star3"
-                        android:background="@drawable/star2"
-                        android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
-                        app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%" />
-
-                    <Button
-                        android:id="@+id/star5"
-                        android:layout_alignParentTop="true"
-                        android:layout_toEndOf="@id/star4"
-                        android:background="@drawable/star2"
-                        android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
-                        app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%" />
-
-                </android.support.percent.PercentRelativeLayout>
-
-                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:id="@+id/informationcommentlayout"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/starlayout"
-                    app:layout_marginTopPercent="1%"
-
-                    app:layout_widthPercent="50%">
-
-                    <TextView
-                        android:id="@+id/age"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginTop="5sp"
-                        android:gravity="end"
-                        android:text="@string/age"
-                        android:textColor="#000000"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/lastgame"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/age"
-                        android:layout_marginTop="5sp"
-                        android:gravity="end"
-                        android:text="@string/lastgame"
-                        android:textColor="#000000"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/play"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/lastgame"
-                        android:layout_marginTop="5sp"
-                        android:gravity="end"
-                        android:text="@string/play"
-                        android:textColor="#000000"
-                        android:textSize="20sp" />
-
-                    <TextView
-                        android:id="@+id/canceled"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/play"
-                        android:layout_marginTop="5sp"
-                        android:gravity="end"
-                        android:text="@string/canceled"
-                        android:textColor="#000000"
-                        android:textSize="20sp" />
-
-
-                </RelativeLayout>
-
-                <TextView
-                    android:id="@+id/comment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/comment"
-                    android:textColor="#9418f2"
-                    android:textSize="22sp"
-                    app:layout_marginTopPercent="54%" />
-
-            </android.support.percent.PercentRelativeLayout>
-
-
-        </android.support.percent.PercentRelativeLayout>
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/interestframe"
+    <!--The layout is the frame for interest page call by interested button,
+     the sublayout is interestframe.xml-->
+    <include
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        layout="@layout/interestframe" />
 
-        <android.support.percent.PercentRelativeLayout
-            android:id="@+id/interestlayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/informaitonboardwhite">
-
-            <android.support.percent.PercentRelativeLayout
-                android:id="@+id/interestlayouttop"
-                android:layout_width="match_parent"
-                android:background="#5672ff"
-                app:layout_heightPercent="10%">
-
-                <TextView
-                    android:id="@+id/interesttext"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="bottom"
-                    android:paddingStart="5sp"
-                    android:text="@string/interestedot"
-                    android:textColor="#ffffff"
-                    android:textSize="25sp"
-                    app:layout_marginBottomPercent="10%" />
-
-                <android.support.percent.PercentRelativeLayout
-                    android:id="@+id/interestlayouttopright"
-                    android:layout_width="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:background="#5672ff"
-                    app:layout_marginBottomPercent="10%"
-                    app:layout_widthPercent="13%">
-
-                    <Button
-                        android:id="@+id/exit"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentEnd="true"
-                        android:background="@drawable/cross"
-                        app:layout_heightPercent="25%"
-                        app:layout_marginBottomPercent="10%"
-                        app:layout_marginRightPercent="30%"
-                        app:layout_widthPercent="30%" />
-
-                </android.support.percent.PercentRelativeLayout>
-            </android.support.percent.PercentRelativeLayout>
-
-
-        </android.support.percent.PercentRelativeLayout>
-
-    </FrameLayout>
-
-    <FrameLayout
-        android:id="@+id/communityframe"
+    <!--The layout is the frame for community page call by community button,
+     the sublayout is communityframe.xml-->
+    <include
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <android.support.percent.PercentRelativeLayout
-            android:id="@+id/communitylayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/informaitonboardwhite">
-
-            <android.support.percent.PercentRelativeLayout
-                android:id="@+id/communitylayouttop"
-                android:layout_width="match_parent"
-                android:background="#5672ff"
-                app:layout_heightPercent="10%">
-
-                <Button
-                    android:id="@+id/communitycracc"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentStart="true"
-                    android:background="@drawable/cracc"
-                    app:layout_heightPercent="50%"
-                    app:layout_marginBottomPercent="20%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="10%" />
-
-                <TextView
-                    android:id="@+id/communitytext"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentStart="true"
-                    android:gravity="bottom"
-                    android:paddingStart="5sp"
-                    android:text="@string/community"
-                    android:textColor="#ffffff"
-                    android:textSize="25sp"
-                    app:layout_marginBottomPercent="10%"
-                    app:layout_marginLeftPercent="13%" />
-
-                <android.support.percent.PercentRelativeLayout
-                    android:id="@+id/communitylayouttopright"
-                    android:layout_width="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:background="#5672ff"
-                    app:layout_marginBottomPercent="10%"
-                    app:layout_widthPercent="13%">
-
-                    <Button
-                        android:id="@+id/exit1"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentEnd="true"
-                        android:background="@drawable/cross"
-                        app:layout_heightPercent="25%"
-                        app:layout_marginBottomPercent="10%"
-                        app:layout_marginRightPercent="30%"
-                        app:layout_widthPercent="30%" />
-
-                </android.support.percent.PercentRelativeLayout>
-            </android.support.percent.PercentRelativeLayout>
+        android:layout_height="match_parent"
+        layout="@layout/communityframe" />
 
 
-        </android.support.percent.PercentRelativeLayout>
 
-    </FrameLayout>
 
 
 </android.support.percent.PercentRelativeLayout>
