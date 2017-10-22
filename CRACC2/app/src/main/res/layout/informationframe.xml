@@ -9,7 +9,8 @@
         android:id="@+id/informationframe"
         android:layout_width="match_parent"
         app:layout_heightPercent="80%"
-        app:layout_marginTopPercent="13%">
+        app:layout_marginTopPercent="13%"
+        android:onClick="empty">
 
         <android.support.percent.PercentRelativeLayout
             android:id="@+id/informationlayout"

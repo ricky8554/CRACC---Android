@@ -8,7 +8,8 @@
     <FrameLayout
         android:id="@+id/interestframe"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:onClick="empty">
 
         <android.support.percent.PercentRelativeLayout
             android:id="@+id/interestlayout"
@@ -39,7 +40,6 @@
                     android:layout_width="match_parent"
                     android:layout_alignParentEnd="true"
                     android:background="#5672ff"
-                    app:layout_marginBottomPercent="10%"
                     app:layout_widthPercent="13%"
                     android:onClick="clean">
 
@@ -49,9 +49,10 @@
                         android:layout_alignParentEnd="true"
                         android:background="@drawable/cross"
                         app:layout_heightPercent="25%"
-                        app:layout_marginBottomPercent="10%"
+                        app:layout_marginBottomPercent="20%"
                         app:layout_marginRightPercent="30%"
-                        app:layout_widthPercent="30%" />
+                        app:layout_widthPercent="30%"
+                        android:onClick="clean"/>
 
                 </android.support.percent.PercentRelativeLayout>
             </android.support.percent.PercentRelativeLayout>

@@ -7,12 +7,6 @@
     >
 
     <FrameLayout
-        android:id="@+id/controlboardrest"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
-
-    <FrameLayout
         android:id="@+id/controlboard"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
@@ -20,7 +14,8 @@
         app:layout_heightPercent="60%"
         app:layout_marginLeftPercent="20%"
         app:layout_marginTopPercent="10%"
-        app:layout_widthPercent="60%">
+        app:layout_widthPercent="60%"
+        android:onClick="empty">
 
         <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"

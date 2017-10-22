@@ -1,10 +1,24 @@
 package com.cracc.cracc2;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.support.percent.PercentFrameLayout;
+import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -13,8 +27,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Size;
+import android.util.SparseIntArray;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -38,6 +59,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.CameraPosition;
 
+import java.util.Arrays;
+
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -52,35 +75,92 @@ public class MapsActivity extends AppCompatActivity
     Marker mCurrLocationMarker;
     private static final String TAG = MapsActivity.class.getSimpleName();
     private View mapView;
-    private Button location;
-    private Button management;
-    private Button chat;
-    private Button mainicon;
-    private FrameLayout gamemanagement;
-    private FrameLayout gamemanagementrest;
-    private FrameLayout chatboard;
-    private FrameLayout chatboardrest;
-    private FrameLayout controlboard;
-    private FrameLayout controlboardrest;
-    private FrameLayout creategame;
-    private FrameLayout information;
-    private FrameLayout interest;
-    private FrameLayout community;
+    private Button location;                    //button set location back
+    private Button management;                  //button opent the game management board
+    private Button chat;                        //button open the char board
+    private Button mainicon;                    //button open the control board
+    private FrameLayout activity_maps_base_frame; //base grame for the exit a frame
+    private FrameLayout gamemanagement;         //game management frame
+    private FrameLayout chatboard;              //chat board frame
+    private FrameLayout controlboard;           //control board frame
+    private FrameLayout creategame;             //create game frame
+    private FrameLayout information;            //information frame
+    private FrameLayout interest;               //interest frame
+    private FrameLayout community;              //community frame
+    private EditText typeinlocation;            //location field in create game
+    private EditText typeinname;                //name field in create game
+    private EditText typeindate;                //date field in create game
+    private EditText typeintime;                //time field in create game
+    private EditText typeinnumpeople;           //number of people field in create game
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        //getSupportActionBar().setTitle("Map Location Activity");
-        //test
+        initialize();
+        setAllFrametoInvisible();
 
+        //set the android navigation bar invisible, need to improvent
+        /*
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+        */
+
+    }
+
+    //set All frame to invisible
+    private void setAllFrametoInvisible() {
+        activity_maps_base_frame.setVisibility(View.GONE);
+        gamemanagement.setVisibility(View.GONE);
+        chatboard.setVisibility(View.GONE);
+        controlboard.setVisibility(View.GONE);
+        creategame.setVisibility(View.GONE);
+        information.setVisibility(View.GONE);
+        interest.setVisibility(View.GONE);
+        community.setVisibility(View.GONE);
+    }
+
+    //initialize the value of global variable, and assign the listener to proper variable.
+    private void initialize(){
+        //set the layout moved up when type in
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        //innitialize the map variable
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
         mapView = mapFrag.getView();
+        //================assign each frame variable with it assosiate frame in xml================
+        activity_maps_base_frame = findViewById(R.id.activity_maps_base_frame);
+        location = findViewById(R.id.location);
+        interest = findViewById(R.id.interestframe);
+        community = findViewById(R.id.communityframe);
+        creategame = findViewById(R.id.creategame);
+        information = findViewById(R.id.informationframe);
+        gamemanagement = findViewById(R.id.gamemanagement);
+        controlboard = findViewById(R.id.controlboard);
+        chatboard = findViewById(R.id.chatboard);
+        management = findViewById(R.id.management);
+        chat = findViewById(R.id.chatbutton);
+        mainicon = findViewById(R.id.mainicon);
+        textureView = (TextureView) findViewById(R.id.camera);
 
-        //button set location back
-        location = (Button) findViewById(R.id.location);
+        //============assign each edittext variable with it assosiate object in xml================
+        typeinlocation = (EditText) findViewById(R.id.createlocation);
+        typeinname = (EditText) findViewById(R.id.createname);
+        typeindate = (EditText) findViewById(R.id.createdate);
+        typeintime = (EditText) findViewById(R.id.createtime);
+        typeinnumpeople = (EditText) findViewById(R.id.createpeople);
+        //=====================set the clickListener to button or frame==========================
+        textureView.setSurfaceTextureListener(surfaceTextureListener);
+        activity_maps_base_frame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setAllFrametoInvisible();
+            }
+        });
+
         location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,141 +168,92 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
-        interest = (FrameLayout) findViewById(R.id.interestframe);
-        interest.setVisibility(View.GONE);
-        community = (FrameLayout) findViewById(R.id.communityframe);
-        community.setVisibility(View.GONE);
+        setListner(management, gamemanagement );
+        setListner(chat, chatboard );
+        setListner(mainicon,controlboard);
+    }
+    //this function is for empty call which can be set on the empty frame to prevent frome exit
+    public void empty(View v) {}
 
-        creategame = (FrameLayout) findViewById(R.id.creategame);
-        creategame.setVisibility(View.GONE);
-        information = (FrameLayout) findViewById(R.id.informationframe);
-        information.setVisibility(View.GONE);
-        gamemanagement = (FrameLayout) findViewById(R.id.gamemanagement);
-        gamemanagement.setVisibility(View.GONE);
-        gamemanagementrest = (FrameLayout) findViewById(R.id.gamemanagementrest);
-        gamemanagementrest.setVisibility(View.GONE);
-        controlboard = (FrameLayout) findViewById(R.id.controlboard);
-        controlboard.setVisibility(View.GONE);
-        controlboardrest = (FrameLayout) findViewById(R.id.controlboardrest);
-        controlboardrest.setVisibility(View.GONE);
-        chatboard = (FrameLayout) findViewById(R.id.chatboard);
-        chatboard.setVisibility(View.GONE);
-        chatboardrest = (FrameLayout) findViewById(R.id.chatboardrest);
-        chatboardrest.setVisibility(View.GONE);
-        management = (Button) findViewById(R.id.management);
-        management.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayManagement();
-            }
-        });
-        chat = (Button) findViewById(R.id.chatbutton);
-        chat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayChatboard();
-            }
-        });
-
-        gamemanagementrest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideManagement();
-            }
-        });
-
-        chatboardrest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideChatboard();
-            }
-        });
-
-        controlboardrest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideControlboard();
-            }
-        });
-
-        mainicon = (Button) findViewById(R.id.mainicon);
-        mainicon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayControlboard();
-            }
-        });
-
+    //this method is called by the outside button which wish to clean or exit the frame
+    public void clean(View v ) {
+        setAllFrametoInvisible();
     }
 
+    //this method is call by the creategame button under the control board under the main icon
+    public void creategame(View v) {
+        checkForaudioPermission();
+        checkForPermission();
+        setAllFrametoInvisible();
+        display(creategame);
+    }
+
+    //this method is call by the information button under the control board under the main icon
+    public void information(View v) {
+        setAllFrametoInvisible();
+        display(information);
+    }
+
+    //this method is call by the interest button under the control board under the main icon
+    public void interest(View v) {
+        setAllFrametoInvisible();
+        interest.setVisibility(View.VISIBLE);
+    }
+
+    //this method is call by the community button under the control board under the main icon
+    public void community(View v) {
+        setAllFrametoInvisible();
+        community.setVisibility(View.VISIBLE);
+    }
+
+    //this method is call by the logout button under the control board under the main icon
     public void logout(View v) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
-    public void interest(View v) {
-        hideControlboard();
-        interest.setVisibility(View.VISIBLE);
+    public void enterCamera( View v )
+    {
+        Intent intent = new Intent(this, Camera.class);
+        startActivity(intent);
+        if(cameraDevice!=null)
+        {
+            cameraDevice.close();
+        }
     }
 
-    public void community(View v) {
-        hideControlboard();
-        community.setVisibility(View.VISIBLE);
-    }
-    public void clean(View v ) {
-        hideControlboard();
-    }
-
-    public void creategame(View v) {
-        hideControlboard();
-        creategame.setVisibility(View.VISIBLE);
-        controlboardrest.setVisibility(View.VISIBLE);
+    //=============================call by inside class=======================================
+    //display the content call by different button depend on which view it gave
+    private void display( View v )
+    {
+        v.setVisibility(View.VISIBLE);
+        activity_maps_base_frame.setVisibility(View.VISIBLE);
     }
 
-    public void information(View v) {
-        hideControlboard();
-        information.setVisibility(View.VISIBLE);
-        controlboardrest.setVisibility(View.VISIBLE);
+    //setLisentner
+    private void setListner(View v, final View v1 )
+    {
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                display(v1);
+            }
+        });
     }
 
+    //hide the keyboard
+    /*
+    private void hideKeyboard(){
 
-    private void displayManagement() {
-        gamemanagement.setVisibility(View.VISIBLE);
-        gamemanagementrest.setVisibility(View.VISIBLE);
-    }
-
-
-    private void hideManagement() {
-        hideControlboard();
-    }
-
-    private void displayControlboard() {
-        controlboard.setVisibility(View.VISIBLE);
-        controlboardrest.setVisibility(View.VISIBLE);
-    }
-
-    private void hideControlboard() {
-        controlboardrest.setVisibility(View.GONE);
-        controlboard.setVisibility(View.GONE);
-        creategame.setVisibility(View.GONE);
-        information.setVisibility(View.GONE);
-        community.setVisibility(View.GONE);
-        interest.setVisibility(View.GONE);
-        chatboardrest.setVisibility(View.GONE);
-        chatboard.setVisibility(View.GONE);
-        gamemanagementrest.setVisibility(View.GONE);
-        gamemanagement.setVisibility(View.GONE);
-    }
-
-    private void displayChatboard() {
-        chatboardrest.setVisibility(View.VISIBLE);
-        chatboard.setVisibility(View.VISIBLE);
+        Log.i("++++++++++++","========================d=d=d=d=d=d=d=d=d==ddddd");
+            if (getCurrentFocus() != null && getCurrentFocus() instanceof EditText) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(typeinname.getWindowToken(), 0);
+            }
 
     }
+    */
 
-    private void hideChatboard() {
-        hideControlboard();
-    }
 
 
 /*------------------------------ The code below is for google map and check permission----------------------*/
@@ -240,6 +271,10 @@ public class MapsActivity extends AppCompatActivity
         //stop location updates when Activity is no longer active
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+        if(cameraDevice!=null)
+        {
+            cameraDevice.close();
         }
     }
     @Override
@@ -408,11 +443,232 @@ public class MapsActivity extends AppCompatActivity
                 }
                 return;
             }
+            case REQUEST_CAMERA: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            android.Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        //do somthing
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                }
+                return;
+
+            }
+            case REQUEST_AUDIO: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            android.Manifest.permission.RECORD_AUDIO)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                       //do somthing
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                }
+                return;
+
+            }
 
             // other 'case' lines to check for other
             // permissions this app might request
         }
+
+
     }
 
+    //============================Camera==================================================
+    private static final int REQUEST_CAMERA = 1;
+    private static final int REQUEST_AUDIO = 2;
+
+    private void checkForPermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Granted");
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this, Manifest.permission.CAMERA)) {
+                Log.d(TAG, "Camera Permission Required!!");
+                new AlertDialog.Builder(this)
+                        .setTitle("Camera Permission Needed")
+                        .setMessage("This app needs the Camera permission, please accept to use Camera functionality")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(MapsActivity.this,
+                                        new String[]{android.Manifest.permission.CAMERA},
+                                        REQUEST_CAMERA);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            }
+            ActivityCompat.
+                    requestPermissions(MapsActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
+
+        }
+    }
+
+    private void checkForaudioPermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Granted");
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this, Manifest.permission.RECORD_AUDIO)) {
+                Log.d(TAG, "Audio Permission Required!!");
+                new AlertDialog.Builder(this)
+                        .setTitle("Audio Permission Needed")
+                        .setMessage("This app needs the Audio Record permission, please accept to use Record Audio functionality")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(MapsActivity.this,
+                                        new String[]{android.Manifest.permission.RECORD_AUDIO},
+                                        REQUEST_AUDIO);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            }
+            ActivityCompat.
+                    requestPermissions(MapsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO);
+
+        }
+    }
+
+    private Size previewsize;
+    private TextureView textureView;
+    private CameraDevice cameraDevice;
+    private CaptureRequest.Builder previewBuilder;
+    private CameraCaptureSession previewSession;
+    Button getpicture;
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        ORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
+
+    public void openCamera() {
+        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            String camerId = manager.getCameraIdList()[1];
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(camerId);
+            StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            previewsize = map.getOutputSizes(SurfaceTexture.class)[0];
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            manager.openCamera(camerId, stateCallback, null);
+        }catch (Exception e)
+        {
+        }
+    }
+    private TextureView.SurfaceTextureListener surfaceTextureListener=new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            openCamera();
+        }
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            return false;
+        }
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        }
+    };
+
+    private CameraDevice.StateCallback stateCallback=new CameraDevice.StateCallback() {
+        @Override
+        public void onOpened(CameraDevice camera) {
+            cameraDevice=camera;
+            startCamera();
+        }
+        @Override
+        public void onDisconnected(CameraDevice camera) {
+        }
+        @Override
+        public void onError(CameraDevice camera, int error) {
+        }
+    };
+
+
+    void  startCamera()
+    {
+        if(cameraDevice==null||!textureView.isAvailable()|| previewsize==null)
+        {
+            return;
+        }
+        SurfaceTexture texture=textureView.getSurfaceTexture();
+        if(texture==null)
+        {
+            return;
+        }
+        texture.setDefaultBufferSize(previewsize.getWidth(),previewsize.getHeight());
+        Surface surface=new Surface(texture);
+        try
+        {
+            previewBuilder=cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+        }catch (Exception e)
+        {
+        }
+        previewBuilder.addTarget(surface);
+        try
+        {
+            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(CameraCaptureSession session) {
+                    previewSession=session;
+                    getChangedPreview();
+                }
+                @Override
+                public void onConfigureFailed(CameraCaptureSession session) {
+                }
+            },null);
+        }catch (Exception e)
+        {
+        }
+    }
+    void getChangedPreview()
+    {
+        if(cameraDevice==null)
+        {
+            return;
+        }
+        previewBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+        HandlerThread thread=new HandlerThread("changed Preview");
+        thread.start();
+        Handler handler=new Handler(thread.getLooper());
+        try
+        {
+            previewSession.setRepeatingRequest(previewBuilder.build(), null, handler);
+        }catch (Exception e){}
+    }
 
 }
