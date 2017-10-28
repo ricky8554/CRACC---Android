@@ -5,7 +5,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -14,9 +24,11 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.support.percent.PercentFrameLayout;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
@@ -73,12 +85,22 @@ public class MapsActivity extends AppCompatActivity
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
+    private static int RESULT_LOAD_IMAGE = 1;
     private static final String TAG = MapsActivity.class.getSimpleName();
     private View mapView;
     private Button location;                    //button set location back
     private Button management;                  //button opent the game management board
     private Button chat;                        //button open the char board
     private Button mainicon;                    //button open the control board
+    private Button settingicon;
+    private Button informationicon;
+    private BitmapDrawable bd = null;             //informationsetting icon bitmapdrable
+    private Bitmap bm;                      //bit map
+    private Button star1;
+    private Button star2;
+    private Button star3;
+    private Button star4;
+    private Button star5;
     private FrameLayout activity_maps_base_frame; //base grame for the exit a frame
     private FrameLayout gamemanagement;         //game management frame
     private FrameLayout chatboard;              //chat board frame
@@ -87,6 +109,7 @@ public class MapsActivity extends AppCompatActivity
     private FrameLayout information;            //information frame
     private FrameLayout interest;               //interest frame
     private FrameLayout community;              //community frame
+    private FrameLayout setting;              //setting in the information
     private EditText typeinlocation;            //location field in create game
     private EditText typeinname;                //name field in create game
     private EditText typeindate;                //date field in create game
@@ -121,6 +144,7 @@ public class MapsActivity extends AppCompatActivity
         information.setVisibility(View.GONE);
         interest.setVisibility(View.GONE);
         community.setVisibility(View.GONE);
+        setting.setVisibility(View.GONE);
     }
 
     //initialize the value of global variable, and assign the listener to proper variable.
@@ -134,10 +158,13 @@ public class MapsActivity extends AppCompatActivity
         //================assign each frame variable with it assosiate frame in xml================
         activity_maps_base_frame = findViewById(R.id.activity_maps_base_frame);
         location = findViewById(R.id.location);
+        settingicon = findViewById(R.id.settingicon);
+        informationicon = findViewById(R.id.informationicon);
         interest = findViewById(R.id.interestframe);
         community = findViewById(R.id.communityframe);
         creategame = findViewById(R.id.creategame);
         information = findViewById(R.id.informationframe);
+        setting = findViewById(R.id.informationsettingframe);
         gamemanagement = findViewById(R.id.gamemanagement);
         controlboard = findViewById(R.id.controlboard);
         chatboard = findViewById(R.id.chatboard);
@@ -145,6 +172,11 @@ public class MapsActivity extends AppCompatActivity
         chat = findViewById(R.id.chatbutton);
         mainicon = findViewById(R.id.mainicon);
         textureView = (TextureView) findViewById(R.id.camera);
+        star1 = findViewById(R.id.star1);
+        star2 = findViewById(R.id.star2);
+        star3 = findViewById(R.id.star3);
+        star4 = findViewById(R.id.star4);
+        star5 = findViewById(R.id.star5);
 
         //============assign each edittext variable with it assosiate object in xml================
         typeinlocation = (EditText) findViewById(R.id.createlocation);
@@ -178,6 +210,8 @@ public class MapsActivity extends AppCompatActivity
     //this method is called by the outside button which wish to clean or exit the frame
     public void clean(View v ) {
         setAllFrametoInvisible();
+        if(v == setting )
+            display(information);
     }
 
     //this method is call by the creategame button under the control board under the main icon
@@ -192,6 +226,15 @@ public class MapsActivity extends AppCompatActivity
     public void information(View v) {
         setAllFrametoInvisible();
         display(information);
+    }
+
+    public void inforamtionsetting(View v)
+    {
+        //checkForManagePermission();
+        checkForREADPermission();
+
+        setAllFrametoInvisible();
+        display(setting);
     }
 
     //this method is call by the interest button under the control board under the main icon
@@ -222,6 +265,44 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
+    public void star( View v )
+    {
+
+        if(v == star1)
+            setStar(1);
+        else if(v == star2)
+            setStar(2);
+        else if(v == star3)
+            setStar(3);
+        else if(v == star4)
+            setStar(4);
+        else if(v == star5)
+            setStar(5);
+
+    }
+
+    //set the image of personal icon at information setting from the local image library
+    public void setSettingicon(View v)
+    {
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED /*|| ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.MANAGE_DOCUMENTS) != PackageManager.PERMISSION_GRANTED*/) {
+                return;
+            }
+
+
+        Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, RESULT_LOAD_IMAGE);
+    }
+
+    public void save(View v )
+    {
+        setAllFrametoInvisible();
+        information(v);
+        if(bd!=null)
+        informationicon.setBackground(bd);
+    }
     //=============================call by inside class=======================================
     //display the content call by different button depend on which view it gave
     private void display( View v )
@@ -241,6 +322,29 @@ public class MapsActivity extends AppCompatActivity
         });
     }
 
+    private void setStar( int c )
+    {
+        star1.setBackgroundResource(R.drawable.star2);
+        star2.setBackgroundResource(R.drawable.star2);
+        star3.setBackgroundResource(R.drawable.star2);
+        star4.setBackgroundResource(R.drawable.star2);
+        star5.setBackgroundResource(R.drawable.star2);
+
+            switch (c) {
+                case 5:
+                    star5.setBackgroundResource(R.drawable.star);
+                case 4:
+                    star4.setBackgroundResource(R.drawable.star);
+                case 3:
+                    star3.setBackgroundResource(R.drawable.star);
+                case 2:
+                    star2.setBackgroundResource(R.drawable.star);
+                case 1:
+                    star1.setBackgroundResource(R.drawable.star);
+
+        }
+    }
+
     //hide the keyboard
     /*
     private void hideKeyboard(){
@@ -253,7 +357,93 @@ public class MapsActivity extends AppCompatActivity
 
     }
     */
+/*---------------the code below is for reading the external device image and adjust size--------*/
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+            bm = getScaledBitmap(picturePath,800,800);
+            bd = new BitmapDrawable(getResources(), getCroppedBitmap(BitmapFactory.decodeFile(picturePath), 300));
+            settingicon.setBackground(bd);
+            //getScaledBitmap(String picturePath, int width, int height)
+            //imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+        }
+    }
+    private Bitmap getScaledBitmap(String picturePath, int width, int height) {
+        BitmapFactory.Options sizeOptions = new BitmapFactory.Options();
+        sizeOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(picturePath, sizeOptions);
+
+        int inSampleSize = calculateInSampleSize(sizeOptions, width, height);
+
+        sizeOptions.inJustDecodeBounds = false;
+        sizeOptions.inSampleSize = inSampleSize;
+
+        return BitmapFactory.decodeFile(picturePath, sizeOptions);
+    }
+
+    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            // Calculate ratios of height and width to requested height and
+            // width
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+
+            // Choose the smallest ratio as inSampleSize value, this will
+            // guarantee
+            // a final image with both dimensions larger than or equal to the
+            // requested height and width.
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+
+        return inSampleSize;
+    }
+
+    private Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
+        Bitmap sbmp;
+
+        if (bmp.getWidth() != radius || bmp.getHeight() != radius) {
+            float smallest = Math.min(bmp.getWidth(), bmp.getHeight());
+            float factor = smallest / radius;
+            sbmp = Bitmap.createScaledBitmap(bmp, (int)(bmp.getWidth() / factor), (int)(bmp.getHeight() / factor), false);
+        } else {
+            sbmp = bmp;
+        }
+
+        Bitmap output = Bitmap.createBitmap(radius, radius,
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xffa19774;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, radius, radius);
+
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+        paint.setDither(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(Color.parseColor("#BAB399"));
+        canvas.drawCircle(radius / 2 + 0.7f,
+                radius / 2 + 0.7f, radius / 2 + 0.1f, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(sbmp, rect, rect, paint);
+
+        return output;
+    }
 
 
 /*------------------------------ The code below is for google map and check permission----------------------*/
@@ -487,6 +677,52 @@ public class MapsActivity extends AppCompatActivity
                 return;
 
             }
+            /*
+            case REQUEST_MANAGE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.MANAGE_DOCUMENTS)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        //do somthing
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied MANAGE", Toast.LENGTH_LONG).show();
+                }
+                return;
+
+            }
+            */
+            case REQUEST_READ: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        //do somthing
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied READ", Toast.LENGTH_LONG).show();
+                }
+                return;
+
+            }
 
             // other 'case' lines to check for other
             // permissions this app might request
@@ -498,7 +734,67 @@ public class MapsActivity extends AppCompatActivity
     //============================Camera==================================================
     private static final int REQUEST_CAMERA = 1;
     private static final int REQUEST_AUDIO = 2;
+    private static final int REQUEST_READ = 3;
+    //private static final int REQUEST_MANAGE = 4;
 
+    private void checkForREADPermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Granted");
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                Log.d(TAG, "READ external storage Permission Required!!");
+                new AlertDialog.Builder(this)
+                        .setTitle("READ external storage Permission Needed")
+                        .setMessage("This app needs the READ external storage permission, please accept to use Select image functionality")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(MapsActivity.this,
+                                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                                        REQUEST_READ);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            }
+            ActivityCompat.
+                    requestPermissions(MapsActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ);
+
+        }
+    }
+    /*
+    private void checkForManagePermission() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_DOCUMENTS);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Granted");
+        } else {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this, Manifest.permission.MANAGE_DOCUMENTS)) {
+                Log.d(TAG, "Manage Permission Required!!");
+                new AlertDialog.Builder(this)
+                        .setTitle("Manage Permission Needed")
+                        .setMessage("This app needs the Manage permission, please accept to use select image functionality")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(MapsActivity.this,
+                                        new String[]{android.Manifest.permission.MANAGE_DOCUMENTS},
+                                        REQUEST_MANAGE);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            }
+            ActivityCompat.
+                    requestPermissions(MapsActivity.this, new String[]{Manifest.permission.MANAGE_DOCUMENTS}, REQUEST_MANAGE);
+
+        }
+    }
+    */
     private void checkForPermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {

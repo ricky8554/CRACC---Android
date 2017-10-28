@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <FrameLayout
+        android:id="@+id/informationsettingframe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:onClick="empty"
+        >
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/informationsettinglayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            >
+
+            <android.support.percent.PercentRelativeLayout
+                android:id="@+id/informationsettinglayouttop"
+                android:layout_width="match_parent"
+                android:background="#e1e1e1"
+                app:layout_heightPercent="12%">
+
+                <TextView
+                    android:id="@+id/communitytext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:layout_marginBottomPercent="10%"
+                    android:gravity="center"
+                    android:text="@string/setting"
+                    android:textColor="#000000"
+                    android:textSize="25sp"
+                     />
+
+                <android.support.percent.PercentRelativeLayout
+                    android:id="@+id/communitylayouttopright"
+                    android:layout_width="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:background="#e1e1e1"
+                    app:layout_widthPercent="13%"
+                    android:onClick="clean">
+
+                    <Button
+                        android:id="@+id/exit2"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/crossblack"
+                        app:layout_heightPercent="25%"
+                        app:layout_aspectRatio="100%"
+                        app:layout_marginTopPercent="20%"
+                        app:layout_marginRightPercent="30%"
+                        android:onClick="clean"/>
+
+                </android.support.percent.PercentRelativeLayout>
+            </android.support.percent.PercentRelativeLayout>
+
+            <Button
+                android:id="@+id/settingicon"
+                android:background="@drawable/iconbutton"
+                app:layout_heightPercent="17%"
+                app:layout_aspectRatio="100%"
+                app:layout_marginTopPercent="15%"
+                android:layout_centerHorizontal="true"
+                android:onClick="setSettingicon"/>
+
+            <EditText
+                android:id="@+id/settingfirstname"
+                android:layout_below="@id/settingicon"
+                android:background="@drawable/typeinboxgrey"
+                android:ems="7"
+                android:hint="@string/firstname"
+                android:inputType="textCapWords"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_widthPercent="35%"
+                app:layout_aspectRatio="400%"
+                app:layout_marginLeftPercent="14%"
+                app:layout_marginTopPercent="4%"
+                android:imeOptions="actionNext"/>
+            <EditText
+                android:id="@+id/settinglastnamename"
+                android:layout_below="@id/settingicon"
+                android:background="@drawable/typeinboxgrey"
+                android:ems="7"
+                android:hint="@string/lastname"
+                android:inputType="textCapWords"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                android:layout_alignParentEnd="true"
+                app:layout_widthPercent="35%"
+                app:layout_aspectRatio="400%"
+                app:layout_marginRightPercent="14%"
+                app:layout_marginTopPercent="4%"
+                android:imeOptions="actionNext"/>
+
+            <EditText
+                android:id="@+id/settingemail"
+                android:layout_below="@id/settingfirstname"
+                android:background="@drawable/typeinboxgrey"
+                android:ems="7"
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_widthPercent="80%"
+                app:layout_aspectRatio="914%"
+                android:layout_centerHorizontal="true"
+                app:layout_marginTopPercent="2%"
+                android:imeOptions="actionNext"/>
+            <EditText
+                android:id="@+id/settingpassword"
+                android:layout_below="@id/settingemail"
+                android:background="@drawable/typeinboxgrey"
+                android:ems="7"
+                android:hint="@string/newpassword"
+                android:inputType="textPassword"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_widthPercent="80%"
+                app:layout_aspectRatio="914%"
+                android:layout_centerHorizontal="true"
+                app:layout_marginTopPercent="2%"
+                android:imeOptions="actionNext"/>
+
+            <EditText
+                android:id="@+id/settingconfirmpassword"
+                android:layout_below="@id/settingpassword"
+                android:background="@drawable/typeinboxgrey"
+                android:ems="7"
+                android:hint="@string/confirmnewpassword"
+                android:inputType="textPassword"
+                android:paddingStart="10sp"
+                android:textColor="#000000"
+                android:textColorHint="#66000000"
+                app:layout_widthPercent="80%"
+                app:layout_aspectRatio="914%"
+                android:layout_centerHorizontal="true"
+                app:layout_marginTopPercent="2%"
+                android:imeOptions="actionDone"/>
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/settingsavebuttonlayout"
+            app:layout_widthPercent="40%"
+            app:layout_aspectRatio="300%"
+            android:layout_below="@id/settingconfirmpassword"
+            app:layout_marginTopPercent="4%"
+            android:layout_centerHorizontal="true"
+            >
+
+            <Button
+                android:id="@+id/save"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="30sp"
+                android:onClick="save"
+                android:background="@drawable/savebutton"/>
+
+        </android.support.percent.PercentRelativeLayout>
+        </android.support.percent.PercentRelativeLayout>
+    </FrameLayout>
+</android.support.percent.PercentRelativeLayout>

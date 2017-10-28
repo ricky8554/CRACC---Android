@@ -45,14 +45,15 @@
         android:textSize="40sp"
         />
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/frontword"
-        app:layout_marginTopPercent="0%"
-        android:gravity="center"
-        android:id="@+id/loginmessagelayout">
 
+        <android.support.percent.PercentRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/frontword"
+            app:layout_marginTopPercent="0%"
+            android:gravity="center"
+            android:id="@+id/loginmessagelayout"
+            >
 
 
 
@@ -67,34 +68,29 @@
             android:textSize="20sp"
             />
 
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/informationcommentline1"
+            android:background="#FFFFFF"
+            android:layout_height="3dp"
+            app:layout_widthPercent="25%"
+            android:layout_toEndOf="@+id/loginmessage"
+            app:layout_marginLeftPercent="2%"
+            android:layout_centerVertical="true"
+            />
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/informationcommentline2"
+            android:background="#FFFFFF"
+            android:layout_height="3dp"
+            app:layout_widthPercent="25%"
+            android:layout_toStartOf="@+id/loginmessage"
+            app:layout_marginRightPercent="2%"
+            android:layout_centerVertical="true"
+            />
 
 
 
-    </RelativeLayout>
+    </android.support.percent.PercentRelativeLayout>
 
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/frontword"
-        android:paddingLeft="20sp"
-        android:paddingRight="20sp"
-        app:layout_marginTopPercent="2%"
-
-        android:id="@+id/linelayout">
-
-        <View
-            android:layout_width="90dp"
-            android:layout_height="3sp"
-            android:background="@drawable/typeinbox" />
-
-        <View
-            android:layout_width="90dp"
-            android:layout_alignParentRight="true"
-            android:layout_height="3sp"
-            android:background="@drawable/typeinbox" />
-
-    </RelativeLayout>
 
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -223,6 +219,7 @@
             android:text="@string/creatnewaccount"
             android:gravity="center"
             android:textSize="16sp"
+            android:onClick="createaccount1"
             />
 
     </RelativeLayout>
@@ -243,9 +240,28 @@
             android:text="@string/forgot"
             android:gravity="center_horizontal"
             android:textSize="16sp"
+            android:onClick="forgetpassword"
             />
 
 
     </RelativeLayout>
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/forgotpassword" />
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/createnewaccount" />
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/createnewaccount2" />
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/createnewaccount3" />
 
 </android.support.percent.PercentRelativeLayout>

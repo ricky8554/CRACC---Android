@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <FrameLayout
+        android:id="@+id/createaccountframe2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/testbackground1"
+        android:backgroundTint="#30000000"
+        android:backgroundTintMode="src_over"
+        android:onClick="empty1">
+
+        <android.support.percent.PercentRelativeLayout
+            android:id="@+id/createaccountlayout2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <android.support.percent.PercentRelativeLayout
+                android:id="@+id/createaccountmessagelayout2"
+                android:layout_width="match_parent"
+                android:layout_height="25sp"
+                app:layout_marginTopPercent="8%"
+                >
+                <TextView
+                    android:id="@+id/createaccountmessage2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/createaccount"
+                    android:textColor="#FFFFFF"
+                    android:layout_centerHorizontal="true"
+                    android:textSize="20sp"
+                    />
+
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:background="#FFFFFF"
+                    android:layout_height="1dp"
+                    app:layout_widthPercent="25%"
+                    android:layout_toEndOf="@+id/createaccountmessage2"
+                    app:layout_marginLeftPercent="2%"
+                    android:layout_centerVertical="true"
+                    />
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:background="#FFFFFF"
+                    android:layout_height="1dp"
+                    app:layout_widthPercent="25%"
+                    android:layout_toStartOf="@+id/createaccountmessage2"
+                    app:layout_marginRightPercent="2%"
+                    android:layout_centerVertical="true"
+                    />
+            </android.support.percent.PercentRelativeLayout>
+
+            <Button
+                android:id="@+id/createaccount2male"
+                app:layout_widthPercent="30%"
+                app:layout_aspectRatio="300%"
+                android:layout_alignParentStart="true"
+                app:layout_marginLeftPercent = "18%"
+                app:layout_marginTopPercent="3%"
+                android:layout_below="@id/createaccountmessagelayout2"
+                android:background="@drawable/genderbutton1"
+                android:textAllCaps="false"
+                android:text="@string/male"
+                android:textColor="#6e6e6e"
+                android:textSize="20sp"
+                android:onClick="gender"
+                />
+            <Button
+                android:id="@+id/createaccount2female"
+                app:layout_widthPercent="30%"
+                app:layout_aspectRatio="300%"
+                app:layout_marginTopPercent="3%"
+                android:layout_alignParentEnd="true"
+                app:layout_marginRightPercent = "18%"
+                android:layout_below="@id/createaccountmessagelayout2"
+                android:background="@drawable/genderbutton1"
+                android:textColor="#6e6e6e"
+                android:textAllCaps="false"
+                android:text="@string/female"
+                android:textSize="20sp"
+                android:onClick="gender"
+                />
+
+
+            <EditText
+                android:id="@+id/createaccount2birthday"
+                app:layout_widthPercent="80%"
+                app:layout_aspectRatio="900%"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/createaccount2male"
+                app:layout_marginLeftPercent="7%"
+                app:layout_marginTopPercent="3%"
+                android:ems="7"
+                android:hint="@string/birthday"
+                android:textColorHint="#66000000"
+                android:textColor="#000000"
+                android:background="@drawable/typeinbox"
+                android:paddingStart="10sp"
+                android:inputType="date" />
+
+
+
+            <Button
+                android:id="@+id/createaccount2next"
+                app:layout_widthPercent="45%"
+                app:layout_aspectRatio="300%"
+                app:layout_marginTopPercent="3%"
+                android:layout_below="@id/createaccount2birthday"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/loginbuttom"
+                android:textAllCaps="false"
+                android:text="@string/next"
+                android:textSize="27sp"
+                android:onClick="createaccount3"
+                />
+
+            <Button
+                android:id="@+id/createaccount2back"
+                android:layout_below="@id/createaccount2next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00000000"
+                android:textAllCaps="false"
+                android:text="@string/back"
+                android:layout_centerHorizontal="true"
+                android:textSize="16sp"
+                android:onClick="createaccount2back"
+                />
+
+
+
+
+
+
+        </android.support.percent.PercentRelativeLayout>
+
+    </FrameLayout>
+
+</android.support.percent.PercentRelativeLayout>

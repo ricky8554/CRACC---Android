@@ -13,7 +13,7 @@
         android:background="@drawable/controlboard"
         app:layout_heightPercent="60%"
         app:layout_marginLeftPercent="20%"
-        app:layout_marginTopPercent="10%"
+        app:layout_marginTopPercent="12%"
         app:layout_widthPercent="60%"
         android:onClick="empty">
 
@@ -25,30 +25,31 @@
 
             <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
                 android:id="@+id/controlboardlogoutlayout"
                 android:layout_width="match_parent"
                 android:layout_alignParentBottom="true"
                 android:onClick="logout"
                 app:layout_heightPercent="15%"
-                app:layout_marginBottomPercent="5%">
+                app:layout_marginBottomPercent="8%">
 
                 <Button
                     android:id="@+id/controlboardlogout"
+                    android:layout_alignParentBottom="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/logout"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
+                    app:layout_heightPercent="60%"
+                    app:layout_marginLeftPercent="5%"
+                    app:layout_aspectRatio="100%" />
 
                 <TextView
                     android:id="@+id/controlboardlogouttext"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/logout"
+                    android:gravity="bottom"
                     android:textColor="#000000"
                     android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
+                    app:layout_marginLeftPercent="25%" />
             </android.support.percent.PercentRelativeLayout>
 
             <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -64,20 +65,22 @@
 
                 <Button
                     android:id="@+id/controlboardlogo"
+                    android:layout_alignParentBottom="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/crackccblack"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
+                    app:layout_heightPercent="60%"
+                    app:layout_marginLeftPercent="5%"
+                    app:layout_aspectRatio="100%" />
 
                 <TextView
                     android:id="@+id/controlboardlogotext"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/community"
+                    android:gravity="bottom"
                     android:textColor="#000000"
                     android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
+                    app:layout_marginLeftPercent="25%" />
             </android.support.percent.PercentRelativeLayout>
 
 
@@ -94,11 +97,12 @@
 
                 <Button
                     android:id="@+id/controlboardinterest"
+                    android:layout_alignParentBottom="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/interested"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
+                    app:layout_heightPercent="60%"
+                    app:layout_marginLeftPercent="5%"
+                    app:layout_aspectRatio="100%" />
 
                 <TextView
                     android:id="@+id/controlboardinteresttext"
@@ -107,7 +111,8 @@
                     android:text="@string/interested"
                     android:textColor="#000000"
                     android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
+                    android:gravity="bottom"
+                    app:layout_marginLeftPercent="25%" />
             </android.support.percent.PercentRelativeLayout>
 
 
@@ -118,15 +123,18 @@
                 android:layout_width="match_parent"
                 android:layout_above="@id/controlboardinterestlayout"
                 android:onClick="information"
-                app:layout_heightPercent="15%">
+                app:layout_heightPercent="15%"
+
+                >
 
                 <Button
                     android:id="@+id/controlboardinformation"
+                    android:layout_alignParentBottom="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/information"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
+                    app:layout_heightPercent="60%"
+                    app:layout_marginLeftPercent="5%"
+                    app:layout_aspectRatio="100%" />
 
                 <TextView
                     android:id="@+id/controlboardinformationtext"
@@ -135,7 +143,8 @@
                     android:text="@string/information"
                     android:textColor="#000000"
                     android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
+                    android:gravity="bottom"
+                    app:layout_marginLeftPercent="25%" />
             </android.support.percent.PercentRelativeLayout>
 
 
@@ -153,19 +162,21 @@
                 <Button
                     android:id="@+id/controlboardcreategame"
                     android:layout_alignParentStart="true"
+                    android:layout_alignParentBottom="true"
                     android:background="@drawable/plus"
-                    app:layout_heightPercent="80%"
-                    app:layout_marginLeftPercent="2%"
-                    app:layout_widthPercent="17%" />
+                    app:layout_heightPercent="60%"
+                    app:layout_marginLeftPercent="5%"
+                    app:layout_aspectRatio="100%" />
 
                 <TextView
                     android:id="@+id/controlboardplustext"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/createnewgame"
+                    android:gravity="bottom"
                     android:textColor="#000000"
                     android:textSize="20sp"
-                    app:layout_marginLeftPercent="22%" />
+                    app:layout_marginLeftPercent="25%" />
 
             </android.support.percent.PercentRelativeLayout>
 
@@ -180,10 +191,10 @@
                     android:id="@+id/controlboardbaricon"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/iconbutton"
-                    app:layout_heightPercent="80%"
+                    app:layout_heightPercent="75%"
                     app:layout_marginLeftPercent="5%"
-                    app:layout_marginTopPercent="10%"
-                    app:layout_widthPercent="25%" />
+                    app:layout_marginTopPercent="12.5%"
+                    app:layout_aspectRatio="100%" />
 
                 <TextView
                     android:id="@+id/controlboardbartext"
@@ -193,7 +204,7 @@
                     android:text="@string/name"
                     android:textColor="#000000"
                     android:textSize="20sp"
-                    app:layout_marginLeftPercent="35%" />
+                    app:layout_marginLeftPercent="30%" />
 
 
             </android.support.percent.PercentRelativeLayout>

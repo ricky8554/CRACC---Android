@@ -37,5 +37,20 @@
     <string name="canceled">Canceled:</string>
     <string name="comment">Comment</string>
     <string name="interestedot">•interested</string>
-
+    <string name="setting">Setting</string>
+    <string name="firstname">First Name</string>
+    <string name="lastname">Last Name</string>
+    <string name="newpassword">New password&#8230;</string>
+    <string name="confirmnewpassword">Confirm New Password&#8230;</string>
+    <string name="forgetpassword">Forget password</string>
+    <string name="sendcode">Send Code</string>
+    <string name="loginhere"><u>or login here</u></string>
+    <string name="createaccount">Create accoount</string>
+    <string name="profileimage">Profile image</string>
+    <string name = "next">Next</string>
+    <string name = "birthday">Birthday</string>
+    <string name = "male">Male</string>
+    <string name = "female">Female</string>
+    <string name = "back"><u>Back</u></string>
+    <string name = "signup">Sign Up</string>
 </resources>

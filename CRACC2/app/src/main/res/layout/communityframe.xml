@@ -14,7 +14,7 @@
         android:id="@+id/communitylayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/informaitonboardwhite">
+        android:background="#ffffff">
 
         <android.support.percent.PercentRelativeLayout
             android:id="@+id/communitylayouttop"

@@ -52,15 +52,15 @@
                 android:background="@drawable/gameicon"
                 android:text="Type"
                 android:textColor="#000000"
-                app:layout_heightPercent="13%"
+                app:layout_widthPercent="20%"
                 app:layout_marginLeftPercent="41%"
-                app:layout_marginTopPercent="10%"
-                app:layout_widthPercent="18%" />
+                app:layout_marginTopPercent="8%"
+                app:layout_aspectRatio="100%" />
 
             <EditText
                 android:id="@+id/createname"
                 android:layout_below="@id/gameicon"
-                android:background="@drawable/tpyeinboxblack"
+                android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/gamename"
@@ -69,15 +69,15 @@
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
                 app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
+                app:layout_marginLeftPercent="12.5%"
                 app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%"
+                app:layout_widthPercent="75%"
                 android:imeOptions="actionNext"/>
 
             <EditText
                 android:id="@+id/createlocation"
                 android:layout_below="@id/createname"
-                android:background="@drawable/tpyeinboxblack"
+                android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/location"
@@ -86,15 +86,15 @@
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
                 app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
+                app:layout_marginLeftPercent="12.5%"
                 app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%"
+                app:layout_widthPercent="75%"
                 android:imeOptions="actionNext"/>
 
             <EditText
                 android:id="@+id/createdate"
                 android:layout_below="@id/createlocation"
-                android:background="@drawable/tpyeinboxblack"
+                android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/date"
@@ -103,15 +103,15 @@
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
                 app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
+                app:layout_marginLeftPercent="12.5%"
                 app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%"
+                app:layout_widthPercent="75%"
                 android:imeOptions="actionNext"/>
 
             <EditText
                 android:id="@+id/createtime"
                 android:layout_below="@id/createdate"
-                android:background="@drawable/tpyeinboxblack"
+                android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/time"
@@ -120,15 +120,15 @@
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
                 app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
+                app:layout_marginLeftPercent="12.5%"
                 app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%"
+                app:layout_widthPercent="75%"
                 android:imeOptions="actionNext"/>
 
             <EditText
                 android:id="@+id/createpeople"
                 android:layout_below="@id/createtime"
-                android:background="@drawable/tpyeinboxblack"
+                android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/numpeople"
@@ -137,22 +137,25 @@
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
                 app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="10%"
+                app:layout_marginLeftPercent="12.5%"
                 app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="80%"
+                app:layout_widthPercent="75%"
                 android:imeOptions="actionDone"/>
 
             <Button
-                android:id="@+id/createbutton"
+                android:id="@+id/createbutton1"
                 android:layout_below="@id/createpeople"
                 android:background="@drawable/createbutton"
                 android:text="Create"
                 android:textColor="#FFFFFF"
-                android:textSize="30sp"
-                app:layout_heightPercent="15%"
-                app:layout_marginLeftPercent="25%"
-                app:layout_marginTopPercent="5%"
-                app:layout_widthPercent="50%" />
+                android:textSize="20sp"
+                app:layout_marginTopPercent="4%"
+                app:layout_marginLeftPercent="30%"
+                app:layout_widthPercent="40%"
+                app:layout_heightPercent="10%"/>
+
+
+
 
 
         </android.support.percent.PercentRelativeLayout>
