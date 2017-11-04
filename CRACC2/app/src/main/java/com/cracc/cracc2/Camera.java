@@ -204,4 +204,6 @@ public class Camera extends AppCompatActivity {
         cameraDevice = null;
     }
 
+
+
 }

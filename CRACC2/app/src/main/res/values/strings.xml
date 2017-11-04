@@ -53,4 +53,7 @@
     <string name = "female">Female</string>
     <string name = "back"><u>Back</u></string>
     <string name = "signup">Sign Up</string>
+
+    <string name="facebook_app_id">138833836753669</string>
+    <string name="fb_login_protocol_scheme">fb138833836753669</string>
 </resources>

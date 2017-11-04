@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -70,8 +71,12 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
+
+import static android.R.attr.defaultValue;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback,
@@ -94,8 +99,13 @@ public class MapsActivity extends AppCompatActivity
     private Button mainicon;                    //button open the control board
     private Button settingicon;
     private Button informationicon;
-    private BitmapDrawable bd = null;             //informationsetting icon bitmapdrable
-    private Bitmap bm;                      //bit map
+    private BitmapDrawable bd = null;
+    private BitmapDrawable bd1 = null;
+    private BitmapDrawable bd2 = null;
+    private BitmapDrawable bd3 = null;//informationsetting icon bitmapdrable
+    private Bitmap bm;
+    //bit map
+    private Button controlboardbaricon;
     private Button star1;
     private Button star2;
     private Button star3;
@@ -116,6 +126,29 @@ public class MapsActivity extends AppCompatActivity
     private EditText typeintime;                //time field in create game
     private EditText typeinnumpeople;           //number of people field in create game
 
+
+    public static final String MyPREFERENCES = "CRACC.com.profile";
+    public static final String EMAIL = "emailKey";
+    public static final String GENDER = "genderKey";
+    public static final String FIRST_NAME = "firstnamekey";
+    public static final String LAST_NAME = "lastnamekey";
+    public static final String BIRTHDAY = "birthdaykey";
+    public static final String STARS = "starskey";
+    public static final String PHOTOAVATAR = "Photoavatar";
+    public static final String USERID = "UserId";
+    public static final String LOGINTYPE = "LoginType";
+    private String birthday;
+    private String LastName;
+    private String FirstName;
+    private int Stars;
+    private String Email;
+    private String uid;
+    private String gender = "";
+    private String LoginType;
+    private DatabaseReference cracc = FirebaseDatabase.getInstance().getReference().child("CRACC");
+    private Bitmap iconbitmap = null;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,7 +156,7 @@ public class MapsActivity extends AppCompatActivity
 
         initialize();
         setAllFrametoInvisible();
-
+        System.out.println("hello");
         //set the android navigation bar invisible, need to improvent
         /*
         View decorView = getWindow().getDecorView();
@@ -148,7 +181,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     //initialize the value of global variable, and assign the listener to proper variable.
-    private void initialize(){
+    private void initialize() {
         //set the layout moved up when type in
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         //innitialize the map variable
@@ -172,11 +205,35 @@ public class MapsActivity extends AppCompatActivity
         chat = findViewById(R.id.chatbutton);
         mainicon = findViewById(R.id.mainicon);
         textureView = (TextureView) findViewById(R.id.camera);
+        controlboardbaricon = findViewById(R.id.controlboardbaricon);
         star1 = findViewById(R.id.star1);
         star2 = findViewById(R.id.star2);
         star3 = findViewById(R.id.star3);
         star4 = findViewById(R.id.star4);
         star5 = findViewById(R.id.star5);
+
+        SharedPreferences settings = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        birthday = settings.getString(BIRTHDAY, "");
+        FirstName = settings.getString(FIRST_NAME, "");
+        Stars = settings.getInt(STARS, 0);
+        uid = settings.getString(USERID, "");
+        LoginType = settings.getString(LOGINTYPE, "");
+
+        if(BitMapstore.getBitmapFromMemCache("iconbitmap") != null)
+        {
+            System.out.println("hello");
+            iconbitmap = getCroppedBitmap(BitMapstore.getBitmapFromMemCache("iconbitmap"), 200);
+            BitmapDrawable bdrawable = new BitmapDrawable(this.getResources(), iconbitmap);
+            bd1 = new BitmapDrawable(this.getResources(), iconbitmap);
+            bd2 = new BitmapDrawable(this.getResources(), iconbitmap);
+            bd3 = new BitmapDrawable(this.getResources(), iconbitmap);
+            bd = bdrawable;
+
+            controlboardbaricon.setBackground(bd);
+            mainicon.setBackground(bd1);
+            settingicon.setBackground(bd2);
+            informationicon.setBackground(bd3);
+        }
 
         //============assign each edittext variable with it assosiate object in xml================
         typeinlocation = (EditText) findViewById(R.id.createlocation);
@@ -200,17 +257,19 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
-        setListner(management, gamemanagement );
-        setListner(chat, chatboard );
-        setListner(mainicon,controlboard);
+        setListner(management, gamemanagement);
+        setListner(chat, chatboard);
+        setListner(mainicon, controlboard);
     }
+
     //this function is for empty call which can be set on the empty frame to prevent frome exit
-    public void empty(View v) {}
+    public void empty(View v) {
+    }
 
     //this method is called by the outside button which wish to clean or exit the frame
-    public void clean(View v ) {
+    public void clean(View v) {
         setAllFrametoInvisible();
-        if(v == setting )
+        if (v == setting)
             display(information);
     }
 
@@ -228,8 +287,7 @@ public class MapsActivity extends AppCompatActivity
         display(information);
     }
 
-    public void inforamtionsetting(View v)
-    {
+    public void inforamtionsetting(View v) {
         //checkForManagePermission();
         checkForREADPermission();
 
@@ -255,65 +313,59 @@ public class MapsActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    public void enterCamera( View v )
-    {
+    public void enterCamera(View v) {
         Intent intent = new Intent(this, Camera.class);
         startActivity(intent);
-        if(cameraDevice!=null)
-        {
+        if (cameraDevice != null) {
             cameraDevice.close();
         }
     }
 
-    public void star( View v )
-    {
+    public void star(View v) {
 
-        if(v == star1)
+        if (v == star1)
             setStar(1);
-        else if(v == star2)
+        else if (v == star2)
             setStar(2);
-        else if(v == star3)
+        else if (v == star3)
             setStar(3);
-        else if(v == star4)
+        else if (v == star4)
             setStar(4);
-        else if(v == star5)
+        else if (v == star5)
             setStar(5);
 
     }
 
     //set the image of personal icon at information setting from the local image library
-    public void setSettingicon(View v)
-    {
+    public void setSettingicon(View v) {
 
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED /*|| ActivityCompat.checkSelfPermission(this,
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED /*|| ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.MANAGE_DOCUMENTS) != PackageManager.PERMISSION_GRANTED*/) {
-                return;
-            }
+            return;
+        }
 
 
-        Intent i = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, RESULT_LOAD_IMAGE);
     }
 
-    public void save(View v )
-    {
+    public void save(View v) {
         setAllFrametoInvisible();
         information(v);
-        if(bd!=null)
-        informationicon.setBackground(bd);
+        if (bd != null)
+            informationicon.setBackground(bd);
     }
+
     //=============================call by inside class=======================================
     //display the content call by different button depend on which view it gave
-    private void display( View v )
-    {
+    private void display(View v) {
         v.setVisibility(View.VISIBLE);
         activity_maps_base_frame.setVisibility(View.VISIBLE);
     }
 
     //setLisentner
-    private void setListner(View v, final View v1 )
-    {
+    private void setListner(View v, final View v1) {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -322,25 +374,24 @@ public class MapsActivity extends AppCompatActivity
         });
     }
 
-    private void setStar( int c )
-    {
+    private void setStar(int c) {
         star1.setBackgroundResource(R.drawable.star2);
         star2.setBackgroundResource(R.drawable.star2);
         star3.setBackgroundResource(R.drawable.star2);
         star4.setBackgroundResource(R.drawable.star2);
         star5.setBackgroundResource(R.drawable.star2);
 
-            switch (c) {
-                case 5:
-                    star5.setBackgroundResource(R.drawable.star);
-                case 4:
-                    star4.setBackgroundResource(R.drawable.star);
-                case 3:
-                    star3.setBackgroundResource(R.drawable.star);
-                case 2:
-                    star2.setBackgroundResource(R.drawable.star);
-                case 1:
-                    star1.setBackgroundResource(R.drawable.star);
+        switch (c) {
+            case 5:
+                star5.setBackgroundResource(R.drawable.star);
+            case 4:
+                star4.setBackgroundResource(R.drawable.star);
+            case 3:
+                star3.setBackgroundResource(R.drawable.star);
+            case 2:
+                star2.setBackgroundResource(R.drawable.star);
+            case 1:
+                star1.setBackgroundResource(R.drawable.star);
 
         }
     }
@@ -364,19 +415,20 @@ public class MapsActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getContentResolver().query(selectedImage,filePathColumn, null, null, null);
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
             cursor.moveToFirst();
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
-            bm = getScaledBitmap(picturePath,800,800);
+            bm = getScaledBitmap(picturePath, 800, 800);
             bd = new BitmapDrawable(getResources(), getCroppedBitmap(BitmapFactory.decodeFile(picturePath), 300));
             settingicon.setBackground(bd);
             //getScaledBitmap(String picturePath, int width, int height)
             //imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
         }
     }
+
     private Bitmap getScaledBitmap(String picturePath, int width, int height) {
         BitmapFactory.Options sizeOptions = new BitmapFactory.Options();
         sizeOptions.inJustDecodeBounds = true;
@@ -419,7 +471,7 @@ public class MapsActivity extends AppCompatActivity
         if (bmp.getWidth() != radius || bmp.getHeight() != radius) {
             float smallest = Math.min(bmp.getWidth(), bmp.getHeight());
             float factor = smallest / radius;
-            sbmp = Bitmap.createScaledBitmap(bmp, (int)(bmp.getWidth() / factor), (int)(bmp.getHeight() / factor), false);
+            sbmp = Bitmap.createScaledBitmap(bmp, (int) (bmp.getWidth() / factor), (int) (bmp.getHeight() / factor), false);
         } else {
             sbmp = bmp;
         }
@@ -462,11 +514,11 @@ public class MapsActivity extends AppCompatActivity
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
-        if(cameraDevice!=null)
-        {
+        if (cameraDevice != null) {
             cameraDevice.close();
         }
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
@@ -665,7 +717,7 @@ public class MapsActivity extends AppCompatActivity
                             android.Manifest.permission.RECORD_AUDIO)
                             == PackageManager.PERMISSION_GRANTED) {
 
-                       //do somthing
+                        //do somthing
                     }
 
                 } else {
@@ -765,6 +817,7 @@ public class MapsActivity extends AppCompatActivity
 
         }
     }
+
     /*
     private void checkForManagePermission() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_DOCUMENTS);
@@ -879,92 +932,90 @@ public class MapsActivity extends AppCompatActivity
                 return;
             }
             manager.openCamera(camerId, stateCallback, null);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
         }
     }
-    private TextureView.SurfaceTextureListener surfaceTextureListener=new TextureView.SurfaceTextureListener() {
+
+    private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             openCamera();
         }
+
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
         }
+
         @Override
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
             return false;
         }
+
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         }
     };
 
-    private CameraDevice.StateCallback stateCallback=new CameraDevice.StateCallback() {
+    private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(CameraDevice camera) {
-            cameraDevice=camera;
+            cameraDevice = camera;
             startCamera();
         }
+
         @Override
         public void onDisconnected(CameraDevice camera) {
         }
+
         @Override
         public void onError(CameraDevice camera, int error) {
         }
     };
 
 
-    void  startCamera()
-    {
-        if(cameraDevice==null||!textureView.isAvailable()|| previewsize==null)
-        {
+    void startCamera() {
+        if (cameraDevice == null || !textureView.isAvailable() || previewsize == null) {
             return;
         }
-        SurfaceTexture texture=textureView.getSurfaceTexture();
-        if(texture==null)
-        {
+        SurfaceTexture texture = textureView.getSurfaceTexture();
+        if (texture == null) {
             return;
         }
-        texture.setDefaultBufferSize(previewsize.getWidth(),previewsize.getHeight());
-        Surface surface=new Surface(texture);
-        try
-        {
-            previewBuilder=cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-        }catch (Exception e)
-        {
+        texture.setDefaultBufferSize(previewsize.getWidth(), previewsize.getHeight());
+        Surface surface = new Surface(texture);
+        try {
+            previewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+        } catch (Exception e) {
         }
         previewBuilder.addTarget(surface);
-        try
-        {
+        try {
             cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(CameraCaptureSession session) {
-                    previewSession=session;
+                    previewSession = session;
                     getChangedPreview();
                 }
+
                 @Override
                 public void onConfigureFailed(CameraCaptureSession session) {
                 }
-            },null);
-        }catch (Exception e)
-        {
+            }, null);
+        } catch (Exception e) {
         }
     }
-    void getChangedPreview()
-    {
-        if(cameraDevice==null)
-        {
+
+    void getChangedPreview() {
+        if (cameraDevice == null) {
             return;
         }
         previewBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-        HandlerThread thread=new HandlerThread("changed Preview");
+        HandlerThread thread = new HandlerThread("changed Preview");
         thread.start();
-        Handler handler=new Handler(thread.getLooper());
-        try
-        {
+        Handler handler = new Handler(thread.getLooper());
+        try {
             previewSession.setRepeatingRequest(previewBuilder.build(), null, handler);
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
 }

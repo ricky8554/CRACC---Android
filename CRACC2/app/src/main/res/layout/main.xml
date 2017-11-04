@@ -173,13 +173,18 @@
         app:layout_marginLeftPercent="15%"
         android:id="@+id/facebookloginlayout">
 
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/btn_facebook_signup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
         <Button
             android:id="@+id/login_facebook"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/facebookbuttom"
             android:text="@string/login_facebook_buttom"
-
+            android:onClick="facebookclick"
             />
 
     </RelativeLayout>
@@ -192,12 +197,15 @@
         app:layout_marginLeftPercent="15%"
         android:id="@+id/googleloginlayout">
 
+
+
         <Button
             android:id="@+id/login_google"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/googlebuttom"
             android:text="@string/login_google_buttom"
+            android:onClick="googlesignin"
             />
 
     </RelativeLayout>
@@ -263,5 +271,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/createnewaccount3" />
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/createaccoutgoogle" />
 
 </android.support.percent.PercentRelativeLayout>
