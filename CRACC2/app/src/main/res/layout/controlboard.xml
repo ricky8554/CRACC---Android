@@ -11,10 +11,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/controlboard"
-        app:layout_heightPercent="60%"
-        app:layout_marginLeftPercent="20%"
+        app:layout_heightPercent="55%"
+        app:layout_marginLeftPercent="25%"
         app:layout_marginTopPercent="12%"
-        app:layout_widthPercent="60%"
+        app:layout_widthPercent="50%"
         android:onClick="empty">
 
         <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -29,27 +29,28 @@
                 android:layout_width="match_parent"
                 android:layout_alignParentBottom="true"
                 android:onClick="logout"
-                app:layout_heightPercent="15%"
-                app:layout_marginBottomPercent="8%">
+                app:layout_heightPercent="@fraction/controlboardbuttonlayout"
+                app:layout_marginBottomPercent="6%">
 
                 <Button
                     android:id="@+id/controlboardlogout"
-                    android:layout_alignParentBottom="true"
+                    android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/logout"
-                    app:layout_heightPercent="60%"
+                    app:layout_heightPercent="@fraction/controlboardbutton"
                     app:layout_marginLeftPercent="5%"
-                    app:layout_aspectRatio="100%" />
+                    app:layout_aspectRatio="@fraction/controlboardbuttonratio" />
 
                 <TextView
                     android:id="@+id/controlboardlogouttext"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:layout_marginBottomPercent="23%"
                     android:text="@string/logout"
-                    android:gravity="bottom"
                     android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="25%" />
+                    android:textSize="@dimen/controlboardbuttontext"
+                    app:layout_marginLeftPercent="20%" />
             </android.support.percent.PercentRelativeLayout>
 
             <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -59,28 +60,29 @@
                 android:layout_width="match_parent"
                 android:layout_above="@id/controlboardlogoutlayout"
                 android:onClick="community"
-                app:layout_heightPercent="15%"
+                app:layout_heightPercent="@fraction/controlboardbuttonlayout"
 
                 >
 
                 <Button
                     android:id="@+id/controlboardlogo"
-                    android:layout_alignParentBottom="true"
+                    android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/crackccblack"
-                    app:layout_heightPercent="60%"
+                    app:layout_heightPercent="@fraction/controlboardbutton"
                     app:layout_marginLeftPercent="5%"
-                    app:layout_aspectRatio="100%" />
+                    app:layout_aspectRatio="@fraction/controlboardbuttonratio" />
 
                 <TextView
                     android:id="@+id/controlboardlogotext"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:layout_marginBottomPercent="20%"
                     android:text="@string/community"
-                    android:gravity="bottom"
                     android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="25%" />
+                    android:textSize="@dimen/controlboardbuttontext"
+                    app:layout_marginLeftPercent="20%" />
             </android.support.percent.PercentRelativeLayout>
 
 
@@ -91,28 +93,30 @@
                 android:layout_width="match_parent"
                 android:layout_above="@id/controlboardlogolayout"
                 android:onClick="interest"
-                app:layout_heightPercent="15%"
+                app:layout_heightPercent="@fraction/controlboardbuttonlayout"
 
                 >
 
                 <Button
                     android:id="@+id/controlboardinterest"
-                    android:layout_alignParentBottom="true"
+                    android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/interested"
-                    app:layout_heightPercent="60%"
+                    app:layout_heightPercent="@fraction/controlboardbutton"
                     app:layout_marginLeftPercent="5%"
-                    app:layout_aspectRatio="100%" />
+                    app:layout_aspectRatio="@fraction/controlboardbuttonratio" />
 
                 <TextView
                     android:id="@+id/controlboardinteresttext"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:layout_marginBottomPercent="20%"
                     android:text="@string/interested"
                     android:textColor="#000000"
-                    android:textSize="20sp"
-                    android:gravity="bottom"
-                    app:layout_marginLeftPercent="25%" />
+                    android:textSize="@dimen/controlboardbuttontext"
+
+                    app:layout_marginLeftPercent="20%" />
             </android.support.percent.PercentRelativeLayout>
 
 
@@ -123,28 +127,29 @@
                 android:layout_width="match_parent"
                 android:layout_above="@id/controlboardinterestlayout"
                 android:onClick="information"
-                app:layout_heightPercent="15%"
+                app:layout_heightPercent="@fraction/controlboardbuttonlayout"
 
                 >
 
                 <Button
                     android:id="@+id/controlboardinformation"
-                    android:layout_alignParentBottom="true"
+                    android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
                     android:background="@drawable/information"
-                    app:layout_heightPercent="60%"
+                    app:layout_heightPercent="@fraction/controlboardbutton"
                     app:layout_marginLeftPercent="5%"
-                    app:layout_aspectRatio="100%" />
+                    app:layout_aspectRatio="@fraction/controlboardbuttonratio" />
 
                 <TextView
                     android:id="@+id/controlboardinformationtext"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:layout_marginBottomPercent="20%"
                     android:text="@string/information"
                     android:textColor="#000000"
-                    android:textSize="20sp"
-                    android:gravity="bottom"
-                    app:layout_marginLeftPercent="25%" />
+                    android:textSize="@dimen/controlboardbuttontext"
+                    app:layout_marginLeftPercent="20%" />
             </android.support.percent.PercentRelativeLayout>
 
 
@@ -155,28 +160,29 @@
                 android:layout_width="match_parent"
                 android:layout_above="@id/controlboardinformationlayout"
                 android:onClick="creategame"
-                app:layout_heightPercent="15%"
+                app:layout_heightPercent="@fraction/controlboardbuttonlayout"
 
                 >
 
                 <Button
                     android:id="@+id/controlboardcreategame"
                     android:layout_alignParentStart="true"
-                    android:layout_alignParentBottom="true"
+                    android:layout_centerVertical="true"
                     android:background="@drawable/plus"
-                    app:layout_heightPercent="60%"
+                    app:layout_heightPercent="@fraction/controlboardbutton"
                     app:layout_marginLeftPercent="5%"
-                    app:layout_aspectRatio="100%" />
+                    app:layout_aspectRatio="@fraction/controlboardbuttonratio" />
 
                 <TextView
                     android:id="@+id/controlboardplustext"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:layout_marginBottomPercent="20%"
                     android:text="@string/createnewgame"
-                    android:gravity="bottom"
                     android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="25%" />
+                    android:textSize="@dimen/controlboardbuttontext"
+                    app:layout_marginLeftPercent="20%" />
 
             </android.support.percent.PercentRelativeLayout>
 
@@ -199,12 +205,13 @@
                 <TextView
                     android:id="@+id/controlboardbartext"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:layout_marginBottomPercent="20%"
                     android:text="@string/name"
                     android:textColor="#000000"
-                    android:textSize="20sp"
-                    app:layout_marginLeftPercent="30%" />
+                    android:textSize="@dimen/controlboardbuttontext"
+                    app:layout_marginLeftPercent="32%" />
 
 
             </android.support.percent.PercentRelativeLayout>

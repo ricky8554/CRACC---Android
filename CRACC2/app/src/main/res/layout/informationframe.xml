@@ -65,7 +65,7 @@
                     android:layout_centerHorizontal="true"
                     android:gravity="center"
                     android:layout_below="@id/informationlayouttopbutton"
-                    android:text="@string/name"
+                    android:text=""
                     android:textColor="#000000"
                     android:textSize="20sp"
                     app:layout_marginLeftPercent="33%"
@@ -86,17 +86,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentTop="true"
-                    app:layout_heightPercent="20%">
+                    app:layout_heightPercent="11%">
 
                     <Button
                         android:id="@+id/star1"
                         android:layout_alignParentTop="true"
                         android:background="@drawable/star2"
                         android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="15%"
+                        app:layout_widthPercent="8%"
+                        app:layout_aspectRatio="100%"
+                        app:layout_marginLeftPercent="25%"
                         app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%"
                         android:onClick="star"/>
 
                     <Button
@@ -105,10 +105,10 @@
                         android:layout_toEndOf="@id/star1"
                         android:background="@drawable/star2"
                         android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_widthPercent="8%"
+                        app:layout_aspectRatio="100%"
+                        app:layout_marginLeftPercent="2%"
                         app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%"
                         android:onClick="star"/>
 
                     <Button
@@ -117,10 +117,10 @@
                         android:layout_toEndOf="@id/star2"
                         android:background="@drawable/star2"
                         android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_widthPercent="8%"
+                        app:layout_aspectRatio="100%"
+                        app:layout_marginLeftPercent="2%"
                         app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%"
                         android:onClick="star"/>
 
                     <Button
@@ -129,10 +129,10 @@
                         android:layout_toEndOf="@id/star3"
                         android:background="@drawable/star2"
                         android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_widthPercent="8%"
+                        app:layout_aspectRatio="100%"
+                        app:layout_marginLeftPercent="2%"
                         app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%"
                         android:onClick="star"/>
 
                     <Button
@@ -141,10 +141,10 @@
                         android:layout_toEndOf="@id/star4"
                         android:background="@drawable/star2"
                         android:textColor="#000000"
-                        app:layout_heightPercent="50%"
-                        app:layout_marginLeftPercent="2.5%"
+                        app:layout_widthPercent="8%"
+                        app:layout_aspectRatio="100%"
+                        app:layout_marginLeftPercent="2%"
                         app:layout_marginTopPercent="10%"
-                        app:layout_widthPercent="12%"
                         android:onClick="star"/>
 
                 </android.support.percent.PercentRelativeLayout>
@@ -163,6 +163,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:layout_marginTop="5sp"
+                        android:layout_marginEnd="5sp"
                         android:gravity="end"
                         android:text="@string/age"
                         android:textColor="#000000"
@@ -174,6 +175,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/age"
                         android:layout_marginTop="5sp"
+                        android:layout_marginEnd="5sp"
                         android:gravity="end"
                         android:text="@string/lastgame"
                         android:textColor="#000000"
@@ -185,6 +187,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/lastgame"
                         android:layout_marginTop="5sp"
+                        android:layout_marginEnd="5sp"
                         android:gravity="end"
                         android:text="@string/play"
                         android:textColor="#000000"
@@ -196,8 +199,68 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/play"
                         android:layout_marginTop="5sp"
+                        android:layout_marginEnd="5sp"
                         android:gravity="end"
                         android:text="@string/canceled"
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+
+                </RelativeLayout>
+
+
+
+
+
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/informationcommentcontentlayout"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/starlayout"
+                    app:layout_marginTopPercent="1%"
+                    app:layout_marginLeftPercent = "50%"
+                    app:layout_widthPercent="50%">
+
+                    <TextView
+                        android:id="@+id/agecontent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="5sp"
+                        android:layout_marginStart="5sp"
+                        android:text=""
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/lastgamecontent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/agecontent"
+                        android:layout_marginTop="5sp"
+                        android:layout_marginStart="5sp"
+                        android:text=""
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/playcontent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/lastgamecontent"
+                        android:layout_marginTop="5sp"
+                        android:layout_marginStart="5sp"
+                        android:text=""
+                        android:textColor="#000000"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/canceledcontent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/playcontent"
+                        android:layout_marginTop="5sp"
+                        android:layout_marginStart="5sp"
+                        android:text=""
                         android:textColor="#000000"
                         android:textSize="20sp" />
 
@@ -212,7 +275,7 @@
             android:id="@+id/informationcommentlayoutafter"
             android:layout_height="27sp"
             android:layout_width="match_parent"
-            app:layout_marginTopPercent="65%"
+            app:layout_marginTopPercent="55%"
             >
 
                 <TextView

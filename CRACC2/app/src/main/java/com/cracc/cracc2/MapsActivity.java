@@ -1,6 +1,8 @@
 package com.cracc.cracc2;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +18,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -39,27 +42,41 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -71,12 +88,21 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
+import java.util.Calendar;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static android.R.attr.defaultValue;
+import static java.security.AccessController.getContext;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback,
@@ -88,9 +114,18 @@ public class MapsActivity extends AppCompatActivity
     SupportMapFragment mapFrag;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
+    GoogleApiClient mGoogleApiClient1;
     Location mLastLocation;
     Marker mCurrLocationMarker;
-    private static int RESULT_LOAD_IMAGE = 1;
+    Marker mChooseLocationMarker;
+    private static int RESULT_LOAD_IMAGE = 6;
+    private static int PLACE_AUTOCOMPLETE_REQUEST_CODE = 5;
+
+    private static final int REQUEST_CAMERA = 1;
+    private static final int REQUEST_AUDIO = 2;
+    private static final int REQUEST_READ = 3;
+    private static final int Mutirequestcode = 4;
+
     private static final String TAG = MapsActivity.class.getSimpleName();
     private View mapView;
     private Button location;                    //button set location back
@@ -99,11 +134,10 @@ public class MapsActivity extends AppCompatActivity
     private Button mainicon;                    //button open the control board
     private Button settingicon;
     private Button informationicon;
-    private BitmapDrawable bd = null;
-    private BitmapDrawable bd1 = null;
-    private BitmapDrawable bd2 = null;
-    private BitmapDrawable bd3 = null;//informationsetting icon bitmapdrable
+    //informationsetting icon bitmapdrable
     private Bitmap bm;
+
+    private Button mapsearchbar;
     //bit map
     private Button controlboardbaricon;
     private Button star1;
@@ -120,33 +154,66 @@ public class MapsActivity extends AppCompatActivity
     private FrameLayout interest;               //interest frame
     private FrameLayout community;              //community frame
     private FrameLayout setting;              //setting in the information
+    private TextView informationtext;
+    private TextView age;
+    private TextView lastgame;
+    private TextView play;
+    private TextView canceled;
+    private TextView agecontent;
+    private TextView lastgamecontent;
+    private TextView playcontent;
+    private TextView canceledcontent;
+    private TextView controlboardbartext;
+    private EditText settingfirstname;
+    private EditText settinglastname;
+    private EditText settingemail;
+    private BitmapDrawable bd;
+
+    //creategame button
+    private Button videoicon;
+    private PercentRelativeLayout videotexture;
+
+
     private EditText typeinlocation;            //location field in create game
     private EditText typeinname;                //name field in create game
-    private EditText typeindate;                //date field in create game
-    private EditText typeintime;                //time field in create game
+    private Button typeintime;                //time field in create game
     private EditText typeinnumpeople;           //number of people field in create game
 
 
     public static final String MyPREFERENCES = "CRACC.com.profile";
     public static final String EMAIL = "emailKey";
     public static final String GENDER = "genderKey";
-    public static final String FIRST_NAME = "firstnamekey";
-    public static final String LAST_NAME = "lastnamekey";
+    public static final String NAME = "namekey";
     public static final String BIRTHDAY = "birthdaykey";
     public static final String STARS = "starskey";
     public static final String PHOTOAVATAR = "Photoavatar";
     public static final String USERID = "UserId";
     public static final String LOGINTYPE = "LoginType";
     private String birthday;
-    private String LastName;
-    private String FirstName;
+    private String Name;
     private int Stars;
     private String Email;
     private String uid;
     private String gender = "";
     private String LoginType;
     private DatabaseReference cracc = FirebaseDatabase.getInstance().getReference().child("CRACC");
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
     private Bitmap iconbitmap = null;
+    private SharedPreferences settings;
+    private SharedPreferences.Editor editor;
+
+    //date picker
+    private String date;
+    private int hour;
+    private int minute;
+    private String ampm;
+
+    //set font
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 
 
     @Override
@@ -155,20 +222,41 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_maps);
 
         initialize();
-        setAllFrametoInvisible();
-        System.out.println("hello");
-        //set the android navigation bar invisible, need to improvent
-        /*
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-        */
 
+
+    }
+
+    //set hide bar
+    @Override
+    public void onWindowFocusChanged(boolean hasFocas) {
+        super.onWindowFocusChanged(hasFocas);
+        View decorView = getWindow().getDecorView();
+        if (hasFocas) {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                            View.SYSTEM_UI_FLAG_FULLSCREEN |
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleApiClient1 = new GoogleApiClient.Builder(this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+        mGoogleApiClient1.connect();
+        super.onStart();
     }
 
     //set All frame to invisible
     private void setAllFrametoInvisible() {
+
         activity_maps_base_frame.setVisibility(View.GONE);
         gamemanagement.setVisibility(View.GONE);
         chatboard.setVisibility(View.GONE);
@@ -182,6 +270,23 @@ public class MapsActivity extends AppCompatActivity
 
     //initialize the value of global variable, and assign the listener to proper variable.
     private void initialize() {
+        settings = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        editor = settings.edit();
+
+        permission.checkpermissionall(this, Mutirequestcode,
+                MapsActivity.this, "Location", new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE});
+        /*
+        permission.checkpermission(this, REQUEST_AUDIO,
+                MapsActivity.this, "Audio", android.Manifest.permission.RECORD_AUDIO);
+        permission.checkpermission(this, REQUEST_CAMERA,
+                MapsActivity.this, "Camera", Manifest.permission.CAMERA);
+        permission.checkpermission(this, REQUEST_READ,
+                MapsActivity.this, "Read external storage", android.Manifest.permission.READ_EXTERNAL_STORAGE);
+                */
+        Typeface myTypeface1 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Bold.ttf");
+        Typeface myTypeface2 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Italic.ttf");
+        Typeface myTypeface3 = Typeface.createFromAsset(getAssets(), "Myriad-Pro.ttf");
         //set the layout moved up when type in
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         //innitialize the map variable
@@ -206,40 +311,88 @@ public class MapsActivity extends AppCompatActivity
         mainicon = findViewById(R.id.mainicon);
         textureView = (TextureView) findViewById(R.id.camera);
         controlboardbaricon = findViewById(R.id.controlboardbaricon);
+        mapsearchbar = findViewById(R.id.mapsearchbar);
         star1 = findViewById(R.id.star1);
         star2 = findViewById(R.id.star2);
         star3 = findViewById(R.id.star3);
         star4 = findViewById(R.id.star4);
         star5 = findViewById(R.id.star5);
+        informationtext = findViewById(R.id.informationtext);
+        age = findViewById(R.id.age);
+        lastgame = findViewById(R.id.lastgame);
+        play = findViewById(R.id.play);
+        canceled = findViewById(R.id.canceled);
+        agecontent = findViewById(R.id.agecontent);
+        lastgamecontent = findViewById(R.id.lastgamecontent);
+        playcontent = findViewById(R.id.playcontent);
+        canceledcontent = findViewById(R.id.canceledcontent);
+        controlboardbartext = findViewById(R.id.controlboardbartext);
+        settingfirstname = findViewById(R.id.settingfirstname);
+        settinglastname = findViewById(R.id.settinglastname);
+        settingemail = findViewById(R.id.settingemail);
 
-        SharedPreferences settings = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
-        birthday = settings.getString(BIRTHDAY, "");
-        FirstName = settings.getString(FIRST_NAME, "");
+        videoicon = findViewById(R.id.videoicon);
+        videotexture = findViewById(R.id.videotexture);
+
+        //get The information
+        birthday = settings.getString(BIRTHDAY, "").trim();
+        Name = settings.getString(NAME, "");
         Stars = settings.getInt(STARS, 0);
         uid = settings.getString(USERID, "");
         LoginType = settings.getString(LOGINTYPE, "");
-
-        if(BitMapstore.getBitmapFromMemCache("iconbitmap") != null)
-        {
+        Email = settings.getString(EMAIL, "");
+        for (int i = 0; i < 20; i++) {
+            if (BitMapstore.getBitmapFromMemCache("iconbitmap") != null) {
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        if (BitMapstore.getBitmapFromMemCache("iconbitmap") != null) {
             System.out.println("hello");
-            iconbitmap = getCroppedBitmap(BitMapstore.getBitmapFromMemCache("iconbitmap"), 200);
+            iconbitmap = LoginProcess.getCroppedBitmap(BitMapstore.getBitmapFromMemCache("iconbitmap"), 200);
             BitmapDrawable bdrawable = new BitmapDrawable(this.getResources(), iconbitmap);
-            bd1 = new BitmapDrawable(this.getResources(), iconbitmap);
-            bd2 = new BitmapDrawable(this.getResources(), iconbitmap);
-            bd3 = new BitmapDrawable(this.getResources(), iconbitmap);
-            bd = bdrawable;
+            BitmapDrawable bd1 = new BitmapDrawable(this.getResources(), iconbitmap);
+            BitmapDrawable bd2 = new BitmapDrawable(this.getResources(), iconbitmap);
+            BitmapDrawable bd3 = new BitmapDrawable(this.getResources(), iconbitmap);
+            BitmapDrawable bd = bdrawable;
 
             controlboardbaricon.setBackground(bd);
             mainicon.setBackground(bd1);
             settingicon.setBackground(bd2);
             informationicon.setBackground(bd3);
         }
+        String age1 = birthday.substring((birthday.length() - 4));
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        String a = "October 15th,2017";
+        lastgamecontent.setText(a);
+        year = year - Integer.valueOf(age1);
+        agecontent.setText(String.valueOf(year));
+        playcontent.setText("0");
+        canceledcontent.setText("0");
+        informationtext.setText(Name);
+        controlboardbartext.setText(Name);
+        int count = 0;
+        for (int i = Name.length() - 1; i >= 0; i--) {
+            if (Name.charAt(i) == ' ') {
+                count = i + 1;
+                break;
+            }
+        }
+        settingemail.setText(Email);
+        settinglastname.setText(Name.substring(count).trim());
+        settingfirstname.setText(Name.substring(0, count).trim());
+        //==set text font
+
 
         //============assign each edittext variable with it assosiate object in xml================
         typeinlocation = (EditText) findViewById(R.id.createlocation);
         typeinname = (EditText) findViewById(R.id.createname);
-        typeindate = (EditText) findViewById(R.id.createdate);
-        typeintime = (EditText) findViewById(R.id.createtime);
+        typeintime = findViewById(R.id.createtime);
+        typeintime.setTypeface(myTypeface3);
         typeinnumpeople = (EditText) findViewById(R.id.createpeople);
         //=====================set the clickListener to button or frame==========================
         textureView.setSurfaceTextureListener(surfaceTextureListener);
@@ -260,10 +413,42 @@ public class MapsActivity extends AppCompatActivity
         setListner(management, gamemanagement);
         setListner(chat, chatboard);
         setListner(mainicon, controlboard);
+        setAllFrametoInvisible();
+
+
+        String hasvideo = settings.getString(value.HASVIDEO, "");
+
+        if(hasvideo.equals("yes") )
+        {
+            editor.putString(value.HASVIDEO, "");
+            editor.commit();
+            creategame(null);
+            videoicon.setVisibility(View.VISIBLE);
+            videotexture.setVisibility(View.GONE);
+        }
+        else
+        {
+            videoicon.setVisibility(View.GONE);
+            videotexture.setVisibility(View.VISIBLE);
+        }
     }
 
     //this function is for empty call which can be set on the empty frame to prevent frome exit
     public void empty(View v) {
+    }
+
+    public void mapsearch(View v) {
+        try {
+            Intent intent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                            .build(this);
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+
+        } catch (GooglePlayServicesRepairableException e) {
+            // TODO: Handle the error.
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // TODO: Handle the error.
+        }
     }
 
     //this method is called by the outside button which wish to clean or exit the frame
@@ -275,11 +460,67 @@ public class MapsActivity extends AppCompatActivity
 
     //this method is call by the creategame button under the control board under the main icon
     public void creategame(View v) {
-        checkForaudioPermission();
-        checkForPermission();
+        permission.checkpermission(this, REQUEST_AUDIO,
+                MapsActivity.this, "Audio", android.Manifest.permission.RECORD_AUDIO);
+        permission.checkpermission(this, REQUEST_CAMERA,
+                MapsActivity.this, "Camera", Manifest.permission.CAMERA);
         setAllFrametoInvisible();
         display(creategame);
     }
+
+    //create the timepicker dialog
+    public void timepicker(View v) {
+        if (v == typeintime) {
+            final Dialog d = new Dialog(this) {
+                public boolean dispatchTouchEvent(MotionEvent a) {
+                    dismiss();
+                    return false;
+                }
+            };
+            d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            d.setContentView(R.layout.timepickerdialog);
+            NumberPicker date1 = (NumberPicker) d.findViewById(R.id.numberPickerdate);
+            NumberPicker hour1 = (NumberPicker) d.findViewById(R.id.numberPickerhour);
+            NumberPicker minute1 = (NumberPicker) d.findViewById(R.id.numberPickerminute);
+            NumberPicker ampm1 = (NumberPicker) d.findViewById(R.id.numberPickerampm);
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            timepicker.timepicker1(this, date1, hour1, minute1, ampm1, d);
+            date1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                    date = timepicker.getString(newVal);
+                    typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                }
+            });
+            hour1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                    hour = newVal;
+                    typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                }
+            });
+            minute1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                    minute = newVal;
+                    typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                }
+            });
+            ampm1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                    if (newVal == 1)
+                        ampm = "PM";
+                    else
+                        ampm = "AM";
+                    typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                }
+            });
+
+
+        }
+    }
+
 
     //this method is call by the information button under the control board under the main icon
     public void information(View v) {
@@ -289,7 +530,8 @@ public class MapsActivity extends AppCompatActivity
 
     public void inforamtionsetting(View v) {
         //checkForManagePermission();
-        checkForREADPermission();
+        permission.checkpermission(this, REQUEST_READ,
+                MapsActivity.this, "Read external storage", android.Manifest.permission.READ_EXTERNAL_STORAGE);
 
         setAllFrametoInvisible();
         display(setting);
@@ -309,8 +551,42 @@ public class MapsActivity extends AppCompatActivity
 
     //this method is call by the logout button under the control board under the main icon
     public void logout(View v) {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            BitMapstore.clean();
+            editor.clear();
+            editor.apply();
+            BitMapstore b = new BitMapstore(this);
+            b.clear();
+
+
+            if (LoginType.equals("Google")) {
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient1).setResultCallback(
+                        new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(Status status) {
+                                mAuth.signOut();
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+            } else if (LoginType.equals("Facebook")) {
+                LoginManager.getInstance().logOut();
+                mAuth.signOut();
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();//delete
+
+            } else {
+                mAuth.signOut();
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();//delete
+            }
+
+
+        }
     }
 
     public void enterCamera(View v) {
@@ -353,8 +629,10 @@ public class MapsActivity extends AppCompatActivity
     public void save(View v) {
         setAllFrametoInvisible();
         information(v);
-        if (bd != null)
+        if (bd != null) {
             informationicon.setBackground(bd);
+            bd = null;
+        }
     }
 
     //=============================call by inside class=======================================
@@ -421,89 +699,60 @@ public class MapsActivity extends AppCompatActivity
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
-            bm = getScaledBitmap(picturePath, 800, 800);
-            bd = new BitmapDrawable(getResources(), getCroppedBitmap(BitmapFactory.decodeFile(picturePath), 300));
+            bm = LoginProcess.getScaledBitmap(picturePath, 800, 800);
+            bd = new BitmapDrawable(getResources(), LoginProcess.getCroppedBitmap(BitmapFactory.decodeFile(picturePath), 300));
             settingicon.setBackground(bd);
-            //getScaledBitmap(String picturePath, int width, int height)
-            //imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+        } else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                Log.i(TAG, "Place: " + place.getName());
+                if (mChooseLocationMarker != null) {
+                    mChooseLocationMarker.remove();
+                }
+                mapsearchbar.setText(place.getName());
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(place.getLatLng());
+                Bitmap marker1 = BitmapFactory.decodeResource(getResources(), R.drawable.direction);
+                int size = getResources().getInteger(R.integer.mapmarker);
+                Bitmap marker = Bitmap.createScaledBitmap(marker1, size, size, false);
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(marker));
+                mChooseLocationMarker = mGoogleMap.addMarker(markerOptions);
+
+                //move map camera and set the zoom in percentage
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
+
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
         }
-    }
-
-    private Bitmap getScaledBitmap(String picturePath, int width, int height) {
-        BitmapFactory.Options sizeOptions = new BitmapFactory.Options();
-        sizeOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(picturePath, sizeOptions);
-
-        int inSampleSize = calculateInSampleSize(sizeOptions, width, height);
-
-        sizeOptions.inJustDecodeBounds = false;
-        sizeOptions.inSampleSize = inSampleSize;
-
-        return BitmapFactory.decodeFile(picturePath, sizeOptions);
-    }
-
-    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            // Calculate ratios of height and width to requested height and
-            // width
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-
-            // Choose the smallest ratio as inSampleSize value, this will
-            // guarantee
-            // a final image with both dimensions larger than or equal to the
-            // requested height and width.
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-
-        return inSampleSize;
-    }
-
-    private Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
-        Bitmap sbmp;
-
-        if (bmp.getWidth() != radius || bmp.getHeight() != radius) {
-            float smallest = Math.min(bmp.getWidth(), bmp.getHeight());
-            float factor = smallest / radius;
-            sbmp = Bitmap.createScaledBitmap(bmp, (int) (bmp.getWidth() / factor), (int) (bmp.getHeight() / factor), false);
-        } else {
-            sbmp = bmp;
-        }
-
-        Bitmap output = Bitmap.createBitmap(radius, radius,
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-
-        final int color = 0xffa19774;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, radius, radius);
-
-        paint.setAntiAlias(true);
-        paint.setFilterBitmap(true);
-        paint.setDither(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(Color.parseColor("#BAB399"));
-        canvas.drawCircle(radius / 2 + 0.7f,
-                radius / 2 + 0.7f, radius / 2 + 0.1f, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(sbmp, rect, rect, paint);
-
-        return output;
     }
 
 
 /*------------------------------ The code below is for google map and check permission----------------------*/
 
     private void getMyLocation() {
-        LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
-        mGoogleMap.animateCamera(cameraUpdate);
+
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+
+        //Place current location marker
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+        //markerOptions.title("Current Position");
+        int size = getResources().getInteger(R.integer.mapmarker);
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(
+                Bitmap.createScaledBitmap(BitmapFactory.decodeResource(
+                        getResources(), R.drawable.direction), size, size, false)));
+        mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 15));
     }
 
     @Override
@@ -557,7 +806,8 @@ public class MapsActivity extends AppCompatActivity
                 mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
             } else {
                 //Request Location Permission
-                checkLocationPermission();
+                permission.checkpermission(this, MY_PERMISSIONS_REQUEST_LOCATION,
+                        MapsActivity.this, "Location", android.Manifest.permission.ACCESS_FINE_LOCATION);
                 mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
             }
         } else {
@@ -580,8 +830,8 @@ public class MapsActivity extends AppCompatActivity
     public void onConnected(Bundle bundle) {
 
         mLocationRequest = new LocationRequest();
-        //mLocationRequest.setInterval(100000);
-        //mLocationRequest.setFastestInterval(100000);
+        mLocationRequest.setInterval(100000);
+        mLocationRequest.setFastestInterval(100000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -600,7 +850,9 @@ public class MapsActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
+
         mLastLocation = location;
+
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
@@ -609,57 +861,52 @@ public class MapsActivity extends AppCompatActivity
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        //markerOptions.title("Current Position");
+        Bitmap marker1 = BitmapFactory.decodeResource(getResources(), R.drawable.direction);
+        int size = getResources().getInteger(R.integer.mapmarker);
+        Bitmap marker = Bitmap.createScaledBitmap(marker1, size, size, false);
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(marker));
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
         //move map camera and set the zoom in percentage
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
+                location.getLongitude()), 15));
 
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
-    private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation? delete this
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, please accept to use location functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MapsActivity.this,
-                                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
+            case Mutirequestcode: {
+                for (int i = 0; i < grantResults.length; i++) {
+                    if (grantResults.length > 0
+                            && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+
+                        // permission was granted, yay! Do the
+                        // location-related task you need to do.
+                        if (ContextCompat.checkSelfPermission(this,
+                                permissions[i])
+                                == PackageManager.PERMISSION_GRANTED) {
+
+                            if (mGoogleApiClient == null) {
+                                buildGoogleApiClient();
+                            }
+                            mGoogleMap.setMyLocationEnabled(true);
+                        }
+
+                    } else {
+
+                        // permission denied, boo! Disable the
+                        // functionality that depends on this permission.
+                        Toast.makeText(this, "permission denied" + permissions[i], Toast.LENGTH_LONG).show();
+                    }
+                }
+                return;
+
+            }
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
@@ -681,7 +928,7 @@ public class MapsActivity extends AppCompatActivity
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "permission denied location", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -702,7 +949,7 @@ public class MapsActivity extends AppCompatActivity
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "permission denied camera", Toast.LENGTH_LONG).show();
                 }
                 return;
 
@@ -711,8 +958,6 @@ public class MapsActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(this,
                             android.Manifest.permission.RECORD_AUDIO)
                             == PackageManager.PERMISSION_GRANTED) {
@@ -724,35 +969,11 @@ public class MapsActivity extends AppCompatActivity
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "permission denied audio", Toast.LENGTH_LONG).show();
                 }
                 return;
 
             }
-            /*
-            case REQUEST_MANAGE: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.MANAGE_DOCUMENTS)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        //do somthing
-                    }
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied MANAGE", Toast.LENGTH_LONG).show();
-                }
-                return;
-
-            }
-            */
             case REQUEST_READ: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -784,39 +1005,9 @@ public class MapsActivity extends AppCompatActivity
     }
 
     //============================Camera==================================================
-    private static final int REQUEST_CAMERA = 1;
-    private static final int REQUEST_AUDIO = 2;
-    private static final int REQUEST_READ = 3;
+
     //private static final int REQUEST_MANAGE = 4;
 
-    private void checkForREADPermission() {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Granted");
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Log.d(TAG, "READ external storage Permission Required!!");
-                new AlertDialog.Builder(this)
-                        .setTitle("READ external storage Permission Needed")
-                        .setMessage("This app needs the READ external storage permission, please accept to use Select image functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MapsActivity.this,
-                                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
-                                        REQUEST_READ);
-                            }
-                        })
-                        .create()
-                        .show();
-
-            }
-            ActivityCompat.
-                    requestPermissions(MapsActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ);
-
-        }
-    }
 
     /*
     private void checkForManagePermission() {
@@ -848,63 +1039,7 @@ public class MapsActivity extends AppCompatActivity
         }
     }
     */
-    private void checkForPermission() {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Granted");
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this, Manifest.permission.CAMERA)) {
-                Log.d(TAG, "Camera Permission Required!!");
-                new AlertDialog.Builder(this)
-                        .setTitle("Camera Permission Needed")
-                        .setMessage("This app needs the Camera permission, please accept to use Camera functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MapsActivity.this,
-                                        new String[]{android.Manifest.permission.CAMERA},
-                                        REQUEST_CAMERA);
-                            }
-                        })
-                        .create()
-                        .show();
 
-            }
-            ActivityCompat.
-                    requestPermissions(MapsActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
-
-        }
-    }
-
-    private void checkForaudioPermission() {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Granted");
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this, Manifest.permission.RECORD_AUDIO)) {
-                Log.d(TAG, "Audio Permission Required!!");
-                new AlertDialog.Builder(this)
-                        .setTitle("Audio Permission Needed")
-                        .setMessage("This app needs the Audio Record permission, please accept to use Record Audio functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MapsActivity.this,
-                                        new String[]{android.Manifest.permission.RECORD_AUDIO},
-                                        REQUEST_AUDIO);
-                            }
-                        })
-                        .create()
-                        .show();
-
-            }
-            ActivityCompat.
-                    requestPermissions(MapsActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO);
-
-        }
-    }
 
     private Size previewsize;
     private TextureView textureView;

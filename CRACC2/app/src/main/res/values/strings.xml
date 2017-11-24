@@ -1,21 +1,20 @@
 <resources>
     <string name="title_activity_maps">Map</string>
+    <string name="app_name">CRACC</string>
+    <string name="login">Login</string>
+    <string name="login_app">CRACC</string>
+    <string name="app_id">CRACC</string>
 
-<string name="app_name">CRACC</string>
-<string name="login">Login</string>
-<string name="login_app">CRACC</string>
-<string name="app_id">CRACC</string>
+    <string name="login_google_buttom">LOGIN WITH GOOGLE</string>
+    <string name="login_facebook_buttom">LOGIN WITH FACEBOOK</string>
 
-<string name="login_google_buttom">LOGIN WITH GOOGLE</string>
-<string name="login_facebook_buttom">LOGIN WITH FACEBOOK</string>
+    <string name="email">&#032;Email&#8230;</string>
+    <string name="password">&#032;Password&#8230;</string>
+    <string name="loginmessage">login with email</string>
+    <string name="creatnewaccount"><u>Creat new account</u></string>
+    <string name="forgot"><u>Forgot password</u></string>
 
-<string name="email">&#032;Email&#8230;</string>
-<string name="password">&#032;Password&#8230;</string>
-<string name="loginmessage">login with email</string>
-<string name="creatnewaccount"><u>Creat new account</u></string>
-<string name="forgot"><u>Forgot password</u></string>
-
-<string name="createnewgame">Create new game</string>
+    <string name="createnewgame">Create new game</string>
     <string name="information">information</string>
     <string name="crown">Best players</string>
     <string name="interested">interested</string>
@@ -47,13 +46,16 @@
     <string name="loginhere"><u>or login here</u></string>
     <string name="createaccount">Create accoount</string>
     <string name="profileimage">Profile image</string>
-    <string name = "next">Next</string>
-    <string name = "birthday">Birthday</string>
-    <string name = "male">Male</string>
-    <string name = "female">Female</string>
-    <string name = "back"><u>Back</u></string>
-    <string name = "signup">Sign Up</string>
+    <string name="next">Next</string>
+    <string name="birthday">Birthday</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="back"><u>Back</u></string>
+    <string name="signup">Sign Up</string>
 
     <string name="facebook_app_id">138833836753669</string>
     <string name="fb_login_protocol_scheme">fb138833836753669</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -1,11 +1,13 @@
 package com.cracc.cracc2;
 
 import android.accounts.Account;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +26,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.LruCache;
@@ -31,9 +34,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.Manifest;
 import android.widget.Toast;
@@ -60,12 +65,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.IOUtils;
 import com.google.api.services.people.v1.People;
 import com.google.api.services.people.v1.PeopleScopes;
 import com.google.api.services.people.v1.model.Date;
@@ -94,10 +97,12 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -111,6 +116,8 @@ import java.util.Map;
 import java.util.UUID;
 
 
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 import static com.facebook.share.internal.ShareConstants.IMAGE_URL;
 
 public class MainActivity extends AppCompatActivity {
@@ -120,6 +127,23 @@ public class MainActivity extends AppCompatActivity {
      * Global instance of the JSON factory.
      */
     //private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static int RESULT_LOAD_IMAGE = 1;
+    private static final int REQUEST_READ = 3;
+    private static final int RC_SIGN_IN = 9001;
+    private static final int REQUEST_EXTERNAL_STORAGE = 2;
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    //test
+
+    //BitMapstore bitmapcache = new BitMapstore(context);
+
+    //getimage
+    //File f = bitmapcache.getFile(uid);
+    //Bitmap b = decode(f);
+
+
+
     private Button login;
     private Button forgotlogin;
     private Button sendcode;
@@ -128,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout createaccountframe1;
     private FrameLayout createaccountframe2;
     private FrameLayout createaccountframe3;
-    private Button profileimage;
+    protected Button profileimage;
     private Button createaccountnext;
     private Button createaccountlogin;
     private Button createaccount2male;
@@ -154,12 +178,12 @@ public class MainActivity extends AppCompatActivity {
 
     private GoogleApiClient mGoogleApiClient;
     private Button google;
-    private static final int RC_SIGN_IN = 9001;
-    private DatabaseReference firedatabase;
+
+
+    private DatabaseReference firedatabase = FirebaseDatabase.getInstance().getReference();
     private FirebaseAuth mAuth;
-    private Bitmap bitmap1 = null;
     private Uri iconuri = null;
-    private DatabaseReference cracc;
+    private DatabaseReference cracc = firedatabase.child("CRACC");
     private StorageReference filepath;
     private String uid;
     private Uri downloadUrl = null;
@@ -168,40 +192,49 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedpreferences;
     private SharedPreferences.Editor editor;
 
-    //facebook
+    //facebook delete
     private LoginButton facebookbutton;
     private Button login_facebook;
     private CallbackManager mCallbackManager;
 
 
-    //for cache use
+    //for cache use delete
     public static final String MyPREFERENCES = "CRACC.com.profile";
     public static final String EMAIL = "emailKey";
     public static final String GENDER = "genderKey";
-    public static final String FIRST_NAME = "firstnamekey";
-    public static final String LAST_NAME = "lastnamekey";
+    public static final String NAME = "namekey";
     public static final String BIRTHDAY = "birthdaykey";
     public static final String STARS = "starskey";
     public static final String PHOTOAVATAR = "Photoavatar";
-    public static final String USERID= "UserId";
+    public static final String USERID = "UserId";
     public static final String LOGINTYPE = "LoginType";
+    //delete
     private String birthday;
-    private String LastName;
-    private String FirstName;
+    private String Name;
     private int Stars;
     private String Email;
     private String Photoavatar = "";
     private String Userid;
     private String gender = "";
+    private ProgressBar progressBar;
+    private ObjectAnimator animation;
+    private PercentRelativeLayout mainpage;
 
-    private BitmapDrawable bd = null;             //informationsetting icon bitmapdrable
+    //delete
     private Bitmap bm;                      //bit map
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         initialize();
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestScopes(new Scope(Scopes.PROFILE))
@@ -219,17 +252,124 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocas)
+    {
+        super.onWindowFocusChanged(hasFocas);
+        View decorView = getWindow().getDecorView();
+        if(hasFocas)
+        {
+            decorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE|
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY|
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|
+                    View.SYSTEM_UI_FLAG_FULLSCREEN|
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if(currentUser!=null) {
+            Bitmap a = BitMapstore.getBitmapFromMemCache("iconbitmap");
+            if(a == null)
+            {
+                BitMapstore bitmapcache = new BitMapstore(context);
+                File f = bitmapcache.getFile("iconbitmap");
+                Bitmap bmap = BitmapFactory.decodeFile(f.getAbsolutePath());
+                if(bmap != null) {
+                    BitMapstore.addBitmapToMemoryCache("iconbitmap", bmap);
+                    mainpage("login");
+
+                }
+                else
+                {
+                    Email = currentUser.getEmail();
+                    uid = currentUser.getUid();
+                    String string1 = "";
+                    for (int i = 0; i < Email.length(); i++) {
+                        if (Email.substring(i, i + 1).equals(".")) {
+                            string1 += ",";
+                        } else {
+                            string1 += Email.substring(i, i + 1);
+                        }
+                    }
+                    final String string2 = string1;;
+
+                    cracc.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if(snapshot.child("Google").child(uid).exists()){
+                                String uri = snapshot.child("User Info")
+                                        .child("Google").child(uid)
+                                        .child("avatarUrl").getValue(String.class);
+                                new DownloadImage().execute(uri);
+                                LoginProcess.settingsignin("Google", uid, snapshot,
+                                        sharedpreferences.edit());
+
+                                mainpage("login");
+
+                            } else if(snapshot.child("Facebook").child(uid).exists()){
+                                String uri = snapshot.child("User Info")
+                                        .child("Facebook").child(uid)
+                                        .child("avatarUrl").getValue(String.class);
+                                new DownloadImage().execute(uri);
+                                LoginProcess.settingsignin("Facebook", uid, snapshot,
+                                        sharedpreferences.edit());
+
+                                mainpage("login");
+
+                            }
+                            else if (snapshot.child("Email").child(string2).exists()) {
+
+                                String uri = snapshot.child("User Info")
+                                        .child("Email").child(uid)
+                                        .child("avatarUrl").getValue(String.class);
+                                new DownloadImage().execute(uri);
+                                LoginProcess.settingsignin("Email", uid, snapshot,
+                                        sharedpreferences.edit());
+
+                                mainpage("login");
+
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            //throw databaseError.toException();
+                        }
+                    });
+
+                }
+
+            }
+            else
+            {
+                mainpage("login");
+            }
+
+
+        }
+        //mainpage("string");
+        //updateUI(currentUser);
+    }
+
 
     private void initialize() {
+        permission.checkpermission(this,REQUEST_EXTERNAL_STORAGE,
+                MainActivity.this, "Write external storage" , Manifest.permission.WRITE_EXTERNAL_STORAGE  );
         Typeface myTypeface1 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Bold.ttf");
         Typeface myTypeface2 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Italic.ttf");
-        Typeface myTypeface3 = Typeface.createFromAsset(getAssets(), "Myriad-Pro.ttf");
         TextView text = (TextView) findViewById(R.id.frontword);
-        TextView forgetmessage = (TextView) findViewById(R.id.forgetmessage);
-        TextView createaccountmessage = (TextView) findViewById(R.id.createaccountmessage);
-        TextView createaccountmessage2 = (TextView) findViewById(R.id.createaccountmessage2);
-        TextView createaccountmessage3 = (TextView) findViewById(R.id.createaccountmessage3);
-        login_facebook = (Button) findViewById(R.id.btn_facebook_signup);
+        login_facebook = (Button) findViewById(R.id.login_facebook);
         google = (Button) findViewById(R.id.login_google);
         login = (Button) findViewById(R.id.login);
         loginemail = (EditText) findViewById(R.id.loginemail);
@@ -268,58 +408,43 @@ public class MainActivity extends AppCompatActivity {
         createaccountgoooglebirthday = findViewById(R.id.createaccountgoooglebirthday);
         createaccountgooogleframe = findViewById(R.id.createaccountgooogleframe);
 
-        firedatabase = FirebaseDatabase.getInstance().getReference();
+        mainpage = findViewById(R.id.mainpage);
 
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance(); // delete
         //set text font
         text.setTypeface(myTypeface1);
         login_facebook.setTypeface(myTypeface1);
         google.setTypeface(myTypeface1);
-        login.setTypeface(myTypeface3);
         loginemail.setTypeface(myTypeface2);
         loginpass.setTypeface(myTypeface2);
         createnewaccount.setTypeface(myTypeface2);
         forgot.setTypeface(myTypeface2);
         forgotlogin.setTypeface(myTypeface2);
-        sendcode.setTypeface(myTypeface3);
-        forgetmessage.setTypeface(myTypeface3);
-        createaccountmessage2.setTypeface(myTypeface3);
-        createaccountmessage3.setTypeface(myTypeface3);
         forgetmail.setTypeface(myTypeface2);
         createaccountlogin.setTypeface(myTypeface2);
-        createaccountnext.setTypeface(myTypeface3);
         createaccountfirstname.setTypeface(myTypeface2);
-        createaccountmessage.setTypeface(myTypeface3);
         createaccountlastname.setTypeface(myTypeface2);
-        profileimage.setTypeface(myTypeface3);
-        createaccount2male.setTypeface(myTypeface3);
-        createaccount2female.setTypeface(myTypeface3);
 
-        createaccount2next.setTypeface(myTypeface3);
         createaccount2birthday.setTypeface(myTypeface2);
         createaccount2back.setTypeface(myTypeface2);
-
-        createaccount3confirmpassword.setTypeface(myTypeface3);
-        createaccount3password.setTypeface(myTypeface3);
-        createaccount3email.setTypeface(myTypeface3);
         createaccount3back.setTypeface(myTypeface2);
-        createaccount3signup.setTypeface(myTypeface3);
 
-        createaccountgoooglesignup.setTypeface(myTypeface3);
-        createaccountgoooglemale.setTypeface(myTypeface3);
-        createaccountgoooglefemale.setTypeface(myTypeface3);
+
         createaccountgoooglebirthday.setTypeface(myTypeface2);
 
-        //facebook
 
+
+        //facebook
+        //delete
         facebookbutton = findViewById(R.id.btn_facebook_signup);
         mCallbackManager = CallbackManager.Factory.create();
         facebookbutton.setReadPermissions("email", "public_profile");
         facebookbutton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
+                firebaseAuth(null, loginResult.getAccessToken());
+                animation.start ();
+                mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
             }
 
             @Override
@@ -335,8 +460,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE); //delete
 
+        //progress bar
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        animation = ObjectAnimator.ofInt (progressBar, "progress", 0, 500); // see this max value coming back here, we animale towards that value
+        animation.setDuration (5000); //in milliseconds
+        animation.setInterpolator (new DecelerateInterpolator());
 
 
         setAllFrametoInvisible();
@@ -349,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
         createaccountframe2.setVisibility(View.GONE);
         createaccountframe3.setVisibility(View.GONE);
         createaccountgooogleframe.setVisibility(View.GONE);
-        login_facebook.setVisibility(View.GONE);
+        facebookbutton.setVisibility(View.GONE);
     }
 
     public void facebookclick(View v) {
@@ -362,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void googlesigningfinal() {
+    protected void googlesigningfinal() {
         createaccountgooogleframe.setVisibility(View.VISIBLE);
 
     }
@@ -413,7 +543,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createaccount2(View v) {
-        FirstName = createaccountfirstname.getText().toString() + createaccountlastname.getText().toString();
+        Name = createaccountfirstname.getText().toString() + createaccountlastname.getText().toString();
 
 
         createaccountframe2.setVisibility(View.VISIBLE);
@@ -424,7 +554,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getPicture(View v) {
-        checkForREADPermission();
+        permission.checkpermission(this,REQUEST_READ ,
+                MainActivity.this, "READ external storage" , Manifest.permission.READ_EXTERNAL_STORAGE  );
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED /*|| ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.MANAGE_DOCUMENTS) != PackageManager.PERMISSION_GRANTED*/) {
@@ -446,115 +577,56 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (v == createaccountgoooglesignup) {
-            String a = "";
-            if (downloadUrl != null) {
-                a = downloadUrl.toString();
-            }
-            cracc.child("User Info").child("Google").child(uid).child("avatarUrl").setValue(a);
+
             cracc.child("User Info").child("Google").child(uid).child("Gender").setValue(gender);
             cracc.child("User Info").child("Google").child(uid).child("Birthday").setValue(createaccountgoooglebirthday.getText().toString());
-
-            Userid = uid;
-
-
             birthday = createaccountgoooglebirthday.getText().toString();
 
             editor = sharedpreferences.edit();
-            editor.putString(EMAIL, Email);
             editor.putString(GENDER, gender);
-            editor.putString(FIRST_NAME, FirstName);
-            editor.putString(LAST_NAME, LastName);
             editor.putString(BIRTHDAY, birthday);
-            editor.putString(USERID, Userid);
-            editor.putString(PHOTOAVATAR, Photoavatar);
-            editor.putInt(STARS, Stars);
-            editor.putString(LOGINTYPE, "Google");
-            editor.apply();
+            editor.commit();
 
-            Intent intent = new Intent(this, MapsActivity.class);
-            startActivity(intent);
-        } else if( v==createaccount3signup){
-            cracc = firedatabase.child("CRACC");
+            mainpage("login");
+
+        } else if (v == createaccount3signup) {
+            animation.start ();
+            mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
             Email = createaccount3email.getText().toString();
-            String password = createaccount3password.getText().toString();
-            mAuth.createUserWithEmailAndPassword(Email, password)
+            mAuth.createUserWithEmailAndPassword(Email, createaccount3password.getText().toString())
                     .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "createUserWithEmail:success");
+
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 uid = user.getUid();
-                                Userid = user.getUid();
                                 String result = UUID.nameUUIDFromBytes(uid.getBytes()).toString();
                                 FirebaseStorage storage = FirebaseStorage.getInstance();
                                 StorageReference storageRef = storage.getReference().child("Avatar");
                                 filepath = storageRef.child(result.toUpperCase());
 
-                                new DownloadImage1().execute("");
+                                new DownloadImage().execute("emails");
+                                LoginProcess.settingSignup("Email", uid, cracc, Email, Name, gender, birthday);
 
-
-                                String string1 = "";
-                                for (int i = 0; i < Email.length(); i++)
-                                {
-                                    if(Email.substring(i ,i+1).equals(".") )
-                                    {
-                                        string1 += ",";
-                                    }
-                                    else
-                                    {
-                                        string1 += Email.substring(i ,i+1);
-                                    }
-                                }
-
-
-                                cracc.child("Email").child(string1).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                                //google.child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                                //cracc.child("User").child("Google").setValue(user);
-                                cracc.child("User").child("Email").child(uid).child("Chat List").child("default").setValue("defaults");
-                                cracc.child("User").child("Email").child(uid).child("Community List").child("default").setValue("defaults");
-                                cracc.child("User").child("Email").child(uid).child("Game Created").child("default").setValue("defaults");
-                                cracc.child("User").child("Email").child(uid).child("Game Joined").child("default").setValue("defaults");
-                                cracc.child("User").child("Email").child(uid).child("Interested List").child("default").setValue("defaults");
-
-                                cracc.child("User Info").child("Email").child(uid).child("Birthday").setValue(birthday);
-                                cracc.child("User Info").child("Email").child(uid).child("Email").setValue(Email);
-                                cracc.child("User Info").child("Email").child(uid).child("Gender").setValue(gender);
-                                cracc.child("User Info").child("Email").child(uid).child("Name").setValue(FirstName);
-                                cracc.child("User Info").child("Email").child(uid).child("Stars").setValue(0);
-                                cracc.child("User Info").child("Email").child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                                cracc.child("User Info").child("Email").child(uid).child("Type").setValue("email");
-                                editor = sharedpreferences.edit();
-                                editor.putString(EMAIL, Email);
-                                editor.putString(GENDER, gender);
-                                editor.putString(FIRST_NAME, FirstName);
-                                editor.putString(BIRTHDAY, birthday);
-                                editor.putInt(STARS, Stars);
-                                editor.putString(USERID, uid);
-                                editor.putString(LOGINTYPE, "Facebook");
-                                editor.commit();
-                                mainpage( "email" );
-
+                                mainpage("email");
 
                             } else {
 
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                updateUI(null);
+                                updateUI(null,null,null);
                             }
-
-                            // ...
                         }
                     });
 
 
-
-        }
-        else if(v == login) {
+        } else if (v == login) {
             if (loginemail.getText().toString().isEmpty() || loginpass.getText().toString().isEmpty()) {
 
             } else {
+                animation.start ();
+                mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
                 mAuth.signInWithEmailAndPassword(loginemail.getText().toString(), loginpass.getText().toString())
                         .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -563,8 +635,8 @@ public class MainActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    uid = user.getUid();
                                     Email = user.getEmail();
+                                    uid = user.getUid();
                                     String string1 = "";
                                     for (int i = 0; i < Email.length(); i++) {
                                         if (Email.substring(i, i + 1).equals(".")) {
@@ -573,31 +645,20 @@ public class MainActivity extends AppCompatActivity {
                                             string1 += Email.substring(i, i + 1);
                                         }
                                     }
-                                    final String string2 = string1;
-                                    cracc = firedatabase.child("CRACC");
+                                    final String string2 = string1;;
                                     cracc.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot snapshot) {
                                             if (snapshot.child("Email").child(string2).exists()) {
-                                                String uri = snapshot.child("User Info").child("Email").child(uid).child("avatarUrl").getValue(String.class);
+
+                                                String uri = snapshot.child("User Info")
+                                                        .child("Email").child(uid)
+                                                        .child("avatarUrl").getValue(String.class);
                                                 new DownloadImage().execute(uri);
-                                                birthday = snapshot.child("User Info").child("Email").child(uid).child("Birthday").getValue(String.class);
-                                                FirstName = snapshot.child("User Info").child("Email").child(uid).child("Name").getValue(String.class);
-                                                Stars = snapshot.child("User Info").child("Email").child(uid).child("Stars").getValue(Integer.class);
-                                                Email = snapshot.child("User Info").child("Email").child(uid).child("Email").getValue(String.class);
-                                                gender = snapshot.child("User Info").child("Email").child(uid).child("Gender").getValue(String.class);
+                                                LoginProcess.settingsignin("Email", uid,  snapshot,
+                                                        sharedpreferences.edit());
 
-                                                editor = sharedpreferences.edit();
-                                                editor.putString(EMAIL, Email);
-                                                editor.putString(GENDER, gender);
-                                                editor.putString(FIRST_NAME, FirstName);
-                                                editor.putString(BIRTHDAY, birthday);
-                                                editor.putInt(STARS, Stars);
-                                                editor.putString(USERID, uid);
-                                                editor.putString(LOGINTYPE, "Email");
-                                                editor.commit();
                                                 mainpage("email");
-
 
 
                                             } else {
@@ -611,11 +672,9 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
 
-
                                 } else {
                                     // If sign in fails, display a message to the user.
-                                    Log.w(TAG, "signInWithEmail:failure", task.getException());
-                                    updateUI(null);
+                                    updateUI(null,null,null);
                                 }
 
                                 // ...
@@ -628,7 +687,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void mainpage( String s ) {
+    protected void mainpage(String s) {
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
@@ -638,9 +697,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //-----------------------image---------------------------------------------
-    private static int RESULT_LOAD_IMAGE = 1;
-    private static final int REQUEST_READ = 3;
-    private static final String TAG = MainActivity.class.getSimpleName();
+    //delete all
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -653,140 +711,65 @@ public class MainActivity extends AppCompatActivity {
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
-            bm = getScaledBitmap(picturePath, 100, 100);
-            BitMapstore bit = new BitMapstore();
-            bit.addBitmapToMemoryCache("iconbitmap", bm);
-            bd = new BitmapDrawable(getResources(), getCroppedBitmap(BitmapFactory.decodeFile(picturePath), 400));
-            profileimage.setBackground(bd);
+            bm = LoginProcess.getScaledBitmap(picturePath, 100, 100);
+            BitMapstore.addBitmapToMemoryCache("iconbitmap", bm);
+            profileimage.setBackground(new BitmapDrawable(getResources(),
+                    LoginProcess.getCroppedBitmap(BitmapFactory.decodeFile(picturePath), 400)));
             profileimage.setText("");
 
-
-            //getScaledBitmap(String picturePath, int width, int height)
-            //imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-
-            // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-
-
-        } else if (requestCode == RC_SIGN_IN) {
+        } else if (requestCode == RC_SIGN_IN) { //delete
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
+                animation.start ();
+                mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
+                firebaseAuth(account, null);
+
             } else {
                 // Google Sign In failed, update UI appropriately
                 // ...
             }
         } else {
             //facebook
+
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
-/*
-//handle the succes sign in data
-private void handleSignInResult(GoogleSignInResult result) {
-        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
-        if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI.
-            GoogleSignInAccount acct = result.getSignInAccount();
-            final String uid = acct.getIdToken();
-            if(uid == null)
-            {
-                return;
-            }
-            else
-            {
-                DatabaseReference cracc = firedatabase.child("CRACC");
-                DatabaseReference google = cracc.child("Google");
-                google.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        if (snapshot.child(uid).exists()) {
-                            Log.i("dadddddddd","dddddddddddddddddddddddddddddddddddddd");
-                        }else{
-                            Log.i("dadddddddd","dddddddddddddddddddddddddddddddddddddd");
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        //throw databaseError.toException();
-                        Log.i("dadddddddd","ddddddddddddddddddddddddddddddddddddd``````d");
-                    }
-                });
-            }
-            //mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
-            //firebaseAuthWithGoogle(acct);
-            updateUI(true);
-        } else {
-            // Signed out, show unauthenticated UI.
-            updateUI(false);
+    private void firebaseAuth(final GoogleSignInAccount acct, final AccessToken token) {
+
+        AuthCredential credential = null;
+        if(acct!=null) { //this is google
+            credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         }
-    }
-    */
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-        final GoogleSignInAccount acct1 = acct;
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        else if ( token!=null ) {//this is facebook
+            credential = FacebookAuthProvider.getCredential(token.getToken());
+        }
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithCredential:success");
+
                             FirebaseUser user = mAuth.getCurrentUser();
-                            try {
-                                updateUI(user, acct1);
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                            if(acct != null)
+                            updateUI(user, "Google" ,acct);
+                            else if(token!=null) {
+                                getinformation(token);
+                                updateUI(user, "Facebook", null);
                             }
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            //updateUI(null);
+                            updateUI(null,null,null);
                         }
-                        int a = 20;
-                        // ...
+
                     }
                 });
     }
 
-    private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
-        final AccessToken tok = token;
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            uid = user.getUid();
 
-                            getinformation(tok);
-                            updateUI(user);
-
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            /*Toast.makeText(FacebookLoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();*/
-                            updateUI(null);
-                        }
-
-                        // ...
-                    }
-                });
-
-
-
-    }
-
-    private void getinformation(AccessToken token)
-    {
+    private void getinformation(AccessToken token) {
         GraphRequest request = GraphRequest.newMeRequest(
                 token,
                 new GraphRequest.GraphJSONObjectCallback() {
@@ -795,62 +778,39 @@ private void handleSignInResult(GoogleSignInResult result) {
                         // Application code
                         try {
 
-                            Log.i("Response", response.toString());
+                            Email= response.getJSONObject().getString("email");
+                            Name = response.getJSONObject().getString("first_name") + " "
+                                    + response.getJSONObject().getString("last_name");
+                            gender = response.getJSONObject().getString("gender");
 
-                            String email = response.getJSONObject().getString("email");
-                            String firstName = response.getJSONObject().getString("first_name");
-                            String lastName = response.getJSONObject().getString("last_name");
-                            String Gender = response.getJSONObject().getString("gender");
-                            //String age_min = object.getJSONObject("age_range").getString("min");
-
-                            Object a = response.getJSONObject().get("age_range");
-
-                            String c = a.toString();
-                            int index = c.indexOf("max");
-                            int index1 = c.indexOf("min");
+                            Object ageob = response.getJSONObject().get("age_range");
+                            String agerange = ageob.toString();
+                            int index = agerange.indexOf("max");
+                            int index1 = agerange.indexOf("min");
                             String age = "";
 
                             if (index != -1) {
-                                for (int i = index + 5; i < c.length(); i++) {
-                                    if (Character.isDigit(c.charAt(i))) {
-                                        age = age + c.substring(i, i + 1);
+                                for (int i = index + 5; i < agerange.length(); i++) {
+                                    if (Character.isDigit(agerange.charAt(i))) {
+                                        age = age + agerange.substring(i, i + 1);
                                     } else
                                         break;
                                 }
                             } else if (index1 != -1) {
-                                for (int i = index1 + 5; i < c.length(); i++) {
-                                    if (Character.isDigit(c.charAt(i))) {
-                                        System.out.println(c.charAt(i));
-                                        age = age + c.substring(i, i + 1);
+                                for (int i = index1 + 5; i < agerange.length(); i++) {
+                                    if (Character.isDigit(agerange.charAt(i))) {
+                                        System.out.println(agerange.charAt(i));
+                                        age = age + agerange.substring(i, i + 1);
                                     } else
                                         break;
                                 }
                             }
-
-
                             int year = Calendar.getInstance().get(Calendar.YEAR);
-
                             birthday = "" + (year - Integer.valueOf(age));
-
-                            LastName = lastName;
-                            FirstName = firstName;
-                            Stars = 0;
-                            Email = email;
-                            gender = Gender;
-
-
-                            Profile profile = Profile.getCurrentProfile();
-
 
                             if (Profile.getCurrentProfile() != null) {
                                 iconuri = Profile.getCurrentProfile().getProfilePictureUri(200, 200);
                             }
-
-                            Log.i("Login" + "Email", email);
-                            Log.i("Login" + "FirstName", firstName);
-                            Log.i("Login" + "LastName", lastName);
-                            Log.i("Login" + "Gender", gender);
-
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -864,314 +824,115 @@ private void handleSignInResult(GoogleSignInResult result) {
 
         Log.d(TAG, "handleFacebookAccessToken:" + token);
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        //updateUI(currentUser);
-    }
+
     //for facebook
-    private void updateUI(FirebaseUser user)
-    {
+    private void updateUI(FirebaseUser user, final String logintype, final GoogleSignInAccount acct) {
 
-        if(user == null )
-        {
 
-        }
-        else
-        {
-            cracc = firedatabase.child("CRACC");
-            final DatabaseReference facebook = cracc.child("Facebook");
+
+        if (logintype == null) {
+
+        } else {
+            if(logintype.equals("Google"))
+            {
+                Name = acct.getDisplayName();
+                Email = acct.getEmail();
+                iconuri = acct.getPhotoUrl();
+            }
+            uid = user.getUid();
+
             cracc.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    if (snapshot.child("Facebook").child(uid).exists()) {
-                        birthday = snapshot.child("User Info").child("Facebook").child(uid).child("Birthday").getValue(String.class);
-                        //LastName = snapshot.child("User Info").child("Google").child(uid).child("Birthday").getValue(String.class);
-                        FirstName = snapshot.child("User Info").child("Facebook").child(uid).child("Name").getValue(String.class);
-                        Stars = snapshot.child("User Info").child("Facebook").child(uid).child("Stars").getValue(Integer.class);
-                        Email = snapshot.child("User Info").child("Facebook").child(uid).child("Email").getValue(String.class);
-                        gender = snapshot.child("User Info").child("Facebook").child(uid).child("Gender").getValue(String.class);
-                        String uri = snapshot.child("User Info").child("Facebook").child(uid).child("avatarUrl").getValue(String.class);
-                        editor = sharedpreferences.edit();
-                        editor.putString(EMAIL, Email);
-                        editor.putString(GENDER, gender);
-                        editor.putString(FIRST_NAME, FirstName);
-                        editor.putString(BIRTHDAY, birthday);
-                        editor.putInt(STARS, Stars);
-                        editor.putString(USERID, uid);
-                        editor.putString(LOGINTYPE, "Facebook");
-                        editor.commit();
+                    if (snapshot.child(logintype).child(uid).exists()) {
+                        String uri = snapshot.child("User Info").child(logintype)
+                                .child(uid).child("avatarUrl")
+                                .getValue(String.class);
                         new DownloadImage().execute(uri);
-                        mainpage("facebooklogin");
+                        LoginProcess.settingsignin(logintype, uid, snapshot,
+                                sharedpreferences.edit());
 
+                        mainpage("login");
 
-                    }else{
+                    } else {
                         firsttimelogin = 1;
-                        // Create a storage reference from our app
-                        FirebaseStorage storage = FirebaseStorage.getInstance();
-                        StorageReference storageRef = storage.getReference().child("Avatar");
-                        //StorageReference riversRef = storageRef.child("images/"+personPhoto.getLastPathSegment());
-                        String result = UUID.nameUUIDFromBytes(uid.getBytes()).toString();
-                        filepath = storageRef.child(result.toUpperCase());
 
+                        String result = UUID.nameUUIDFromBytes(uid.getBytes()).toString();
+                        filepath = FirebaseStorage.getInstance().getReference().child("Avatar").child(result.toUpperCase());
                         new DownloadImage().execute(iconuri.toString());
 
-
-
-                        cracc.child("Facebook").child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                        //google.child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                        //cracc.child("User").child("Google").setValue(user);
-                        cracc.child("User").child("Facebook").child(uid).child("Chat List").child("default").setValue("defaults");
-                        cracc.child("User").child("Facebook").child(uid).child("Community List").child("default").setValue("defaults");
-                        cracc.child("User").child("Facebook").child(uid).child("Game Created").child("default").setValue("defaults");
-                        cracc.child("User").child("Facebook").child(uid).child("Game Joined").child("default").setValue("defaults");
-                        cracc.child("User").child("Facebook").child(uid).child("Interested List").child("default").setValue("defaults");
-
-                        cracc.child("User Info").child("Facebook").child(uid).child("Birthday").setValue(birthday);
-                        cracc.child("User Info").child("Facebook").child(uid).child("Email").setValue(Email);
-                        cracc.child("User Info").child("Facebook").child(uid).child("Gender").setValue(gender);
-                        cracc.child("User Info").child("Facebook").child(uid).child("Name").setValue(FirstName + " " + LastName);
-                        cracc.child("User Info").child("Facebook").child(uid).child("Stars").setValue(0);
-                        cracc.child("User Info").child("Facebook").child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                        cracc.child("User Info").child("Facebook").child(uid).child("Type").setValue("Facebook.com");
-                        cracc.child("User Info").child("Facebook").child(uid).child("avatarUrl").setValue("");
-                        Userid = uid;
-
-                        editor = sharedpreferences.edit();
-                        editor.putString(EMAIL, Email);
-                        editor.putString(GENDER, gender);
-                        editor.putString(FIRST_NAME, FirstName);
-                        editor.putString(LAST_NAME, LastName);
-                        editor.putString(BIRTHDAY, birthday);
-                        editor.putInt(STARS, Stars);
-                        editor.putString(USERID, Userid);
-                        editor.putString(PHOTOAVATAR, Photoavatar);
-                        editor.putString(LOGINTYPE, "Facebook");
-                        editor.apply();
-                        mainpage("facebook");
+                        //setup the value in firebase
+                        if( logintype.equals("Google") ) {
+                            LoginProcess.settingSignup(logintype, uid, cracc, Email, Name, "", "");
+                        }
+                        else if( logintype.equals("FaceBook"))
+                        LoginProcess.settingSignup(logintype, uid, cracc, Email, Name, gender, birthday);
+                        mainpage("login");
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    //throw databaseError.toException();
+                    throw databaseError.toException();
                 }
             });
         }
 
 
     }
-    //for google
-    private void updateUI(FirebaseUser user, GoogleSignInAccount acct) throws IOException {
-        /*
-        final List<String> scopes =  new ArrayList<String>();
-        HttpTransport httpTransport = new NetHttpTransport();
-        JacksonFactory jsonFactory = new JacksonFactory();
-        Person meProfile = null;
 
-        scopes.add(Scopes.PROFILE);
-        // On worker thread
-        GoogleAccountCredential credential =
-                GoogleAccountCredential.usingOAuth2(MainActivity.this, scopes);
-        credential.setSelectedAccount(
-                new Account(acct.getEmail(), "com.google"));
-        People service = new People.Builder(httpTransport, jsonFactory, credential)
-                .setApplicationName(getString(R.string.app_name) )
-                .build();
-// All the person details
-
-        try{
-        meProfile = service.people().get("people/me").execute();
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-
-// e.g. Gender
-        String gender = null;
-        if(meProfile != null) {
-            List<Gender> genders = meProfile.getGenders();
-            if (genders != null && genders.size() > 0) {
-                gender = genders.get(0).getValue();
-            }
-        }
-*/
-        uid = user.getUid();
-
-        final String personName = acct.getDisplayName();
-        final String personGivenName = acct.getGivenName();
-        final String personFamilyName = acct.getFamilyName();
-        final String personEmail = acct.getEmail();
-        final String gender1;
-        final Uri personPhoto = acct.getPhotoUrl();
-
-
-
-
-        /*
-        if(gender != null)
-        {
-            gender1 = gender;
-        }
-        else
-        {
-            gender1="";
-        }
-        */
-        cracc = firedatabase.child("CRACC");
-        final DatabaseReference google = cracc.child("Google");
-        cracc.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (snapshot.child("Google").child(uid).exists()) {
-                    birthday = snapshot.child("User Info").child("Google").child(uid).child("Birthday").getValue(String.class);
-                    //LastName = snapshot.child("User Info").child("Google").child(uid).child("Birthday").getValue(String.class);
-                    FirstName = snapshot.child("User Info").child("Google").child(uid).child("Name").getValue(String.class);
-                    Stars = snapshot.child("User Info").child("Google").child(uid).child("Stars").getValue(Integer.class);
-                    Email = snapshot.child("User Info").child("Google").child(uid).child("Email").getValue(String.class);
-                    gender = snapshot.child("User Info").child("Google").child(uid).child("Gender").getValue(String.class);
-                    String uri = snapshot.child("User Info").child("Google").child(uid).child("avatarUrl").getValue(String.class);
-                    editor = sharedpreferences.edit();
-                    editor.putString(EMAIL, Email);
-                    editor.putString(GENDER, gender);
-                    editor.putString(FIRST_NAME, FirstName);
-                    editor.putString(BIRTHDAY, birthday);
-                    editor.putInt(STARS, Stars);
-                    editor.putString(USERID, uid);
-                    editor.putString(LOGINTYPE, "Google");
-                    editor.apply();
-                    new DownloadImage().execute(uri);
-                    mainpage("google");
-
-                }else{
-                    firsttimelogin = 1;
-                    LastName  = personFamilyName;
-                    FirstName = personGivenName;
-                    Stars = 0;
-                    Email = personEmail;
-
-                    // Create a storage reference from our app
-                    FirebaseStorage storage = FirebaseStorage.getInstance();
-                    StorageReference storageRef = storage.getReference().child("Avatar");
-                    //StorageReference riversRef = storageRef.child("images/"+personPhoto.getLastPathSegment());
-                    String result = UUID.nameUUIDFromBytes(uid.getBytes()).toString();
-                    filepath = storageRef.child(result.toUpperCase());
-
-                    new DownloadImage().execute(personPhoto.toString());
-
-
-
-                    google.child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                    //google.child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                    //cracc.child("User").child("Google").setValue(user);
-                    cracc.child("User").child("Google").child(uid).child("Chat List").child("default").setValue("defaults");
-                    cracc.child("User").child("Google").child(uid).child("Community List").child("default").setValue("defaults");
-                    cracc.child("User").child("Google").child(uid).child("Game Created").child("default").setValue("defaults");
-                    cracc.child("User").child("Google").child(uid).child("Game Joined").child("default").setValue("defaults");
-                    cracc.child("User").child("Google").child(uid).child("Interested List").child("default").setValue("defaults");
-
-                    cracc.child("User Info").child("Google").child(uid).child("Birthday").setValue("");
-                    cracc.child("User Info").child("Google").child(uid).child("Email").setValue(personEmail);
-                    cracc.child("User Info").child("Google").child(uid).child("Gender").setValue("");
-                    cracc.child("User Info").child("Google").child(uid).child("Name").setValue(personName);
-                    cracc.child("User Info").child("Google").child(uid).child("Stars").setValue(0);
-                    cracc.child("User Info").child("Google").child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-                    cracc.child("User Info").child("Google").child(uid).child("Type").setValue("Google");
-                    cracc.child("User Info").child("Google").child(uid).child("avatarUrl").setValue("");
-
-                    googlesigningfinal();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //throw databaseError.toException();
-            }
-        });
-    }
-
-    private File createImageFile() {
-        String result = UUID.nameUUIDFromBytes(uid.getBytes()).toString();
-        String imageFileName = result;
-        File mFileTemp = null;
-        String root= getApplicationContext().getDir("my_sub_dir",Context.MODE_PRIVATE).getAbsolutePath();
-        File myDir = new File(root + "/Img");
-        if(!myDir.exists()){
-            myDir.mkdirs();
-        }
-        try {
-            mFileTemp=File.createTempFile(imageFileName,".jpg",myDir.getAbsoluteFile());
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        return mFileTemp;
-    }
-
+    private Context context = this;
     private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             // Create a progressdialog
+
         }
 
         @Override
         protected Bitmap doInBackground(String... URL) {
 
-            String imageURL = URL[0];
-
             Bitmap bitmap = null;
-            try {
-                // Download Image from URL
-                InputStream input = new java.net.URL(imageURL).openStream();
-                // Decode Bitmap
-                bitmap = BitmapFactory.decodeStream(input);
-                BitMapstore bit = new BitMapstore();
-                bit.addBitmapToMemoryCache("iconbitmap", bitmap);
-            } catch (Exception e) {
-                e.printStackTrace();
+            String imageURL = URL[0];
+            if(imageURL.equals("emails"))
+            {
+                bitmap = bm;
+                firsttimelogin =1;
             }
-            bitmap1 = bitmap;
-            File file = createImageFile();
-            if (file != null && firsttimelogin == 1) {
-                FileOutputStream fout;
+            else {
                 try {
-                    fout = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fout);
-                    fout.flush();
+                    // Download Image from URL
+
+                    InputStream input = new java.net.URL(imageURL).openStream();
+                    bitmap = BitmapFactory.decodeStream(input);
+                    BitMapstore.addBitmapToMemoryCache("iconbitmap", bitmap);
+                    //save the
+
+                    BitMapstore bitmapcache = new BitMapstore(context);
+                    File f = bitmapcache.getFile("iconbitmap");
+                    OutputStream os = new FileOutputStream(f);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+                    os.close();
+                    /*
+                    Utils.copyStream(input, os);
+                    */
+
+
+                    // Decode Bitmap
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                String a = file.getName();
-                iconuri = Uri.fromFile(file);
             }
-            if (iconuri != null && firsttimelogin == 1) {
-                UploadTask uploadTask = filepath.putFile(iconuri);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                        downloadUrl = taskSnapshot.getDownloadUrl();
+            //move above part to main
+            File file = Downloadimage.createImageFile(getApplicationContext(), uid);
+            iconuri = Downloadimage.downloaduriimage(bitmap,firsttimelogin ,file);
+            Downloadimage.uploadtoFirebase(cracc, filepath, uid, iconuri, firsttimelogin);
 
-                        ///change this with google
-                        cracc.child("User Info").child("Facebook").child(uid).child("avatarUrl").setValue(downloadUrl.toString());
 
-                        Photoavatar = downloadUrl.toString();
-                        editor = sharedpreferences.edit();
-                        editor.putString(PHOTOAVATAR, Photoavatar);
-                        editor.apply();
-                    }
-                });
-
-            }
 
             return bitmap;
         }
@@ -1179,172 +940,13 @@ private void handleSignInResult(GoogleSignInResult result) {
         @Override
         protected void onPostExecute(Bitmap result) {
             // Set the bitmap into ImageView
-            bitmap1 = result;
-        }
-    }
-
-        private class DownloadImage1 extends AsyncTask<String, Void, Bitmap> {
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                // Create a progressdialog
-            }
-
-            @Override
-            protected Bitmap doInBackground(String... URL) {
-
-
-
-                Bitmap bitmap = bm;
-                File file = createImageFile();
-                if (file != null) {
-                    FileOutputStream fout;
-                    try {
-                        fout = new FileOutputStream(file);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, fout);
-                        fout.flush();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    String a =  file.getName();
-                    iconuri  = Uri.fromFile(file);
-                }
-                if(iconuri != null) {
-                    UploadTask uploadTask = filepath.putFile(iconuri);
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-                            System.out.println("ddd");
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                            downloadUrl = taskSnapshot.getDownloadUrl();
-
-                            ///change this with google
-                            cracc.child("User Info").child("Email").child(uid).child("avatarUrl").setValue(downloadUrl.toString());
-
-                            Photoavatar = downloadUrl.toString();
-                            editor = sharedpreferences.edit();
-                            editor.putString(PHOTOAVATAR, Photoavatar);
-                            editor.apply();
-                        }
-                    });
-
-                }
-
-                return bitmap;
-            }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            // Set the bitmap into ImageView
-            bitmap1 = result;
+            progressBar.clearAnimation();
         }
     }
 
 
+    //delete next 3 function3
 
 
-    private Bitmap getScaledBitmap(String picturePath, int width, int height) {
-        BitmapFactory.Options sizeOptions = new BitmapFactory.Options();
-        sizeOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(picturePath, sizeOptions);
-
-        int inSampleSize = calculateInSampleSize(sizeOptions, width, height);
-
-        sizeOptions.inJustDecodeBounds = false;
-        sizeOptions.inSampleSize = inSampleSize;
-
-        return BitmapFactory.decodeFile(picturePath, sizeOptions);
-    }
-
-    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            // Calculate ratios of height and width to requested height and
-            // width
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-
-            // Choose the smallest ratio as inSampleSize value, this will
-            // guarantee
-            // a final image with both dimensions larger than or equal to the
-            // requested height and width.
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-        }
-
-        return inSampleSize;
-    }
-
-    private Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
-        Bitmap sbmp;
-
-        if (bmp.getWidth() != radius || bmp.getHeight() != radius) {
-            float smallest = Math.min(bmp.getWidth(), bmp.getHeight());
-            float factor = smallest / radius;
-            sbmp = Bitmap.createScaledBitmap(bmp, (int)(bmp.getWidth() / factor), (int)(bmp.getHeight() / factor), false);
-        } else {
-            sbmp = bmp;
-        }
-
-        Bitmap output = Bitmap.createBitmap(radius, radius,
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-
-        final int color = 0xffa19774;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, radius, radius);
-
-        paint.setAntiAlias(true);
-        paint.setFilterBitmap(true);
-        paint.setDither(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(Color.parseColor("#BAB399"));
-        canvas.drawCircle(radius / 2 + 0.7f,
-                radius / 2 + 0.7f, radius / 2 + 0.1f, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(sbmp, rect, rect, paint);
-
-        return output;
-    }
-    private void checkForREADPermission() {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Granted");
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Log.d(TAG, "READ external storage Permission Required!!");
-                new AlertDialog.Builder(this)
-                        .setTitle("READ external storage Permission Needed")
-                        .setMessage("This app needs the READ external storage permission, please accept to use Select image functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MainActivity.this,
-                                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
-                                        REQUEST_READ);
-                            }
-                        })
-                        .create()
-                        .show();
-
-            }
-            ActivityCompat.
-                    requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ);
-
-        }
-    }
 
 }
-

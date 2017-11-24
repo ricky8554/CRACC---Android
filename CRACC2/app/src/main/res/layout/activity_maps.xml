@@ -14,7 +14,12 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MapLocationActivity" />
+        tools:context=".MapLocationActivity"
+
+        />
+
+
+
 
     <!--This layout set the size and location of the location button it contain the location button
     in it-->
@@ -43,6 +48,38 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/operatorbar" />
+
+    <!--This layout is map search layout-->
+    <android.support.percent.PercentRelativeLayout
+        android:id="@+id/mapsearchlayout"
+        app:layout_marginTopPercent="13%"
+        android:layout_centerHorizontal="true"
+        app:layout_widthPercent="85%"
+        app:layout_aspectRatio="800%"
+        android:background="@drawable/typeinbox"
+        >
+
+        <Button
+            android:id="@+id/mapsearchbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_marginStartPercent="13%"
+            android:gravity="start|center_vertical"
+            android:background="@drawable/typeinbox"
+            android:text=""
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:onClick="mapsearch"/>
+        <Button
+            android:id="@+id/mapsearchbutton"
+            app:layout_marginLeftPercent="3%"
+            android:layout_centerVertical="true"
+            app:layout_widthPercent="8%"
+            app:layout_aspectRatio="100%"
+            android:background="@drawable/searchbarok" />
+
+    </android.support.percent.PercentRelativeLayout>
 
     <!--This layout is intend to create a empty base layout, when calling the function
     the location is matter-->
@@ -104,6 +141,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/informationsetting" />
+
 
 
 

@@ -11,9 +11,9 @@ android:id="@+id/chatboard"
 android:layout_alignParentEnd="true"
 android:layout_alignParentTop="true"
 android:background="@drawable/chatboard"
-app:layout_heightPercent="70%"
-app:layout_widthPercent="60%"
-    android:onClick="empty"
+app:layout_widthPercent="50%"
+app:layout_aspectRatio="50%"
+android:onClick="empty"
 
     />
     </android.support.percent.PercentRelativeLayout>

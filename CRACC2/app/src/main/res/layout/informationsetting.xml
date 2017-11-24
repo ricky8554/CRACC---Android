@@ -84,7 +84,7 @@
                 app:layout_marginTopPercent="4%"
                 android:imeOptions="actionNext"/>
             <EditText
-                android:id="@+id/settinglastnamename"
+                android:id="@+id/settinglastname"
                 android:layout_below="@id/settingicon"
                 android:background="@drawable/typeinboxgrey"
                 android:ems="7"
