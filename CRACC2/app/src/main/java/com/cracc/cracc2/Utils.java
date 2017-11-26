@@ -1,5 +1,9 @@
 package com.cracc.cracc2;
 
+import android.app.Activity;
+import android.support.design.widget.BottomSheetDialog;
+import android.view.View;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -23,5 +27,12 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void bottomsheetdialog(Activity activity,int content)
+    {
+        BottomSheetDialog dialog = new BottomSheetDialog(activity);
+        dialog.setContentView(content);
+        dialog.show();
     }
 }

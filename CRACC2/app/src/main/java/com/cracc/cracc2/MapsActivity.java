@@ -20,6 +20,7 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -28,11 +29,14 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.percent.PercentFrameLayout;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
@@ -60,6 +64,7 @@ import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.Auth;
@@ -96,8 +101,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -168,10 +179,14 @@ public class MapsActivity extends AppCompatActivity
     private EditText settinglastname;
     private EditText settingemail;
     private BitmapDrawable bd;
+    private boolean creategamevideo = false;
 
     //creategame button
     private Button videoicon;
     private PercentRelativeLayout videotexture;
+    private RelativeLayout videoplay;
+    private Button BacktoCreategame;
+    private VideoView videoview;
 
 
     private EditText typeinlocation;            //location field in create game
@@ -208,6 +223,9 @@ public class MapsActivity extends AppCompatActivity
     private int hour;
     private int minute;
     private String ampm;
+
+    //camera
+    private boolean hasvideo = false;
 
     //set font
     @Override
@@ -266,6 +284,13 @@ public class MapsActivity extends AppCompatActivity
         interest.setVisibility(View.GONE);
         community.setVisibility(View.GONE);
         setting.setVisibility(View.GONE);
+        if(creategamevideo)
+        {
+            closeCamera();
+            stopBackgroundThread();
+        }
+        creategamevideo = false;
+
     }
 
     //initialize the value of global variable, and assign the listener to proper variable.
@@ -276,14 +301,7 @@ public class MapsActivity extends AppCompatActivity
         permission.checkpermissionall(this, Mutirequestcode,
                 MapsActivity.this, "Location", new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
                         android.Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE});
-        /*
-        permission.checkpermission(this, REQUEST_AUDIO,
-                MapsActivity.this, "Audio", android.Manifest.permission.RECORD_AUDIO);
-        permission.checkpermission(this, REQUEST_CAMERA,
-                MapsActivity.this, "Camera", Manifest.permission.CAMERA);
-        permission.checkpermission(this, REQUEST_READ,
-                MapsActivity.this, "Read external storage", android.Manifest.permission.READ_EXTERNAL_STORAGE);
-                */
+
         Typeface myTypeface1 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Bold.ttf");
         Typeface myTypeface2 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Italic.ttf");
         Typeface myTypeface3 = Typeface.createFromAsset(getAssets(), "Myriad-Pro.ttf");
@@ -331,8 +349,109 @@ public class MapsActivity extends AppCompatActivity
         settinglastname = findViewById(R.id.settinglastname);
         settingemail = findViewById(R.id.settingemail);
 
+        final Activity content = this;
+        final BitMapstore bit = new BitMapstore(this,"video");
         videoicon = findViewById(R.id.videoicon);
+        videoicon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final BottomSheetDialog dialog = new BottomSheetDialog(content);
+                dialog.setContentView(R.layout.bottomdialog);
+                dialog.show();
+                Button playvideo = dialog.findViewById(R.id.playvideo);
+                Button deletevideo = dialog.findViewById(R.id.deletevideo);
+                playvideo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        videoplay.setVisibility(View.VISIBLE);
+
+                        File videoFile = bit.getFile("introvideo");
+                        if (videoFile != null) {
+                            videoplay.setVisibility(View.VISIBLE);
+                            videoview = findViewById(R.id.VideoView);
+
+                            videoview.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                @Override
+                                public void onPrepared(MediaPlayer mp) {
+                                    mp.setLooping(true);
+                                }
+                            });
+                            String path = videoFile.getAbsolutePath();
+                            Uri uri = Uri.parse(path);
+                            videoview.setVideoURI(uri);
+
+                            videoview.start();
+                        }
+                    }
+                });
+                deletevideo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        videoicon.setVisibility(View.GONE);
+                        videotexture.setVisibility(View.VISIBLE);
+                        bit.clear();
+
+                        hasvideo = false;
+                        creategamevideo = true;
+                        if(creategamevideo) {
+                            startBackgroundThread();
+                            if (textureView.isAvailable()) {
+                                setupCamera(textureView.getWidth(), textureView.getHeight(), CameraCharacteristics.LENS_FACING_FRONT);
+                                connectCamera();
+                            } else {
+                                textureView.setSurfaceTextureListener(surfaceTextureListener);
+                            }
+                        }
+
+
+                    }
+                });
+                //Utils.bottomsheetdialog(content, R.layout.bottomdialog);
+                /*
+                videoplay.setVisibility(View.VISIBLE);
+
+                File videoFile = bit.getFile("introvideo");
+                if (videoFile != null) {
+                    videoplay.setVisibility(View.VISIBLE);
+                    videoview = findViewById(R.id.VideoView);
+
+                    videoview.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            mp.setLooping(true);
+                        }
+                    });
+                    String path = videoFile.getAbsolutePath();
+                    Uri uri = Uri.parse(path);
+                    videoview.setVideoURI(uri);
+
+                    videoview.start();
+                }
+                */
+            }
+        });
+
         videotexture = findViewById(R.id.videotexture);
+        videoplay = findViewById(R.id.videoplay);
+        videoplay.setVisibility(View.GONE);
+        Button ok = findViewById(R.id.ok);
+        ok.setVisibility(View.GONE);
+        BacktoCreategame = findViewById(R.id.BacktoCamera);
+        BacktoCreategame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                videoplay.setVisibility(View.GONE);
+                videoview.stopPlayback();
+                videoview = null;
+                //startPreview();
+
+            }
+        });
+
+        videoview = findViewById(R.id.VideoView);
+
 
         //get The information
         birthday = settings.getString(BIRTHDAY, "").trim();
@@ -415,22 +534,22 @@ public class MapsActivity extends AppCompatActivity
         setListner(mainicon, controlboard);
         setAllFrametoInvisible();
 
+        closeCamera();
+        stopBackgroundThread();
+        String hasvideo1 = settings.getString(value.HASVIDEO, "");
 
-        String hasvideo = settings.getString(value.HASVIDEO, "");
-
-        if(hasvideo.equals("yes") )
-        {
+        if (hasvideo1.equals("yes")) {
             editor.putString(value.HASVIDEO, "");
             editor.commit();
             creategame(null);
             videoicon.setVisibility(View.VISIBLE);
             videotexture.setVisibility(View.GONE);
-        }
-        else
-        {
+            hasvideo = true;
+        } else {
             videoicon.setVisibility(View.GONE);
             videotexture.setVisibility(View.VISIBLE);
         }
+
     }
 
     //this function is for empty call which can be set on the empty frame to prevent frome exit
@@ -465,18 +584,35 @@ public class MapsActivity extends AppCompatActivity
         permission.checkpermission(this, REQUEST_CAMERA,
                 MapsActivity.this, "Camera", Manifest.permission.CAMERA);
         setAllFrametoInvisible();
+
         display(creategame);
+        if(v!=null && !hasvideo)
+        creategamevideo = true;
+        if(textureView.isAvailable() && !hasvideo)
+        {
+            setupCamera(textureView.getWidth(), textureView.getHeight(),CameraCharacteristics.LENS_FACING_FRONT);
+            connectCamera();
+            startBackgroundThread();
+        }
     }
 
     //create the timepicker dialog
     public void timepicker(View v) {
         if (v == typeintime) {
-            final Dialog d = new Dialog(this) {
+            final BottomSheetDialog d = new BottomSheetDialog(this);/* {
                 public boolean dispatchTouchEvent(MotionEvent a) {
-                    dismiss();
+                    Rect bounds = new Rect();
+                    getWindow().getDecorView().getHitRect(bounds);
+                    if(bounds.contains((int)a.getX(),(int)a.getY()))
+                    {
+
+                    }
+                    else {
+                        dismiss();
+                    }
                     return false;
                 }
-            };
+            };*/
             d.requestWindowFeature(Window.FEATURE_NO_TITLE);
             d.setContentView(R.layout.timepickerdialog);
             NumberPicker date1 = (NumberPicker) d.findViewById(R.id.numberPickerdate);
@@ -592,9 +728,7 @@ public class MapsActivity extends AppCompatActivity
     public void enterCamera(View v) {
         Intent intent = new Intent(this, Camera.class);
         startActivity(intent);
-        if (cameraDevice != null) {
-            cameraDevice.close();
-        }
+
     }
 
     public void star(View v) {
@@ -763,8 +897,26 @@ public class MapsActivity extends AppCompatActivity
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
-        if (cameraDevice != null) {
-            cameraDevice.close();
+        if(creategamevideo)
+        {
+            closeCamera();
+            stopBackgroundThread();
+        }
+
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+        if(creategamevideo) {
+            startBackgroundThread();
+            if (textureView.isAvailable()) {
+                setupCamera(textureView.getWidth(), textureView.getHeight(), CameraCharacteristics.LENS_FACING_FRONT);
+                connectCamera();
+            } else {
+                textureView.setSurfaceTextureListener(surfaceTextureListener);
+            }
         }
     }
 
@@ -1040,7 +1192,7 @@ public class MapsActivity extends AppCompatActivity
     }
     */
 
-
+/*
     private Size previewsize;
     private TextureView textureView;
     private CameraDevice cameraDevice;
@@ -1152,5 +1304,187 @@ public class MapsActivity extends AppCompatActivity
         } catch (Exception e) {
         }
     }
+
+}
+*/
+    private TextureView textureView;
+    private int mTotalRotation;
+    private String mCameraId;
+    private Size mPreviewSize;
+    private CameraDevice mCameraDevice;
+    private CaptureRequest.Builder mCaptureRequestBuilder;
+    private CameraCaptureSession mPreviewCaptureSession;
+    private HandlerThread mBackgroundHandlerThread;
+    private Handler mBackgroundHandler;
+
+private static SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 0);
+        ORIENTATIONS.append(Surface.ROTATION_90, 90);
+        ORIENTATIONS.append(Surface.ROTATION_180, 180);
+        ORIENTATIONS.append(Surface.ROTATION_270, 270);
+    }
+
+    private static class CompareSizeByArea implements Comparator<Size> {
+
+        @Override
+        public int compare(Size lhs, Size rhs) {
+            return Long.signum((long) (lhs.getWidth() * lhs.getHeight()) -
+                    (long) (rhs.getWidth() * rhs.getHeight()));
+        }
+    }
+
+    private CameraDevice.StateCallback mCameraDeviceStateCallback = new CameraDevice.StateCallback() {
+        @Override
+        public void onOpened(CameraDevice camera) {
+            mCameraDevice = camera;
+            startPreview();
+
+        }
+
+        @Override
+        public void onDisconnected(CameraDevice camera) {
+            camera.close();
+            mCameraDevice = null;
+        }
+
+        @Override
+        public void onError(CameraDevice camera, int error) {
+            camera.close();
+            mCameraDevice = null;
+        }
+    };
+
+    private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            setupCamera(width, height,CameraCharacteristics.LENS_FACING_FRONT);
+            connectCamera();
+            startBackgroundThread();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            return false;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+        }
+    };
+
+    private void setupCamera(int width, int height, int cameraface) {
+        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            for (String cameraId : cameraManager.getCameraIdList()) {
+                CameraCharacteristics cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+                if (cameraManager.getCameraIdList().length > 1 && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) !=
+                        cameraface) {// notic front
+                    continue;
+                }
+                StreamConfigurationMap map = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
+                mCameraId = cameraId;
+                return;
+            }
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void connectCamera() {
+        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    cameraManager.openCamera(mCameraId, mCameraDeviceStateCallback, null);
+                } else {
+                    if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
+                        Toast.makeText(this,
+                                "Video app required access to camera", Toast.LENGTH_SHORT).show();
+                    }
+                    requestPermissions(new String[]{android.Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO
+                    }, REQUEST_CAMERA);
+                }
+
+            } else {
+                cameraManager.openCamera(mCameraId, mCameraDeviceStateCallback, null);
+            }
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startPreview() {
+        SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
+        surfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+        Surface previewSurface = new Surface(surfaceTexture);
+
+        try {
+            mCaptureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            mCaptureRequestBuilder.addTarget(previewSurface);
+
+            mCameraDevice.createCaptureSession(Arrays.asList(previewSurface),
+                    new CameraCaptureSession.StateCallback() {
+                        @Override
+                        public void onConfigured(CameraCaptureSession session) {
+                            Log.d(TAG, "onConfigured: startPreview");
+                            mPreviewCaptureSession = session;
+                            try {
+                                mPreviewCaptureSession.setRepeatingRequest(mCaptureRequestBuilder.build(),
+                                        null, mBackgroundHandler);
+                            } catch (CameraAccessException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onConfigureFailed(CameraCaptureSession session) {
+                            Log.d(TAG, "onConfigureFailed: startPreview");
+
+                        }
+                    }, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void closeCamera() {
+        if (mCameraDevice != null) {
+            mCameraDevice.close();
+            mCameraDevice = null;
+        }
+
+    }
+
+
+
+    private void startBackgroundThread() {
+        mBackgroundHandlerThread = new HandlerThread("Camera2VideoImage");
+        mBackgroundHandlerThread.start();
+        mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
+    }
+
+    private void stopBackgroundThread() {
+        if( mBackgroundHandlerThread!= null) {
+            mBackgroundHandlerThread.quitSafely();
+            try {
+                mBackgroundHandlerThread.join();
+                mBackgroundHandlerThread = null;
+                mBackgroundHandler = null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.support.design.widget.BottomSheetDialog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -27,7 +28,7 @@ public class timepicker {
 
     public static Dialog timepicker1(Context c, final NumberPicker date,
                                    final NumberPicker hour, final NumberPicker minute ,
-                                   final NumberPicker ampm, Dialog d)
+                                   final NumberPicker ampm, BottomSheetDialog d)
     {
         d.setTitle("Datepicker");
 

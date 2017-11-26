@@ -1,0 +1,33 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+        <Button
+            android:id="@+id/playvideo"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:textAllCaps="false"
+            android:textColor="#000000"
+            android:textSize="25dp"
+            android:text="Play Video"
+            android:background="#ffffff"
+            />
+
+        <Button
+            android:id="@+id/deletevideo"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="62dp"
+            android:textAllCaps="false"
+            android:textColor="#000000"
+            android:textSize="25dp"
+            android:text="Delete Video"
+            android:background="#ffffff"
+             />
+
+
+    </RelativeLayout>
