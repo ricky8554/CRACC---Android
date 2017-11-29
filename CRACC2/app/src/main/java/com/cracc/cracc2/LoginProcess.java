@@ -55,7 +55,7 @@ public class LoginProcess{
                 string1 += Email.substring(i, i + 1);
             }
         }
-        if(!SignupType.equals("Email"))
+        if(SignupType.equals("Email"))
             cracc.child(SignupType).child(string1).child("Timestamp").setValue(ServerValue.TIMESTAMP);
         else
             cracc.child(SignupType).child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);

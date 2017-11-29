@@ -74,7 +74,7 @@ public class timepicker {
             else if( day == daysInMonth )
             {
                 month = month+1;
-                day = 0;
+                day = 1;
             }
             else
             {
@@ -148,7 +148,7 @@ public class timepicker {
             else if( day == daysInMonth )
             {
                 month = month+1;
-                day = 0;
+                day = 1;
             }
             else
             {

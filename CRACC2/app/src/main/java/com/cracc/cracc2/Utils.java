@@ -29,10 +29,11 @@ public class Utils {
         }
     }
 
-    public static void bottomsheetdialog(Activity activity,int content)
+    public static BottomSheetDialog bottomsheetdialog(Activity activity,int content)
     {
         BottomSheetDialog dialog = new BottomSheetDialog(activity);
         dialog.setContentView(content);
-        dialog.show();
+        //dialog.show();
+        return dialog;
     }
 }

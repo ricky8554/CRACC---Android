@@ -88,14 +88,14 @@
                 app:layout_widthPercent="75%"
                 android:imeOptions="actionNext"/>
 
-            <EditText
+            <Button
                 android:id="@+id/createlocation"
                 android:layout_below="@id/createname"
                 android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/location"
-                android:inputType="textAutoCorrect"
+                android:textSize="17sp"
                 android:paddingStart="10sp"
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
@@ -103,7 +103,7 @@
                 app:layout_marginLeftPercent="12.5%"
                 app:layout_marginTopPercent="4%"
                 app:layout_widthPercent="75%"
-                android:imeOptions="actionNext"/>
+                />
 
             <Button
                 android:id="@+id/createtime"
@@ -123,22 +123,22 @@
                 android:onClick="timepicker"
                 />
 
-            <EditText
+            <Button
                 android:id="@+id/createpeople"
                 android:layout_below="@id/createtime"
                 android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/numpeople"
-                android:inputType="number"
                 android:paddingStart="10sp"
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
+                android:textSize="17sp"
                 app:layout_heightPercent="7%"
                 app:layout_marginLeftPercent="12.5%"
                 app:layout_marginTopPercent="4%"
                 app:layout_widthPercent="75%"
-                android:imeOptions="actionDone"/>
+                />
 
             <Button
                 android:id="@+id/createbutton1"
