@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.percent.PercentFrameLayout;
 import android.support.percent.PercentRelativeLayout;
@@ -46,10 +47,12 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
@@ -60,6 +63,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -184,7 +188,7 @@ public class MapsActivity extends AppCompatActivity
 
     //creategame button
     private Button videoicon;
-    private PercentRelativeLayout videotexture;
+    private ConstraintLayout videotexture;
     private RelativeLayout videoplay;
     private Button BacktoCreategame;
     private VideoView videoview;
@@ -196,6 +200,7 @@ public class MapsActivity extends AppCompatActivity
     private Button typeinnumpeople;           //number of people field in create game
     private Button createbutton1;
     private Place creategameplace = null;
+    private String gametype = "";
 
 
     public static final String MyPREFERENCES = "CRACC.com.profile";
@@ -243,6 +248,14 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_maps);
 
         initialize();
+
+        /*
+        LayoutInflater inflater = (LayoutInflater)this.getSystemService(
+                Context.LAYOUT_INFLATER_SERVICE);
+*/
+
+
+
 
 
     }
@@ -581,6 +594,84 @@ public class MapsActivity extends AppCompatActivity
                             });
                     alertDialog.show();
                 }
+
+            }
+        });
+
+        final Button gameicon = findViewById(R.id.gameicon);
+        gameicon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final FrameLayout rootLayout = (FrameLayout)findViewById(android.R.id.content);
+                View.inflate(content, R.layout.imagehorizentalpicker,rootLayout);
+                ConstraintLayout imagehorizentalpicker = findViewById(R.id.imagehorizentalpicker);
+                Button basketballicon = findViewById(R.id.basketballicon);
+                Button cricketicon = findViewById(R.id.cricketicon);
+                Button footballicon = findViewById(R.id.footballicon);
+                Button poolicon = findViewById(R.id.poolicon);
+                Button soccericon = findViewById(R.id.soccericon);
+
+
+                imagehorizentalpicker.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                    }
+                });
+
+                basketballicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.basketball);
+                        gameicon.setText("");
+                        gametype = "basketball";
+                    }
+                });
+
+                cricketicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.cricket);
+                        gameicon.setText("");
+                        gametype = "cricket";
+                    }
+                });
+
+
+                footballicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.football);
+                        gameicon.setText("");
+                        gametype = "football";
+                    }
+                });
+
+
+                poolicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.pool);
+                        gameicon.setText("");
+                        gametype = "pool";
+                    }
+                });
+
+
+                soccericon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.soccer);
+                        gameicon.setText("");
+                        gametype = "soccer";
+                    }
+                });
 
             }
         });
