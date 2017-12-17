@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
     private Button createaccountgoooglefemale;
     private EditText createaccountgoooglebirthday;
     private FrameLayout createaccountgooogleframe;
+    private String signuptype;
 
 
     private GoogleApiClient mGoogleApiClient;
@@ -551,6 +552,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void createaccount1(View v) {
         createaccountframe1.setVisibility(View.VISIBLE);
+        signuptype = "Email";
     }
 
     public void getPicture(View v) {
@@ -585,6 +587,8 @@ public class MainActivity extends AppCompatActivity {
             editor = sharedpreferences.edit();
             editor.putString(GENDER, gender);
             editor.putString(BIRTHDAY, birthday);
+            editor.putString(NAME, Name);
+            editor.putString(EMAIL, Email);
             editor.commit();
 
             mainpage("login");
@@ -720,7 +724,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == RC_SIGN_IN) { //delete
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
-                animation.start ();
+
                 mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = result.getSignInAccount();
@@ -742,9 +746,11 @@ public class MainActivity extends AppCompatActivity {
         AuthCredential credential = null;
         if(acct!=null) { //this is google
             credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+            signuptype = "Google";
         }
         else if ( token!=null ) {//this is facebook
             credential = FacebookAuthProvider.getCredential(token.getToken());
+            signuptype = "FaceBook";
         }
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -846,6 +852,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     if (snapshot.child(logintype).child(uid).exists()) {
+                        if(logintype.equals("Google"))
+                        animation.start ();
                         String uri = snapshot.child("User Info").child(logintype)
                                 .child(uid).child("avatarUrl")
                                 .getValue(String.class);
@@ -865,10 +873,12 @@ public class MainActivity extends AppCompatActivity {
                         //setup the value in firebase
                         if( logintype.equals("Google") ) {
                             LoginProcess.settingSignup(logintype, uid, cracc, Email, Name, "", "");
+                            googlesigningfinal();
                         }
-                        else if( logintype.equals("FaceBook"))
-                        LoginProcess.settingSignup(logintype, uid, cracc, Email, Name, gender, birthday);
-                        mainpage("login");
+                        else if( logintype.equals("FaceBook")) {
+                            LoginProcess.settingSignup(logintype, uid, cracc, Email, Name, gender, birthday);
+                            mainpage("login");
+                        }
                     }
                 }
 
@@ -930,7 +940,7 @@ public class MainActivity extends AppCompatActivity {
             //move above part to main
             File file = Downloadimage.createImageFile(getApplicationContext(), uid);
             iconuri = Downloadimage.downloaduriimage(bitmap,firsttimelogin ,file);
-            Downloadimage.uploadtoFirebase(cracc, filepath, uid, iconuri, firsttimelogin);
+            Downloadimage.uploadtoFirebase(cracc, filepath, uid, iconuri, firsttimelogin, signuptype );
 
 
 
@@ -946,8 +956,14 @@ public class MainActivity extends AppCompatActivity {
 
 
     //delete next 3 function3
+
     //Monkie Made some comment
     //let chao try github
+    //hello monkie
+    //testing testing
+    //test test test
+    //test againg
+
 
 
 

@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.percent.PercentFrameLayout;
 import android.support.percent.PercentRelativeLayout;
@@ -46,10 +47,12 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
@@ -60,6 +63,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -131,6 +135,7 @@ public class MapsActivity extends AppCompatActivity
     Marker mChooseLocationMarker;
     private static int RESULT_LOAD_IMAGE = 6;
     private static int PLACE_AUTOCOMPLETE_REQUEST_CODE = 5;
+    private static int PLACE_AUTOCOMPLETE_REQUEST_CODE_CREATEGAME = 7;
 
     private static final int REQUEST_CAMERA = 1;
     private static final int REQUEST_AUDIO = 2;
@@ -156,15 +161,15 @@ public class MapsActivity extends AppCompatActivity
     private Button star3;
     private Button star4;
     private Button star5;
-    private FrameLayout activity_maps_base_frame; //base grame for the exit a frame
-    private FrameLayout gamemanagement;         //game management frame
-    private FrameLayout chatboard;              //chat board frame
-    private FrameLayout controlboard;           //control board frame
-    private FrameLayout creategame;             //create game frame
-    private FrameLayout information;            //information frame
-    private FrameLayout interest;               //interest frame
-    private FrameLayout community;              //community frame
-    private FrameLayout setting;              //setting in the information
+    private FrameLayout activity_maps_base_frame;   //base grame for the exit a frame
+    private FrameLayout gamemanagement;             //game management frame
+    private FrameLayout chatboard;                  //chat board frame
+    private FrameLayout controlboard;               //control board frame
+    private FrameLayout creategame;                 //create game frame
+    private FrameLayout information;                //information frame
+    private FrameLayout interest;                   //interest frame
+    private FrameLayout community;                  //community frame
+    private FrameLayout setting;                    //setting in the information
     private TextView informationtext;
     private TextView age;
     private TextView lastgame;
@@ -183,16 +188,19 @@ public class MapsActivity extends AppCompatActivity
 
     //creategame button
     private Button videoicon;
-    private PercentRelativeLayout videotexture;
+    private ConstraintLayout videotexture;
     private RelativeLayout videoplay;
     private Button BacktoCreategame;
     private VideoView videoview;
 
-
-    private EditText typeinlocation;            //location field in create game
+    //creategame
+    private Button typeinlocation;            //location field in create game
     private EditText typeinname;                //name field in create game
     private Button typeintime;                //time field in create game
-    private EditText typeinnumpeople;           //number of people field in create game
+    private Button typeinnumpeople;           //number of people field in create game
+    private Button createbutton1;
+    private Place creategameplace = null;
+    private String gametype = "";
 
 
     public static final String MyPREFERENCES = "CRACC.com.profile";
@@ -240,6 +248,14 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_maps);
 
         initialize();
+
+        /*
+        LayoutInflater inflater = (LayoutInflater)this.getSystemService(
+                Context.LAYOUT_INFLATER_SERVICE);
+*/
+
+
+
 
 
     }
@@ -508,11 +524,157 @@ public class MapsActivity extends AppCompatActivity
 
 
         //============assign each edittext variable with it assosiate object in xml================
-        typeinlocation = (EditText) findViewById(R.id.createlocation);
+        typeinlocation = findViewById(R.id.createlocation);
+        typeinlocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Intent intent =
+                            new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                                    .build(content);
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE_CREATEGAME);
+
+                } catch (GooglePlayServicesRepairableException e) {
+                    // TODO: Handle the error.
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    // TODO: Handle the error.
+                }
+            }
+        });
         typeinname = (EditText) findViewById(R.id.createname);
         typeintime = findViewById(R.id.createtime);
         typeintime.setTypeface(myTypeface3);
-        typeinnumpeople = (EditText) findViewById(R.id.createpeople);
+        typeinnumpeople =  findViewById(R.id.createpeople);
+        typeinnumpeople.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomSheetDialog dialog = Utils.bottomsheetdialog(content,R.layout.singlenumberpicker);
+                NumberPicker num = dialog.findViewById(R.id.singlenumberPicker);
+                num.setMaxValue(101);
+                num.setMinValue(1);
+                num.setWrapSelectorWheel(false);
+                num.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                num.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                    @Override
+                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                        typeinnumpeople.setText(Integer.toString(newVal));
+                    }
+                });
+                if(typeinnumpeople.getText().equals("")) {
+                    typeinnumpeople.setText(Integer.toString(1));
+                }
+                else
+                {
+                    typeinnumpeople.setText(typeinnumpeople.getText());
+                }
+                dialog.show();
+            }
+        });
+        createbutton1 = findViewById(R.id.createbutton1);
+        createbutton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!typeinlocation.getText().equals("") && !typeinname.getText().equals("")
+                        && !typeintime.getText().equals("") && !typeinnumpeople.getText().equals(""))
+                {
+
+
+                }
+                else
+                {
+                    //very simple error message, fix this
+                    AlertDialog alertDialog = new AlertDialog.Builder(content).create();
+                    alertDialog.setTitle("Can Not creat the game");
+                    alertDialog.setMessage("Please Fill In all the blank");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                }
+
+            }
+        });
+
+        final Button gameicon = findViewById(R.id.gameicon);
+        gameicon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final FrameLayout rootLayout = (FrameLayout)findViewById(android.R.id.content);
+                View.inflate(content, R.layout.imagehorizentalpicker,rootLayout);
+                ConstraintLayout imagehorizentalpicker = findViewById(R.id.imagehorizentalpicker);
+                Button basketballicon = findViewById(R.id.basketballicon);
+                Button cricketicon = findViewById(R.id.cricketicon);
+                Button footballicon = findViewById(R.id.footballicon);
+                Button poolicon = findViewById(R.id.poolicon);
+                Button soccericon = findViewById(R.id.soccericon);
+
+
+                imagehorizentalpicker.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                    }
+                });
+
+                basketballicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.basketball);
+                        gameicon.setText("");
+                        gametype = "basketball";
+                    }
+                });
+
+                cricketicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.cricket);
+                        gameicon.setText("");
+                        gametype = "cricket";
+                    }
+                });
+
+
+                footballicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.football);
+                        gameicon.setText("");
+                        gametype = "football";
+                    }
+                });
+
+
+                poolicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.pool);
+                        gameicon.setText("");
+                        gametype = "pool";
+                    }
+                });
+
+
+                soccericon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
+                        gameicon.setBackgroundResource(R.drawable.soccer);
+                        gameicon.setText("");
+                        gametype = "soccer";
+                    }
+                });
+
+            }
+        });
         //=====================set the clickListener to button or frame==========================
         textureView.setSurfaceTextureListener(surfaceTextureListener);
         activity_maps_base_frame.setOnClickListener(new View.OnClickListener() {
@@ -599,20 +761,7 @@ public class MapsActivity extends AppCompatActivity
     //create the timepicker dialog
     public void timepicker(View v) {
         if (v == typeintime) {
-            final BottomSheetDialog d = new BottomSheetDialog(this);/* {
-                public boolean dispatchTouchEvent(MotionEvent a) {
-                    Rect bounds = new Rect();
-                    getWindow().getDecorView().getHitRect(bounds);
-                    if(bounds.contains((int)a.getX(),(int)a.getY()))
-                    {
-
-                    }
-                    else {
-                        dismiss();
-                    }
-                    return false;
-                }
-            };*/
+            final BottomSheetDialog d = new BottomSheetDialog(this);
             d.requestWindowFeature(Window.FEATURE_NO_TITLE);
             d.setContentView(R.layout.timepickerdialog);
             NumberPicker date1 = (NumberPicker) d.findViewById(R.id.numberPickerdate);
@@ -621,6 +770,22 @@ public class MapsActivity extends AppCompatActivity
             NumberPicker ampm1 = (NumberPicker) d.findViewById(R.id.numberPickerampm);
             DisplayMetrics metrics = getResources().getDisplayMetrics();
             timepicker.timepicker1(this, date1, hour1, minute1, ampm1, d);
+            Calendar cal = Calendar.getInstance();
+            date1.setValue(0);
+            hour1.setValue(cal.get(Calendar.HOUR));
+            minute1.setValue(cal.get(Calendar.MINUTE));
+            int AM_PM = cal.get(Calendar.AM_PM);
+            if (AM_PM == 0) {
+                ampm1.setValue(0);
+                ampm = "AM";
+            }
+            else
+            {
+                ampm1.setValue(1);
+                ampm = "PM";
+            }
+
+            typeintime.setText(timepicker.getString(0) + " " + hour1.getValue() + ":" + minute1.getValue() + ":" + "00 " + ampm);
             date1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
                 @Override
                 public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -855,6 +1020,20 @@ public class MapsActivity extends AppCompatActivity
                 //move map camera and set the zoom in percentage
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
 
+
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+        else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE_CREATEGAME) {
+            if (resultCode == RESULT_OK) {
+                creategameplace = PlaceAutocomplete.getPlace(this, data);
+                typeinlocation.setText(creategameplace.getName());
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);

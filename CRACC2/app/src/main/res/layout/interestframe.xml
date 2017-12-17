@@ -1,65 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+
     <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/interestframe"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:onClick="empty">
 
-        <android.support.percent.PercentRelativeLayout
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/interestlayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#ffffff">
 
-            <android.support.percent.PercentRelativeLayout
-                android:id="@+id/interestlayouttop"
-                android:layout_width="match_parent"
-                android:background="#5672ff"
-                app:layout_heightPercent="10%">
+            <android.support.constraint.Guideline
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rootbottom_guideline"
+                app:layout_constraintGuide_percent="0.1"
+                android:orientation="horizontal"
+                />
 
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/interestlayouttop"
+                android:background="#5672ff"
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/rootbottom_guideline">
+
+                <android.support.constraint.Guideline
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/innerbottom_guideline1"
+                    app:layout_constraintGuide_percent="0.9"
+                    android:orientation="horizontal"
+                    />
                 <TextView
                     android:id="@+id/interesttext"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="395dp"
+                    android:layout_height="50dp"
                     android:gravity="bottom"
                     android:paddingStart="5sp"
                     android:text="@string/interestedot"
                     android:textColor="#ffffff"
                     android:textSize="25sp"
-                    app:layout_marginBottomPercent="10%" />
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/innerbottom_guideline1"/>
 
-                <android.support.percent.PercentRelativeLayout
+                <android.support.constraint.Guideline
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/innermiddle_guideline1"
+                    app:layout_constraintGuide_percent="0.87"
+                    android:orientation="vertical"
+                    />
+
+                <android.support.constraint.ConstraintLayout
                     android:id="@+id/interestlayouttopright"
-                    android:layout_width="match_parent"
-                    android:layout_alignParentEnd="true"
                     android:background="#5672ff"
-                    app:layout_widthPercent="13%"
-                    android:onClick="clean">
+                    android:onClick="clean"
+                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    app:layout_constraintLeft_toLeftOf="@+id/innermiddle_guideline1"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <android.support.constraint.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/innerbottom_guideline2"
+                        app:layout_constraintGuide_percent="0.8"
+                        android:orientation="horizontal"
+                        />
+
+                    <android.support.constraint.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/innertop_guideline2"
+                        app:layout_constraintGuide_percent="0.55"
+                        android:orientation="horizontal"
+                        />
+
+                    <android.support.constraint.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/innermiddle_guideline2"
+                        app:layout_constraintGuide_percent="0.7"
+                        android:orientation="vertical"
+                        />
+
+                    <android.support.constraint.Guideline
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/innermiddle_guideline3"
+                        app:layout_constraintGuide_percent="0.4"
+                        android:orientation="vertical"
+                        />
 
                     <Button
                         android:id="@+id/exit"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentEnd="true"
                         android:background="@drawable/cross"
-                        app:layout_heightPercent="25%"
-                        app:layout_marginBottomPercent="20%"
-                        app:layout_marginRightPercent="30%"
-                        app:layout_widthPercent="30%"
+                        android:layout_height="0dp"
+                        android:layout_width="0dp"
+                        app:layout_constraintLeft_toLeftOf="@+id/innermiddle_guideline3"
+                        app:layout_constraintRight_toRightOf="@+id/innermiddle_guideline2"
+                        app:layout_constraintTop_toTopOf="@+id/innertop_guideline2"
+                        app:layout_constraintBottom_toBottomOf="@+id/innerbottom_guideline2"
                         android:onClick="clean"/>
 
-                </android.support.percent.PercentRelativeLayout>
-            </android.support.percent.PercentRelativeLayout>
+                </android.support.constraint.ConstraintLayout>
+            </android.support.constraint.ConstraintLayout>
 
 
-        </android.support.percent.PercentRelativeLayout>
+        </android.support.constraint.ConstraintLayout>
 
     </FrameLayout>
-
-</android.support.percent.PercentRelativeLayout>

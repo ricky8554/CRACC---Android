@@ -1,74 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
+
+    <android.support.constraint.Guideline
+        android:id="@+id/rootBottom_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.89" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/rootTope_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.11" />
+
     <FrameLayout
         android:id="@+id/creategame"
-        android:layout_width="match_parent"
-        app:layout_heightPercent="78%"
-        app:layout_marginTopPercent="11%"
-        android:onClick="empty">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:onClick="empty"
+        app:layout_constraintBottom_toBottomOf="@+id/rootBottom_guideline"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/rootTope_guideline">
 
-        <android.support.percent.PercentRelativeLayout
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/creategamelayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/creategame">
 
+            <android.support.constraint.Guideline
+                android:id="@+id/insideTop_guideline1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.01" />
+
             <TextView
                 android:id="@+id/creategametext"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:text="@string/creategame"
                 android:textColor="#000000"
                 android:textSize="25sp"
-                android:gravity="center_horizontal"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/insideTop_guideline1"/>
 
-                app:layout_marginTopPercent="1%" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideTop_guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.02" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideBottom_guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.24" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideLeft_guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.82" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideRight_guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.98" />
 
-        <android.support.percent.PercentRelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_alignParentEnd="true"
-            app:layout_heightPercent="22%"
-            app:layout_marginRightPercent="2%"
-            app:layout_marginTopPercent="2%"
-            app:layout_widthPercent="16%"
-            android:background="@drawable/roundcornerpurple"
-            android:padding="3dp"
-            android:id="@+id/videotexture"
-            >
-            <TextureView
-                android:id="@+id/camera"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="enterCamera"
-                />
 
-            </android.support.percent.PercentRelativeLayout>
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/videotexture"
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                app:layout_constraintBottom_toBottomOf="@+id/insideBottom_guideline2"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline2"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline2"
+                app:layout_constraintTop_toTopOf="@+id/insideTop_guideline2"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/roundcornerpurple"
+                android:padding="3dp"
+                >
+
+                <TextureView
+                    android:id="@+id/camera"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:onClick="enterCamera" />
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.Guideline
+                android:id="@+id/insideTop_guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.15" />
+
+
+            <android.support.constraint.Guideline
+                android:id="@+id/insideLeft_guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.72" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/insideRight_guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.82" />
 
             <Button
                 android:id="@+id/videoicon"
                 android:background="@drawable/vidicon"
-                android:layout_alignParentEnd="true"
-                app:layout_widthPercent="10%"
-                app:layout_marginRightPercent="18%"
-                app:layout_marginTopPercent="15%"
-                app:layout_aspectRatio="100%" />
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline3"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline3"
+                app:layout_constraintTop_toTopOf="@+id/insideTop_guideline3"
+                app:layout_constraintDimensionRatio="1:1"/>
+
+            <android.support.constraint.Guideline
+                android:id="@+id/insideTop_guideline4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.08" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideLeft_guideline4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.4" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideRight_guideline4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.6" />
 
             <Button
                 android:id="@+id/gameicon"
                 android:background="@drawable/gameicon"
                 android:text="Type"
                 android:textColor="#000000"
-                app:layout_widthPercent="20%"
-                app:layout_marginLeftPercent="41%"
-                app:layout_marginTopPercent="8%"
-                app:layout_aspectRatio="100%" />
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline4"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline4"
+                app:layout_constraintTop_toTopOf="@+id/insideTop_guideline4"
+                app:layout_constraintDimensionRatio="1:1" />
 
+            <android.support.constraint.Guideline
+                android:id="@+id/insideTop_guideline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.26" />
+
+            <android.support.constraint.Guideline
+                android:id="@+id/insideBottom_guideline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.84" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideLeft_guideline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.125" />
+            <android.support.constraint.Guideline
+                android:id="@+id/insideRight_guideline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.875" />
 
 
             <EditText
@@ -78,32 +203,35 @@
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/gamename"
+                android:imeOptions="actionNext"
                 android:inputType="textCapWords"
                 android:paddingStart="10sp"
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="12.5%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="75%"
-                android:imeOptions="actionNext"/>
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                app:layout_constraintTop_toTopOf="@+id/insideTop_guideline5"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline5"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline5"
+                app:layout_constraintBottom_toTopOf="@+id/createlocation" />
 
-            <EditText
+            <Button
                 android:id="@+id/createlocation"
                 android:layout_below="@id/createname"
                 android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/location"
-                android:inputType="textAutoCorrect"
                 android:paddingStart="10sp"
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="12.5%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="75%"
-                android:imeOptions="actionNext"/>
+                android:textSize="17sp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                app:layout_constraintTop_toBottomOf="@+id/createname"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline5"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline5"
+                app:layout_constraintBottom_toTopOf="@+id/createtime" />
 
             <Button
                 android:id="@+id/createtime"
@@ -112,33 +240,36 @@
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/time"
-                android:textSize="17sp"
+                android:onClick="timepicker"
                 android:paddingStart="10sp"
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="12.5%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="75%"
-                android:onClick="timepicker"
-                />
+                android:textSize="17sp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                app:layout_constraintTop_toBottomOf="@+id/createlocation"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline5"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline5"
+                app:layout_constraintBottom_toTopOf="@+id/createpeople"
+                android:layout_marginBottom="0dp" />
 
-            <EditText
+            <Button
                 android:id="@+id/createpeople"
                 android:layout_below="@id/createtime"
                 android:background="@drawable/typeinboxgrey"
                 android:ems="7"
                 android:gravity="center"
                 android:hint="@string/numpeople"
-                android:inputType="number"
                 android:paddingStart="10sp"
                 android:textColor="#000000"
                 android:textColorHint="#66000000"
-                app:layout_heightPercent="7%"
-                app:layout_marginLeftPercent="12.5%"
-                app:layout_marginTopPercent="4%"
-                app:layout_widthPercent="75%"
-                android:imeOptions="actionDone"/>
+                android:textSize="17sp"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                app:layout_constraintTop_toBottomOf="@+id/createtime"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline5"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline5"
+                app:layout_constraintBottom_toTopOf="@+id/createbutton1" />
 
             <Button
                 android:id="@+id/createbutton1"
@@ -147,21 +278,26 @@
                 android:text="Create"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
-                app:layout_marginTopPercent="4%"
-                app:layout_marginLeftPercent="30%"
-                app:layout_widthPercent="40%"
-                app:layout_heightPercent="10%"/>
+                android:layout_width="160dp"
+                android:layout_height="60dp"
+                app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline5"
+                app:layout_constraintRight_toRightOf="@+id/insideRight_guideline5"
+                app:layout_constraintBottom_toBottomOf="@+id/insideBottom_guideline5"
+                app:layout_constraintVertical_bias="1"
+                />
 
 
-
-
-
-        </android.support.percent.PercentRelativeLayout>
+        </android.support.constraint.ConstraintLayout>
     </FrameLayout>
     <!--for video play layout-->
     <include
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/videoplay" />
+        layout="@layout/videoplay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
-</android.support.percent.PercentRelativeLayout>
+</android.support.constraint.ConstraintLayout>

@@ -88,8 +88,8 @@ public class Downloadimage {
         return iconuri;
     }
 
-    public static void uploadtoFirebase( final DatabaseReference cracc, StorageReference filepath,
-                                         final String uid, Uri iconuri, int firsttimelogin )
+    public static void uploadtoFirebase(final DatabaseReference cracc, StorageReference filepath,
+                                        final String uid, Uri iconuri, int firsttimelogin, final String signintype )
     {
 
         if (iconuri != null && firsttimelogin == 1) {
@@ -107,7 +107,7 @@ public class Downloadimage {
                     downloadUrl = taskSnapshot.getDownloadUrl();
 
                     ///change this with google
-                    cracc.child("User Info").child("Facebook").child(uid).child("avatarUrl").setValue(downloadUrl.toString());
+                    cracc.child("User Info").child(signintype).child(uid).child("avatarUrl").setValue(downloadUrl.toString());
 
                 }
             });
