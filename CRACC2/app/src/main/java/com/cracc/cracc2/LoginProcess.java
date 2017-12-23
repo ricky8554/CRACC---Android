@@ -39,6 +39,7 @@ public class LoginProcess{
         editor.putInt("starskey", Stars);
         editor.putString("UserId", uid);
         editor.putString("LoginType", logintype);
+        editor.putString(value.PHOTOAVATAR, uri);
         editor.commit();
 
         return uri;

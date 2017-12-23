@@ -1,6 +1,7 @@
 package com.cracc.cracc2;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -89,7 +90,7 @@ public class Downloadimage {
     }
 
     public static void uploadtoFirebase(final DatabaseReference cracc, StorageReference filepath,
-                                        final String uid, Uri iconuri, int firsttimelogin, final String signintype )
+                                        final String uid, Uri iconuri, int firsttimelogin, final String signintype, final Context context )
     {
 
         if (iconuri != null && firsttimelogin == 1) {
@@ -108,6 +109,10 @@ public class Downloadimage {
 
                     ///change this with google
                     cracc.child("User Info").child(signintype).child(uid).child("avatarUrl").setValue(downloadUrl.toString());
+                    SharedPreferences sharedpreferences;
+                    SharedPreferences.Editor editor = context.getSharedPreferences(value.MyPREFERENCES, Context.MODE_PRIVATE).edit();
+                    editor.putString(value.PHOTOAVATAR, downloadUrl.toString());
+                    editor.commit();
 
                 }
             });

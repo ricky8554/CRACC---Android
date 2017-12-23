@@ -2,112 +2,137 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/imagehorizentalpicker"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/imagehorizentalpicker">
+    android:layout_height="match_parent">
 
 
+    <android.support.constraint.Guideline
+        android:id="@+id/insideTop_guideline0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.19" />
 
 
+    <android.support.constraint.Guideline
+        android:id="@+id/insideLeft_guideline0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4" />
 
-        <android.support.constraint.Guideline
-            android:id="@+id/insideTop_guideline0"
+    <android.support.constraint.Guideline
+        android:id="@+id/insideRight_guideline0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.6" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/insideBottom_guideline0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.37" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/insideLeft_guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.07" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/insideRight_guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.93" />
+
+
+    <RelativeLayout
+        android:id="@+id/emptylayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline0"
+        app:layout_constraintRight_toRightOf="@+id/insideRight_guideline0"
+        app:layout_constraintTop_toTopOf="@+id/insideTop_guideline0" />
+
+
+    <HorizontalScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+
+
+        app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline1"
+        app:layout_constraintRight_toRightOf="@+id/insideRight_guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/emptylayout"
+        app:layout_constraintBottom_toBottomOf="@+id/insideBottom_guideline0"
+        android:background="@drawable/roundedrectanglewhite"
+        >
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/scrolllayout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.19" />
+            android:layout_height="match_parent">
 
+            <Button
+                android:id="@+id/basketballicon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/basketball"
+                app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintLeft_toLeftOf="@+id/scrolllayout"
+                app:layout_constraintTop_toTopOf="@+id/scrolllayout" />
 
+            <Button
+                android:id="@+id/cricketicon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/cricket"
+                app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintLeft_toRightOf="@+id/basketballicon"
+                app:layout_constraintTop_toTopOf="@+id/scrolllayout"
+                android:layout_marginStart="30dp"/>
 
-        <android.support.constraint.Guideline
-            android:id="@+id/insideLeft_guideline0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.4" />
+            <Button
+                android:id="@+id/footballicon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/football"
+                app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintLeft_toRightOf="@+id/cricketicon"
+                app:layout_constraintTop_toTopOf="@+id/scrolllayout"
+                android:layout_marginStart="30dp"/>
 
-        <android.support.constraint.Guideline
-            android:id="@+id/insideRight_guideline0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.6" />
+            <Button
+                android:id="@+id/poolicon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/pool"
+                app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintLeft_toRightOf="@+id/footballicon"
+                app:layout_constraintTop_toTopOf="@+id/scrolllayout"
+                android:layout_marginStart="30dp"/>
 
-        <RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:id="@+id/emptylayout"
-            app:layout_constraintLeft_toLeftOf="@+id/insideLeft_guideline0"
-            app:layout_constraintRight_toRightOf="@+id/insideRight_guideline0"
-            app:layout_constraintTop_toTopOf="@+id/insideTop_guideline0"
-            app:layout_constraintDimensionRatio="1:1"/>
+            <Button
+                android:id="@+id/soccericon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/soccer"
+                app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintLeft_toRightOf="@+id/poolicon"
+                app:layout_constraintTop_toTopOf="@+id/scrolllayout"
+                android:layout_marginStart="30dp"/>
+        </android.support.constraint.ConstraintLayout>
 
+    </HorizontalScrollView>
 
-        <HorizontalScrollView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-
-            app:layout_constraintLeft_toLeftOf="@+id/insideRight_guideline0"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/emptylayout"
-            app:layout_constraintBottom_toBottomOf="@+id/emptylayout"
-            >
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/scrolllayout"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:id="@+id/basketballicon"
-                    app:layout_constraintLeft_toLeftOf="@+id/scrolllayout"
-                    app:layout_constraintTop_toTopOf="@+id/scrolllayout"
-                    app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
-                    app:layout_constraintDimensionRatio="1:1"
-                    android:background="@drawable/basketball"
-                    />
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:id="@+id/cricketicon"
-                    app:layout_constraintLeft_toRightOf="@+id/basketballicon"
-                    app:layout_constraintTop_toTopOf="@+id/scrolllayout"
-                    app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
-                    app:layout_constraintDimensionRatio="1:1"
-                    android:background="@drawable/cricket"
-                    />
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:id="@+id/footballicon"
-                    app:layout_constraintLeft_toRightOf="@+id/cricketicon"
-                    app:layout_constraintTop_toTopOf="@+id/scrolllayout"
-                    app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
-                    app:layout_constraintDimensionRatio="1:1"
-                    android:background="@drawable/football"
-                    />
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:id="@+id/poolicon"
-                    app:layout_constraintLeft_toRightOf="@+id/footballicon"
-                    app:layout_constraintTop_toTopOf="@+id/scrolllayout"
-                    app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
-                    app:layout_constraintDimensionRatio="1:1"
-                    android:background="@drawable/pool"
-                    />
-                <Button
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:id="@+id/soccericon"
-                    app:layout_constraintLeft_toRightOf="@+id/poolicon"
-                    app:layout_constraintTop_toTopOf="@+id/scrolllayout"
-                    app:layout_constraintBottom_toBottomOf="@+id/scrolllayout"
-                    app:layout_constraintDimensionRatio="1:1"
-                    android:background="@drawable/soccer"
-                    />
-                </android.support.constraint.ConstraintLayout>
-
-        </HorizontalScrollView>
-
-    </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>
