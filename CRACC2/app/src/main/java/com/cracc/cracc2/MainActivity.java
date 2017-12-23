@@ -1,36 +1,25 @@
 package com.cracc.cracc2;
 
-import android.accounts.Account;
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.LruCache;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -40,9 +29,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.Manifest;
-import android.widget.Toast;
-import android.app.ProgressDialog;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -62,18 +48,7 @@ import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.IOUtils;
-import com.google.api.services.people.v1.People;
-import com.google.api.services.people.v1.PeopleScopes;
-import com.google.api.services.people.v1.model.Date;
-import com.google.api.services.people.v1.model.Gender;
-import com.google.api.services.people.v1.model.Person;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -84,41 +59,21 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
-
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
-
-import static com.facebook.share.internal.ShareConstants.IMAGE_URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -300,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
                             string1 += Email.substring(i, i + 1);
                         }
                     }
-                    final String string2 = string1;;
+                    final String string2 = string1;
 
                     cracc.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -368,14 +323,14 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this, "Write external storage" , Manifest.permission.WRITE_EXTERNAL_STORAGE  );
         Typeface myTypeface1 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Bold.ttf");
         Typeface myTypeface2 = Typeface.createFromAsset(getAssets(), "Myriad-Pro-Italic.ttf");
-        TextView text = (TextView) findViewById(R.id.frontword);
-        login_facebook = (Button) findViewById(R.id.login_facebook);
-        google = (Button) findViewById(R.id.login_google);
-        login = (Button) findViewById(R.id.login);
-        loginemail = (EditText) findViewById(R.id.loginemail);
-        loginpass = (EditText) findViewById(R.id.loginpass);
-        Button createnewaccount = (Button) findViewById(R.id.creatnewaccount);
-        Button forgot = (Button) findViewById(R.id.forgot);
+        TextView text = findViewById(R.id.frontword);
+        login_facebook = findViewById(R.id.login_facebook);
+        google = findViewById(R.id.login_google);
+        login = findViewById(R.id.login);
+        loginemail = findViewById(R.id.loginemail);
+        loginpass = findViewById(R.id.loginpass);
+        Button createnewaccount = findViewById(R.id.creatnewaccount);
+        Button forgot = findViewById(R.id.forgot);
         forgotlogin = findViewById(R.id.forgotlogin);
         sendcode = findViewById(R.id.sendcode);
         forgetmail = findViewById(R.id.forgetmail);
@@ -463,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE); //delete
 
         //progress bar
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         animation = ObjectAnimator.ofInt (progressBar, "progress", 0, 500); // see this max value coming back here, we animale towards that value
         animation.setDuration (5000); //in milliseconds
         animation.setInterpolator (new DecelerateInterpolator());
@@ -648,7 +603,7 @@ public class MainActivity extends AppCompatActivity {
                                             string1 += Email.substring(i, i + 1);
                                         }
                                     }
-                                    final String string2 = string1;;
+                                    final String string2 = string1;
                                     cracc.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot snapshot) {

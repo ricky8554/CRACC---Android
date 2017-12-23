@@ -8,7 +8,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/android-3.1" />
+            <option value="$PROJECT_DIR$/apache-httpcomponents-httpclient" />
+            <option value="$PROJECT_DIR$/apache-httpcomponents-httpcore" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/volley" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

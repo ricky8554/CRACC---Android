@@ -238,15 +238,15 @@ public class Camera extends AppCompatActivity {
         setContentView(R.layout.camera);
 
         //createVideoFolder();
-        progressBar = (ProgressBar) findViewById(R.id.progressBarcamera);
+        progressBar = findViewById(R.id.progressBarcamera);
         animation = ObjectAnimator.ofInt(progressBar, "progress", 0, 15000); // see this max value coming back here, we animale towards that value
         animation.setDuration(15000); //in milliseconds
         animation.setInterpolator(new DecelerateInterpolator());
 
         videoplaylayout = findViewById(R.id.videoplay);
         videoplaylayout.setVisibility(View.GONE);
-        mTextureView = (TextureView) findViewById(R.id.textureview);
-        mRecordImageButton = (Button) findViewById(R.id.getpicture);
+        mTextureView = findViewById(R.id.textureview);
+        mRecordImageButton = findViewById(R.id.getpicture);
         flip = findViewById(R.id.flip);
 
 

@@ -48,12 +48,19 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.facebook.login.LoginManager;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -83,11 +90,27 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
+import static java.lang.Math.abs;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -206,11 +229,27 @@ public class MapsActivity extends AppCompatActivity
     //camera
     private boolean hasvideo = false;
 
+
     //set font
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
+
+    //weather forecast Monkie
+//    timestampstring= year + "-" + month + "-" + day + "T" + hour + ":" + minute + ":" + second + "GMT"  ;
+//    Log.v("TIME given", "TIME=" + timestampstring);
+    final String URL_BASE="http://api.openweathermap.org/data/2.5/forecast";
+    final String URL_COORD="/?lat=";//"9.9687&lon=76.299";
+    final String URL_UNITS ="&units=metric";
+    final String URL_API_KEY="&APPID=5b8827191af217f2b6e197771c0b033b";
+    private ArrayList<DailyWeatherReport> weatherReportList = new ArrayList<>();
+    private ArrayList<DailyWeatherReport> weatherReportList2 = new ArrayList<>();
+    public long timestampInput;
+    String timestampstring,rawdateoutput;
+    private ImageView weathericon;
+    long timestampnow,timestampbefore;
+    private TextView dateout,place; // can delete
 
 
     @Override
@@ -218,15 +257,94 @@ public class MapsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        weathericon = (ImageView)findViewById(R.id.weathericon);
+        dateout = (TextView)findViewById(R.id.dateout);//can delete
+        place = (TextView)findViewById(R.id.place);//can delete
+
         initialize();
 
-        /*
-        LayoutInflater inflater = (LayoutInflater)this.getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-*/
 
 
     }
+
+    // this function act as input to search for specific weather of the time given by user, it change the time to timestamp (long)
+    // unixtime in this function adn the adjustment also act as adjustment for time if needed. (Depend on the code for another timing)
+    public long searchingweather(String datestring) throws ParseException {
+        DateFormat dateFormat = new SimpleDateFormat("MMM dd,yyyy h:mm:ss a");
+        Date dateint = dateFormat.parse(datestring);
+        Log.v("TIME given","dateint is " +dateint);
+        long unixTime = (long) dateint.getTime()/1000;
+
+        //this 3 lines below is not needed since we are using the fomated date.
+        Calendar ca = GregorianCalendar.getInstance();
+        GregorianCalendar cal = new GregorianCalendar(ca.get(Calendar.YEAR),ca.get(Calendar.MONTH),ca.get(Calendar.DAY_OF_MONTH));
+        long adjustment=cal.get(GregorianCalendar.ZONE_OFFSET);
+
+        //unixTime = unixTime + adjustment/1000; time adjustment if needed, change + to - if needed
+
+        Log.v("TIME given", "dt : " + unixTime);
+        Log.v("closest", "dt : " + unixTime);
+        return unixTime;
+    }
+    //weather forecast Monkie
+    public void downloadWeatherData(Place creategameplace){
+        weatherReportList=weatherReportList2;//empty weather report list
+        final String fullCoords = URL_COORD+creategameplace.getLatLng().latitude + "&lon=" + creategameplace.getLatLng().longitude;
+        final String url= URL_BASE + fullCoords + URL_UNITS + URL_API_KEY;
+        final JsonObjectRequest jsonRequest= new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.v("FUN","urlmy: "+url);
+                Log.v("FUN", "RES: " + response.toString());
+            try {
+                JSONObject city = response.getJSONObject("city");
+                String cityName = city.getString("name");
+                String country = city.getString("country");
+                JSONArray list = response.getJSONArray("list");
+                Integer count = response.getInt("cnt");
+
+                place.setText(cityName);//can delete
+                int closest = 0;
+
+                for (int x = 0; x < count; x++) { //maybe count-1
+
+                    JSONObject obj = list.getJSONObject(x);
+                    JSONObject main = obj.getJSONObject("main");
+                    Double currentTemp = main.getDouble("temp");
+                    Double maxTemp = main.getDouble("temp_max");
+                    Double minTemp = main.getDouble("temp_min");
+
+                    JSONArray weatherArr = obj.getJSONArray("weather");
+                    JSONObject weather = weatherArr.getJSONObject(0);
+                    String weatherType = weather.getString("main");
+
+                    String rawDate = obj.getString("dt_txt");
+                    //rawDate=rawDate.substring(0,10);
+                    Long weatherDate = (long) obj.getDouble("dt");
+
+                    DailyWeatherReport report = new DailyWeatherReport(cityName, country, currentTemp.intValue(), maxTemp.intValue(), minTemp.intValue(), weatherType, rawDate, weatherDate);
+                    Log.v("JSON", "Printing from class: " + report.getWeather() + "   |time: " + rawDate);
+                    weatherReportList.add(report);
+                }
+
+                Log.v("JSON", "Name" + cityName + " - " + "Country: " + country);
+            } catch (JSONException e) {
+                Log.v("JSON", "EXC: " + e.getLocalizedMessage());
+            }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("FUN","Err: " + error.getLocalizedMessage());
+            }
+        });
+        Volley.newRequestQueue(this).add(jsonRequest);
+    }
+
+
 
     //set hide bar
     @Override
@@ -310,7 +428,7 @@ public class MapsActivity extends AppCompatActivity
         management = findViewById(R.id.management);
         chat = findViewById(R.id.chatbutton);
         mainicon = findViewById(R.id.mainicon);
-        textureView = (TextureView) findViewById(R.id.camera);
+        textureView = findViewById(R.id.camera);
         controlboardbaricon = findViewById(R.id.controlboardbaricon);
         mapsearchbar = findViewById(R.id.mapsearchbar);
         star1 = findViewById(R.id.star1);
@@ -508,7 +626,7 @@ public class MapsActivity extends AppCompatActivity
                 }
             }
         });
-        typeinname = (EditText) findViewById(R.id.createname);
+        typeinname = findViewById(R.id.createname);
         typeintime = findViewById(R.id.createtime);
         typeintime.setTypeface(myTypeface3);
         typeinnumpeople = findViewById(R.id.createpeople);
@@ -608,6 +726,7 @@ public class MapsActivity extends AppCompatActivity
         gameicon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
 
                 final FrameLayout rootLayout = (FrameLayout) findViewById(android.R.id.content);
                 View.inflate(content, R.layout.imagehorizentalpicker, rootLayout);
@@ -862,10 +981,10 @@ public class MapsActivity extends AppCompatActivity
             final BottomSheetDialog d = new BottomSheetDialog(this);
             d.requestWindowFeature(Window.FEATURE_NO_TITLE);
             d.setContentView(R.layout.timepickerdialog);
-            NumberPicker date1 = (NumberPicker) d.findViewById(R.id.numberPickerdate);
-            NumberPicker hour1 = (NumberPicker) d.findViewById(R.id.numberPickerhour);
-            NumberPicker minute1 = (NumberPicker) d.findViewById(R.id.numberPickerminute);
-            NumberPicker ampm1 = (NumberPicker) d.findViewById(R.id.numberPickerampm);
+            NumberPicker date1 = d.findViewById(R.id.numberPickerdate);
+            NumberPicker hour1 = d.findViewById(R.id.numberPickerhour);
+            NumberPicker minute1 = d.findViewById(R.id.numberPickerminute);
+            NumberPicker ampm1 = d.findViewById(R.id.numberPickerampm);
             DisplayMetrics metrics = getResources().getDisplayMetrics();
             timepicker.timepicker1(this, date1, hour1, minute1, ampm1, d);
             Calendar cal = Calendar.getInstance();
@@ -888,6 +1007,7 @@ public class MapsActivity extends AppCompatActivity
                     date = timepicker.getString(newVal);
                     dateref = newVal;
                     typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                    updateUI();
                 }
             });
             hour1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
@@ -895,6 +1015,7 @@ public class MapsActivity extends AppCompatActivity
                 public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                     hour = newVal;
                     typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                    updateUI();
                 }
             });
             minute1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
@@ -902,6 +1023,7 @@ public class MapsActivity extends AppCompatActivity
                 public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                     minute = newVal;
                     typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                    updateUI();
                 }
             });
             ampm1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
@@ -912,12 +1034,74 @@ public class MapsActivity extends AppCompatActivity
                     else
                         ampm = "AM";
                     typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
+                    updateUI();
+
                 }
             });
 
-
         }
     }
+
+    public void updateUI(){
+        timestampstring = date + " " + hour + ":" + minute + ":" + "00 " + ampm ;
+        Log.v("TIME given", "TIME=" + timestampstring);
+        try {
+            timestampInput= searchingweather(timestampstring);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.v("TIME given", "there is an error");
+        }
+        Log.v("TIME given", "TIME=" + timestampInput);
+        int closest = 0;
+        int x = this.weatherReportList.size();
+
+        DailyWeatherReport report = weatherReportList.get(0);
+        timestampbefore=report.getweatherDate();
+        Log.v("try variable","variable:"+ timestampbefore);
+
+        for (int i = 1; i < x; i++){
+
+            report = weatherReportList.get(i);
+            timestampnow=report.getweatherDate();
+            rawdateoutput=report.getRawDate();
+            long thisdif=(abs(timestampnow-timestampInput));
+            long oridif=(abs(timestampbefore-timestampInput));
+            if (thisdif<oridif){
+                closest=i;
+                timestampbefore=timestampnow;
+
+                Log.v("try variable","variable:"+ timestampnow);
+            }
+            Log.v("closest", "timeStampinput:" +timestampInput);
+            Log.v("closest","thisdif: "+String.valueOf(thisdif)+"   oridif: "+String.valueOf(oridif)+" closest:  "+closest);
+            Log.v("try variable","variable print x:"+ x);
+        }
+        if (weatherReportList.size()>0){
+            report = weatherReportList.get(closest);
+
+            switch (report.getWeather()){
+                case DailyWeatherReport.WEATHER_TYPE_CLEAR:
+                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.sunny));
+                    break;
+                case DailyWeatherReport.WEATHER_TYPE_CLOUDS:
+                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.cloudy));
+                    break;
+                case DailyWeatherReport.WEATHER_TYPE_RAIN:
+                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.rain));
+                    break;
+/*                case DailyWeatherReport.WEATHER_TYPE_WIND:
+                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.light_rain));
+                    break;*/
+                case DailyWeatherReport.WEATHER_TYPE_SNOW:
+                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.snowwhite));
+                    break;
+                default:
+                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.sunny));
+            }
+        }
+        dateout.setText(report.getRawDate());//can delete
+    }
+
 
 
     //this method is call by the information button under the control board under the main icon
@@ -1140,6 +1324,8 @@ public class MapsActivity extends AppCompatActivity
                 // The user canceled the operation.
             }
         }
+        downloadWeatherData(creategameplace);
+
     }
 
 
@@ -1759,6 +1945,11 @@ public class MapsActivity extends AppCompatActivity
             }
         }
     }
+
+// we need to download a google library
+// in terminal ---> cd Desktop ---> git clone https://android.googlesource.com/platform/frameworks/volley
+// in AndroidStudio ---> import new module ----> import gradle project ---> volley
+// go to binray.gradle in volley and change has() to hasProperty()
 
 
 }
