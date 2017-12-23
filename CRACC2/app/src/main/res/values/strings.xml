@@ -28,6 +28,8 @@
     <string name="date">Date</string>
     <string name="time">Time</string>
     <string name="numpeople">Number of people</string>
+    <string name="createage">Age</string>
+    <string name="gender">Gender</string>
 
 
     <string name="age">Age:</string>
