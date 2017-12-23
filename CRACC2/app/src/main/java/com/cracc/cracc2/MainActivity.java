@@ -161,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
     public static final String NAME = "namekey";
     public static final String BIRTHDAY = "birthdaykey";
     public static final String STARS = "starskey";
-    public static final String PHOTOAVATAR = "Photoavatar";
     public static final String USERID = "UserId";
     public static final String LOGINTYPE = "LoginType";
     //delete
@@ -895,7 +894,7 @@ public class MainActivity extends AppCompatActivity {
             //move above part to main
             File file = Downloadimage.createImageFile(getApplicationContext(), uid);
             iconuri = Downloadimage.downloaduriimage(bitmap,firsttimelogin ,file);
-            Downloadimage.uploadtoFirebase(cracc, filepath, uid, iconuri, firsttimelogin, signuptype );
+            Downloadimage.uploadtoFirebase(cracc, filepath, uid, iconuri, firsttimelogin, signuptype,context );
 
 
 
@@ -918,6 +917,7 @@ public class MainActivity extends AppCompatActivity {
     //testing testing
     //test test test
     //test againg
+    
 
 
 

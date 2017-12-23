@@ -164,6 +164,116 @@ public class timepicker {
         return "" + getMonthFromInt(month) +" "+ day +","+ year;
     }
 
+    public static int getYear(int num) {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        String weekday = new DateFormatSymbols().getShortWeekdays()[dayOfWeek];
+        Calendar cal1 = new GregorianCalendar(year, month, day);
+        int daysInMonth = cal1.getActualMaximum(Calendar.DAY_OF_MONTH);
+        for( int i = 0; i<num;i++)
+        {
+
+            if(day == daysInMonth && month == 11)
+            {
+                year = year+1;
+                month = 0;
+                day = 1;
+            }
+            else if( day == daysInMonth )
+            {
+                month = month+1;
+                day = 1;
+            }
+            else
+            {
+                day +=1;
+            }
+            cal1 = new GregorianCalendar(year, month, 12);
+            daysInMonth = cal1.getActualMaximum(Calendar.DAY_OF_MONTH);
+            cal.set(year,month,day);
+            dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+            weekday = new DateFormatSymbols().getShortWeekdays()[dayOfWeek];
+
+        }
+        return  year;
+    }
+
+    public static int getMonth(int num) {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        String weekday = new DateFormatSymbols().getShortWeekdays()[dayOfWeek];
+        Calendar cal1 = new GregorianCalendar(year, month, day);
+        int daysInMonth = cal1.getActualMaximum(Calendar.DAY_OF_MONTH);
+        for( int i = 0; i<num;i++)
+        {
+
+            if(day == daysInMonth && month == 11)
+            {
+                year = year+1;
+                month = 0;
+                day = 1;
+            }
+            else if( day == daysInMonth )
+            {
+                month = month+1;
+                day = 1;
+            }
+            else
+            {
+                day +=1;
+            }
+            cal1 = new GregorianCalendar(year, month, 12);
+            daysInMonth = cal1.getActualMaximum(Calendar.DAY_OF_MONTH);
+            cal.set(year,month,day);
+            dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+            weekday = new DateFormatSymbols().getShortWeekdays()[dayOfWeek];
+
+        }
+        return month;
+    }
+
+    public static int getDay(int num) {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        String weekday = new DateFormatSymbols().getShortWeekdays()[dayOfWeek];
+        Calendar cal1 = new GregorianCalendar(year, month, day);
+        int daysInMonth = cal1.getActualMaximum(Calendar.DAY_OF_MONTH);
+        for( int i = 0; i<num;i++)
+        {
+
+            if(day == daysInMonth && month == 11)
+            {
+                year = year+1;
+                month = 0;
+                day = 1;
+            }
+            else if( day == daysInMonth )
+            {
+                month = month+1;
+                day = 1;
+            }
+            else
+            {
+                day +=1;
+            }
+            cal1 = new GregorianCalendar(year, month, 12);
+            daysInMonth = cal1.getActualMaximum(Calendar.DAY_OF_MONTH);
+            cal.set(year,month,day);
+            dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+            weekday = new DateFormatSymbols().getShortWeekdays()[dayOfWeek];
+
+        }
+        return day;
+    }
 
 
 }

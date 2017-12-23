@@ -1,0 +1,30 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/doublenumberPicker">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+
+        >
+
+        <NumberPicker
+            android:id="@+id/age1"
+            android:layout_width="60dp"
+            android:layout_height="120dp"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/age2" />
+
+        <NumberPicker
+            android:id="@+id/age2"
+            android:layout_width="60dp"
+            android:layout_height="120dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/age1" />
+    </android.support.constraint.ConstraintLayout>
+</RelativeLayout>

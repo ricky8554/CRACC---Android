@@ -20,6 +20,8 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -47,6 +49,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -59,6 +62,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.facebook.login.LoginManager;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -85,7 +90,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -104,6 +108,14 @@ import java.util.GregorianCalendar;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 import static java.lang.Math.abs;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback,
@@ -184,20 +196,15 @@ public class MapsActivity extends AppCompatActivity
     private EditText typeinname;                //name field in create game
     private Button typeintime;                //time field in create game
     private Button typeinnumpeople;           //number of people field in create game
+    private Button typeingender;
+    private Button typeinage;
     private Button createbutton1;
+    private int agerange1;
+    private int agerange2;
     private Place creategameplace = null;
     private String gametype = "";
 
 
-    public static final String MyPREFERENCES = "CRACC.com.profile";
-    public static final String EMAIL = "emailKey";
-    public static final String GENDER = "genderKey";
-    public static final String NAME = "namekey";
-    public static final String BIRTHDAY = "birthdaykey";
-    public static final String STARS = "starskey";
-    public static final String PHOTOAVATAR = "Photoavatar";
-    public static final String USERID = "UserId";
-    public static final String LOGINTYPE = "LoginType";
     private String birthday;
     private String Name;
     private int Stars;
@@ -213,9 +220,10 @@ public class MapsActivity extends AppCompatActivity
     private SharedPreferences.Editor editor;
 
     //date picker
-    private String date;
+    private String date = null;
     private int hour;
     private int minute;
+    private int dateref;
     private String ampm;
 
     //camera
@@ -378,8 +386,7 @@ public class MapsActivity extends AppCompatActivity
         interest.setVisibility(View.GONE);
         community.setVisibility(View.GONE);
         setting.setVisibility(View.GONE);
-        if(creategamevideo)
-        {
+        if (creategamevideo) {
             closeCamera();
             stopBackgroundThread();
         }
@@ -389,7 +396,7 @@ public class MapsActivity extends AppCompatActivity
 
     //initialize the value of global variable, and assign the listener to proper variable.
     private void initialize() {
-        settings = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        settings = getSharedPreferences(value.MyPREFERENCES, Context.MODE_PRIVATE);
         editor = settings.edit();
 
         permission.checkpermissionall(this, Mutirequestcode,
@@ -444,7 +451,7 @@ public class MapsActivity extends AppCompatActivity
         settingemail = findViewById(R.id.settingemail);
 
         final Activity content = this;
-        final BitMapstore bit = new BitMapstore(this,"video");
+        final BitMapstore bit = new BitMapstore(this, "video");
         videoicon = findViewById(R.id.videoicon);
         videoicon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -489,7 +496,7 @@ public class MapsActivity extends AppCompatActivity
 
                         hasvideo = false;
                         creategamevideo = true;
-                        if(creategamevideo) {
+                        if (creategamevideo) {
                             startBackgroundThread();
                             if (textureView.isAvailable()) {
                                 setupCamera(textureView.getWidth(), textureView.getHeight(), CameraCharacteristics.LENS_FACING_FRONT);
@@ -548,12 +555,12 @@ public class MapsActivity extends AppCompatActivity
 
 
         //get The information
-        birthday = settings.getString(BIRTHDAY, "").trim();
-        Name = settings.getString(NAME, "");
-        Stars = settings.getInt(STARS, 0);
-        uid = settings.getString(USERID, "");
-        LoginType = settings.getString(LOGINTYPE, "");
-        Email = settings.getString(EMAIL, "");
+        birthday = settings.getString(value.BIRTHDAY, "").trim();
+        Name = settings.getString(value.NAME, "");
+        Stars = settings.getInt(value.STARS, 0);
+        uid = settings.getString(value.USERID, "");
+        LoginType = settings.getString(value.LOGINTYPE, "");
+        Email = settings.getString(value.EMAIL, "");
         for (int i = 0; i < 20; i++) {
             if (BitMapstore.getBitmapFromMemCache("iconbitmap") != null) {
                 break;
@@ -622,11 +629,11 @@ public class MapsActivity extends AppCompatActivity
         typeinname = findViewById(R.id.createname);
         typeintime = findViewById(R.id.createtime);
         typeintime.setTypeface(myTypeface3);
-        typeinnumpeople =  findViewById(R.id.createpeople);
+        typeinnumpeople = findViewById(R.id.createpeople);
         typeinnumpeople.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BottomSheetDialog dialog = Utils.bottomsheetdialog(content,R.layout.singlenumberpicker);
+                BottomSheetDialog dialog = Utils.bottomsheetdialog(content, R.layout.singlenumberpicker);
                 NumberPicker num = dialog.findViewById(R.id.singlenumberPicker);
                 num.setMaxValue(101);
                 num.setMinValue(1);
@@ -638,51 +645,91 @@ public class MapsActivity extends AppCompatActivity
                         typeinnumpeople.setText(Integer.toString(newVal));
                     }
                 });
-                if(typeinnumpeople.getText().equals("")) {
+                if (typeinnumpeople.getText().equals("")) {
                     typeinnumpeople.setText(Integer.toString(1));
-                }
-                else
-                {
+                } else {
                     typeinnumpeople.setText(typeinnumpeople.getText());
                 }
                 dialog.show();
             }
         });
-        createbutton1 = findViewById(R.id.createbutton1);
-        createbutton1.setOnClickListener(new View.OnClickListener() {
+        typeingender = findViewById(R.id.creategender);
+        typeingender.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!typeinlocation.getText().equals("") && !typeinname.getText().equals("")
-                        && !typeintime.getText().equals("") && !typeinnumpeople.getText().equals(""))
-                {
-
-
-                }
-                else
-                {
-                    //very simple error message, fix this
-                    AlertDialog alertDialog = new AlertDialog.Builder(content).create();
-                    alertDialog.setTitle("Can Not creat the game");
-                    alertDialog.setMessage("Please Fill In all the blank");
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    alertDialog.show();
-                }
-
+                BottomSheetDialog dialog = Utils.bottomsheetdialog(content, R.layout.singlenumberpicker);
+                NumberPicker gen = dialog.findViewById(R.id.singlenumberPicker);
+                gen.setMaxValue(2);
+                gen.setMinValue(0);
+                gen.setDisplayedValues(new String[]{"Male", "Female", "Both"});
+                gen.setWrapSelectorWheel(false);
+                gen.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                gen.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                    @Override
+                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                        switch (newVal) {
+                            case 0:
+                                typeingender.setText("Male");
+                                break;
+                            case 1:
+                                typeingender.setText("Female");
+                                break;
+                            case 2:
+                                typeingender.setText("Both");
+                                break;
+                        }
+                    }
+                });
+                dialog.show();
             }
         });
 
+        typeinage = findViewById(R.id.createage);
+        typeinage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomSheetDialog dialog = Utils.bottomsheetdialog(content, R.layout.doublenumberpicker);
+                NumberPicker age1 = dialog.findViewById(R.id.age1);
+                NumberPicker age2 = dialog.findViewById(R.id.age2);
+
+                age1.setMinValue(10);
+                age2.setMinValue(10);
+                age1.setMaxValue(100);
+                age2.setMaxValue(100);
+                age1.setWrapSelectorWheel(false);
+                age2.setWrapSelectorWheel(false);
+                age1.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                age2.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                if(typeinage.getText().equals(""))
+                {
+                    agerange1 = 10;
+                    agerange2 = 10;
+                }
+                age1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                    @Override
+                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                        agerange1 = newVal;
+                        typeinage.setText(Integer.toString(agerange1)+"-"+Integer.toString(agerange2));
+                    }
+                });
+                age2.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                    @Override
+                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                        agerange2 = newVal;
+                        typeinage.setText(Integer.toString(agerange1)+"-"+Integer.toString(agerange2));
+                    }
+                });
+                dialog.show();
+            }
+        });
         final Button gameicon = findViewById(R.id.gameicon);
         gameicon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                final FrameLayout rootLayout = findViewById(android.R.id.content);
-                View.inflate(content, R.layout.imagehorizentalpicker,rootLayout);
+
+                final FrameLayout rootLayout = (FrameLayout) findViewById(android.R.id.content);
+                View.inflate(content, R.layout.imagehorizentalpicker, rootLayout);
                 ConstraintLayout imagehorizentalpicker = findViewById(R.id.imagehorizentalpicker);
                 Button basketballicon = findViewById(R.id.basketballicon);
                 Button cricketicon = findViewById(R.id.cricketicon);
@@ -704,7 +751,7 @@ public class MapsActivity extends AppCompatActivity
                         rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
                         gameicon.setBackgroundResource(R.drawable.basketball);
                         gameicon.setText("");
-                        gametype = "basketball";
+                        gametype = "Basketball";
                     }
                 });
 
@@ -714,7 +761,7 @@ public class MapsActivity extends AppCompatActivity
                         rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
                         gameicon.setBackgroundResource(R.drawable.cricket);
                         gameicon.setText("");
-                        gametype = "cricket";
+                        gametype = "Cricket";
                     }
                 });
 
@@ -725,7 +772,7 @@ public class MapsActivity extends AppCompatActivity
                         rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
                         gameicon.setBackgroundResource(R.drawable.football);
                         gameicon.setText("");
-                        gametype = "football";
+                        gametype = "Football";
                     }
                 });
 
@@ -736,7 +783,7 @@ public class MapsActivity extends AppCompatActivity
                         rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
                         gameicon.setBackgroundResource(R.drawable.pool);
                         gameicon.setText("");
-                        gametype = "pool";
+                        gametype = "Pool";
                     }
                 });
 
@@ -747,12 +794,105 @@ public class MapsActivity extends AppCompatActivity
                         rootLayout.removeView(findViewById(R.id.imagehorizentalpicker));
                         gameicon.setBackgroundResource(R.drawable.soccer);
                         gameicon.setText("");
-                        gametype = "soccer";
+                        gametype = "Soccer";
                     }
                 });
 
             }
         });
+        createbutton1 = findViewById(R.id.createbutton1);
+        createbutton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!typeinlocation.getText().equals("") && !typeinname.getText().toString().equals("")
+                        && !typeintime.getText().equals("") && !typeinnumpeople.getText().equals("") && !gametype.equals("")) {
+
+                    double lat = creategameplace.getLatLng().latitude;
+                    double lon = creategameplace.getLatLng().longitude;
+                    Geocoder geocoder = new Geocoder(content, Locale.getDefault());
+                    String countryCreated = "";
+                    try {
+                        countryCreated = geocoder.getFromLocation(lat, lon, 1).get(0).getCountryName();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    DatabaseReference gamecoordinateref =  cracc.child("Game Coordinate").child(countryCreated).child(gametype);
+                    String gamekey = gamecoordinateref.push().getKey();
+                    DatabaseReference  gamepostref= cracc.child("Game Post").child(countryCreated).child(gametype).child(gamekey).child("Information");
+
+                    GeoFire geoFire = new GeoFire(gamecoordinateref.child(gamekey));
+                    geoFire.setLocation(gamekey, new GeoLocation(lat,lon));
+
+                    String uri = settings.getString(value.PHOTOAVATAR, "");
+                    String uid = mAuth.getCurrentUser().getUid();
+                    long timestamp= System.currentTimeMillis();
+
+                    Calendar cal = Calendar.getInstance();
+                    if(ampm.equals("pm"))
+                    {
+                        hour = hour + 12;
+                        if(hour == 24 )
+                        {
+                            hour = 0;
+                        }
+                    }
+                    cal.set(timepicker.getYear(dateref),timepicker.getMonth(dateref),timepicker.getDay(dateref),hour,minute);
+
+                    String chatKey = cracc.child("Game Chat").push().getKey();
+                    DatabaseReference chatref = cracc.child("Game Chat").child(chatKey).child("message");
+
+                    gamepostref.child("GameID").setValue(gamekey);
+                    gamepostref.child("HosterUID").setValue(uid);
+                    gamepostref.child("VideoUrl").setValue("nil");
+                    gamepostref.child("avatarUrl").setValue(uri);
+                    gamepostref.child("lat").setValue(lat);
+                    gamepostref.child("locationName").setValue(creategameplace.getName());
+                    gamepostref.child("lon").setValue(lon);
+                    gamepostref.child("name").setValue(typeinname.getText().toString());
+                    gamepostref.child("numberOfPeople").setValue(typeinnumpeople.getText().toString());
+                    gamepostref.child("ownerName").setValue(Name);
+                    gamepostref.child("temperature").setValue("");
+                    gamepostref.child("time").setValue(cal.getTimeInMillis());
+                    gamepostref.child("timestamp").setValue(timestamp);
+                    gamepostref.child("type").setValue(gametype);
+                    gamepostref.child("weatherDescription").setValue("");
+                    gamepostref.child("chatKey").setValue(chatKey);
+                    gamepostref.child("highTemp").setValue("");
+                    gamepostref.child("lowTemp").setValue("");
+
+                    cracc.child("User").child(LoginType).child(uid).child("Game Created").child(gamekey).setValue(gamekey);
+
+
+                    gameicon.setBackgroundResource(R.drawable.gameicon);
+                    typeinlocation.setText("");
+                    typeinname.setText("");
+                    typeintime.setText("");
+                    typeinnumpeople.setText("");
+                    typeinage.setText("");
+                    typeingender.setText("");
+                    gametype = "";
+                    setAllFrametoInvisible();
+
+
+
+                } else {
+                    //very simple error message, fix this
+                    AlertDialog alertDialog = new AlertDialog.Builder(content).create();
+                    alertDialog.setTitle("Can Not creat the game");
+                    alertDialog.setMessage("Please Fill In all the blank");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                }
+
+            }
+        });
+
+
         //=====================set the clickListener to button or frame==========================
         textureView.setSurfaceTextureListener(surfaceTextureListener);
         activity_maps_base_frame.setOnClickListener(new View.OnClickListener() {
@@ -826,11 +966,10 @@ public class MapsActivity extends AppCompatActivity
         setAllFrametoInvisible();
 
         display(creategame);
-        if(v!=null && !hasvideo)
-        creategamevideo = true;
-        if(textureView.isAvailable() && !hasvideo)
-        {
-            setupCamera(textureView.getWidth(), textureView.getHeight(),CameraCharacteristics.LENS_FACING_FRONT);
+        if (v != null && !hasvideo)
+            creategamevideo = true;
+        if (textureView.isAvailable() && !hasvideo) {
+            setupCamera(textureView.getWidth(), textureView.getHeight(), CameraCharacteristics.LENS_FACING_FRONT);
             connectCamera();
             startBackgroundThread();
         }
@@ -856,9 +995,7 @@ public class MapsActivity extends AppCompatActivity
             if (AM_PM == 0) {
                 ampm1.setValue(0);
                 ampm = "AM";
-            }
-            else
-            {
+            } else {
                 ampm1.setValue(1);
                 ampm = "PM";
             }
@@ -868,6 +1005,7 @@ public class MapsActivity extends AppCompatActivity
                 @Override
                 public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                     date = timepicker.getString(newVal);
+                    dateref = newVal;
                     typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
                     updateUI();
                 }
@@ -1172,8 +1310,7 @@ public class MapsActivity extends AppCompatActivity
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
             }
-        }
-        else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE_CREATEGAME) {
+        } else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE_CREATEGAME) {
             if (resultCode == RESULT_OK) {
                 creategameplace = PlaceAutocomplete.getPlace(this, data);
                 typeinlocation.setText(creategameplace.getName());
@@ -1221,19 +1358,19 @@ public class MapsActivity extends AppCompatActivity
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
-        if(creategamevideo)
-        {
+        if (creategamevideo) {
             closeCamera();
             stopBackgroundThread();
         }
 
     }
+
     @Override
     protected void onResume() {
         super.onResume();
 
 
-        if(creategamevideo) {
+        if (creategamevideo) {
             startBackgroundThread();
             if (textureView.isAvailable()) {
                 setupCamera(textureView.getWidth(), textureView.getHeight(), CameraCharacteristics.LENS_FACING_FRONT);
@@ -1516,121 +1653,121 @@ public class MapsActivity extends AppCompatActivity
     }
     */
 
-/*
-    private Size previewsize;
-    private TextureView textureView;
-    private CameraDevice cameraDevice;
-    private CaptureRequest.Builder previewBuilder;
-    private CameraCaptureSession previewSession;
-    Button getpicture;
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+    /*
+        private Size previewsize;
+        private TextureView textureView;
+        private CameraDevice cameraDevice;
+        private CaptureRequest.Builder previewBuilder;
+        private CameraCaptureSession previewSession;
+        Button getpicture;
+        private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
-    static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 90);
-        ORIENTATIONS.append(Surface.ROTATION_90, 0);
-        ORIENTATIONS.append(Surface.ROTATION_180, 270);
-        ORIENTATIONS.append(Surface.ROTATION_270, 180);
-    }
+        static {
+            ORIENTATIONS.append(Surface.ROTATION_0, 90);
+            ORIENTATIONS.append(Surface.ROTATION_90, 0);
+            ORIENTATIONS.append(Surface.ROTATION_180, 270);
+            ORIENTATIONS.append(Surface.ROTATION_270, 180);
+        }
 
-    public void openCamera() {
-        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-        try {
-            String camerId = manager.getCameraIdList()[1];
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(camerId);
-            StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            previewsize = map.getOutputSizes(SurfaceTexture.class)[0];
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        public void openCamera() {
+            CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+            try {
+                String camerId = manager.getCameraIdList()[1];
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(camerId);
+                StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                previewsize = map.getOutputSizes(SurfaceTexture.class)[0];
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                manager.openCamera(camerId, stateCallback, null);
+            } catch (Exception e) {
+            }
+        }
+
+        private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
+            @Override
+            public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+                openCamera();
+            }
+
+            @Override
+            public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+            }
+
+            @Override
+            public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+                return false;
+            }
+
+            @Override
+            public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+            }
+        };
+
+        private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
+            @Override
+            public void onOpened(CameraDevice camera) {
+                cameraDevice = camera;
+                startCamera();
+            }
+
+            @Override
+            public void onDisconnected(CameraDevice camera) {
+            }
+
+            @Override
+            public void onError(CameraDevice camera, int error) {
+            }
+        };
+
+
+        void startCamera() {
+            if (cameraDevice == null || !textureView.isAvailable() || previewsize == null) {
                 return;
             }
-            manager.openCamera(camerId, stateCallback, null);
-        } catch (Exception e) {
+            SurfaceTexture texture = textureView.getSurfaceTexture();
+            if (texture == null) {
+                return;
+            }
+            texture.setDefaultBufferSize(previewsize.getWidth(), previewsize.getHeight());
+            Surface surface = new Surface(texture);
+            try {
+                previewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            } catch (Exception e) {
+            }
+            previewBuilder.addTarget(surface);
+            try {
+                cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
+                    @Override
+                    public void onConfigured(CameraCaptureSession session) {
+                        previewSession = session;
+                        getChangedPreview();
+                    }
+
+                    @Override
+                    public void onConfigureFailed(CameraCaptureSession session) {
+                    }
+                }, null);
+            } catch (Exception e) {
+            }
         }
+
+        void getChangedPreview() {
+            if (cameraDevice == null) {
+                return;
+            }
+            previewBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+            HandlerThread thread = new HandlerThread("changed Preview");
+            thread.start();
+            Handler handler = new Handler(thread.getLooper());
+            try {
+                previewSession.setRepeatingRequest(previewBuilder.build(), null, handler);
+            } catch (Exception e) {
+            }
+        }
+
     }
-
-    private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        }
-    };
-
-    private CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
-        @Override
-        public void onOpened(CameraDevice camera) {
-            cameraDevice = camera;
-            startCamera();
-        }
-
-        @Override
-        public void onDisconnected(CameraDevice camera) {
-        }
-
-        @Override
-        public void onError(CameraDevice camera, int error) {
-        }
-    };
-
-
-    void startCamera() {
-        if (cameraDevice == null || !textureView.isAvailable() || previewsize == null) {
-            return;
-        }
-        SurfaceTexture texture = textureView.getSurfaceTexture();
-        if (texture == null) {
-            return;
-        }
-        texture.setDefaultBufferSize(previewsize.getWidth(), previewsize.getHeight());
-        Surface surface = new Surface(texture);
-        try {
-            previewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-        } catch (Exception e) {
-        }
-        previewBuilder.addTarget(surface);
-        try {
-            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
-                @Override
-                public void onConfigured(CameraCaptureSession session) {
-                    previewSession = session;
-                    getChangedPreview();
-                }
-
-                @Override
-                public void onConfigureFailed(CameraCaptureSession session) {
-                }
-            }, null);
-        } catch (Exception e) {
-        }
-    }
-
-    void getChangedPreview() {
-        if (cameraDevice == null) {
-            return;
-        }
-        previewBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-        HandlerThread thread = new HandlerThread("changed Preview");
-        thread.start();
-        Handler handler = new Handler(thread.getLooper());
-        try {
-            previewSession.setRepeatingRequest(previewBuilder.build(), null, handler);
-        } catch (Exception e) {
-        }
-    }
-
-}
-*/
+    */
     private TextureView textureView;
     private int mTotalRotation;
     private String mCameraId;
@@ -1641,7 +1778,7 @@ public class MapsActivity extends AppCompatActivity
     private HandlerThread mBackgroundHandlerThread;
     private Handler mBackgroundHandler;
 
-private static SparseIntArray ORIENTATIONS = new SparseIntArray();
+    private static SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 0);
@@ -1683,7 +1820,7 @@ private static SparseIntArray ORIENTATIONS = new SparseIntArray();
     private TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-            setupCamera(width, height,CameraCharacteristics.LENS_FACING_FRONT);
+            setupCamera(width, height, CameraCharacteristics.LENS_FACING_FRONT);
             connectCamera();
             startBackgroundThread();
         }
@@ -1790,7 +1927,6 @@ private static SparseIntArray ORIENTATIONS = new SparseIntArray();
     }
 
 
-
     private void startBackgroundThread() {
         mBackgroundHandlerThread = new HandlerThread("Camera2VideoImage");
         mBackgroundHandlerThread.start();
@@ -1798,7 +1934,7 @@ private static SparseIntArray ORIENTATIONS = new SparseIntArray();
     }
 
     private void stopBackgroundThread() {
-        if( mBackgroundHandlerThread!= null) {
+        if (mBackgroundHandlerThread != null) {
             mBackgroundHandlerThread.quitSafely();
             try {
                 mBackgroundHandlerThread.join();
