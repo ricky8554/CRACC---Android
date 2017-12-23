@@ -89,7 +89,7 @@ public class BitMapstore {
             // number of items.
             return bitmap.getByteCount() / 1024;
         }
-    };;
+    };
 
 
     public static void addBitmapToMemoryCache(String key, Bitmap bitmap) {

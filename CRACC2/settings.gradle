@@ -1,1 +1,1 @@
-include ':app'
+include ':app', ':volley', ':apache-httpcomponents-httpclient', ':apache-httpcomponents-httpcore', ':android-3.1'
