@@ -210,7 +210,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/displayicon"/>
+            app:layout_constraintTop_toBottomOf="@+id/displaygameicon"/>
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
@@ -272,7 +272,7 @@
             android:textSize="15sp"
             android:textColor="#000000"
             app:layout_constraintRight_toRightOf="@+id/Left_guideline6"
-            app:layout_constraintBottom_toTopOf="@+id/join"
+            app:layout_constraintBottom_toTopOf="@+id/Top_guideline8"
             app:layout_constraintTop_toBottomOf="@+id/displaytext3"/>
         <!--//////////////////////////////////////////////////-->
 
@@ -314,7 +314,7 @@
             android:textSize="15sp"
             android:textColor="#000000"
             app:layout_constraintLeft_toLeftOf="@+id/Right_guideline6"
-            app:layout_constraintBottom_toTopOf="@+id/join"
+            app:layout_constraintBottom_toTopOf="@+id/Top_guideline8"
             app:layout_constraintTop_toBottomOf="@+id/displaylocation"/>
 
 

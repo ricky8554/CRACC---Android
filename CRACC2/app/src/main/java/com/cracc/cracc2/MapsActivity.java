@@ -1291,11 +1291,19 @@ public class MapsActivity extends AppCompatActivity
                             TextView displaypeople = findViewById(R.id.displaypeople);
 
                             Button direction = findViewById(R.id.direction);
-                            Button join = findViewById(R.id.join);
+                            final Button join = findViewById(R.id.join);
+                            final Button invite = findViewById(R.id.invite);
+                            final Button leave = findViewById(R.id.leave);
+                            invite.setVisibility(View.GONE);
+                            leave.setVisibility(View.GONE);
+
                             join.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
 
+                                    invite.setVisibility(View.VISIBLE);
+                                    leave.setVisibility(View.VISIBLE);
+                                    join.setVisibility(View.GONE);
                                     String uri = settings.getString(value.PHOTOAVATAR, "");
                                     DatabaseReference chatref = cracc.child("Game Chat").child(chatKey).child("user").child(uid);
                                     chatref.child("Count").setValue(1);
@@ -1557,7 +1565,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     public void updateUI(){
-        if(creategameplace != null && date != null) {
+        if(creategameplace != null && date != null && this.weatherReportList.size() != 0) {
             timestampstring = date + " " + hour + ":" + minute + ":" + "00 " + ampm;
             Log.v("TIME given", "TIME=" + timestampstring);
             try {
