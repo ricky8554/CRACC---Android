@@ -3,6 +3,9 @@ package com.cracc.cracc2;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by cc1057 on 11/23/17.
  */
@@ -18,4 +21,5 @@ public class value {
     public static final String USERID = "UserId";
     public static final String LOGINTYPE = "LoginType";
     public static final String HASVIDEO = "HasVideo";
+    public static Map<String,Integer> uidavatarmap= new HashMap<String,Integer>();
 }

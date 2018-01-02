@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    useLibrary 'org.apache.http.legacy'
     configurations.all {
         resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
     }
@@ -59,13 +60,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     //make sure you import volley from maps activity 1710 has instruction
     compile project(':volley')
-    repositories {
-        maven { url "https://maven.google.com" }
-    }
+
+
 }
-android {
-    useLibrary 'org.apache.http.legacy'
-}
+
 
 apply plugin: 'com.google.gms.google-services'
 

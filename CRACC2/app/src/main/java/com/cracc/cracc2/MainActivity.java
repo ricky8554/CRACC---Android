@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
                             if(snapshot.child("Google").child(uid).exists()){
-                                String uri = snapshot.child("User Info")
+                                String uri = snapshot.child("User_Info")
                                         .child("Google").child(uid)
                                         .child("avatarUrl").getValue(String.class);
                                 new DownloadImage().execute(uri);
@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                                 mainpage("login");
 
                             } else if(snapshot.child("Facebook").child(uid).exists()){
-                                String uri = snapshot.child("User Info")
+                                String uri = snapshot.child("User_Info")
                                         .child("Facebook").child(uid)
                                         .child("avatarUrl").getValue(String.class);
                                 new DownloadImage().execute(uri);
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             else if (snapshot.child("Email").child(string2).exists()) {
 
-                                String uri = snapshot.child("User Info")
+                                String uri = snapshot.child("User_Info")
                                         .child("Email").child(uid)
                                         .child("avatarUrl").getValue(String.class);
                                 new DownloadImage().execute(uri);
@@ -534,8 +534,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (v == createaccountgoooglesignup) {
 
-            cracc.child("User Info").child("Google").child(uid).child("Gender").setValue(gender);
-            cracc.child("User Info").child("Google").child(uid).child("Birthday").setValue(createaccountgoooglebirthday.getText().toString());
+            cracc.child("User_Info").child("Google").child(uid).child("Gender").setValue(gender);
+            cracc.child("User_Info").child("Google").child(uid).child("Birthday").setValue(createaccountgoooglebirthday.getText().toString());
             birthday = createaccountgoooglebirthday.getText().toString();
 
             editor = sharedpreferences.edit();
@@ -609,7 +609,7 @@ public class MainActivity extends AppCompatActivity {
                                         public void onDataChange(DataSnapshot snapshot) {
                                             if (snapshot.child("Email").child(string2).exists()) {
 
-                                                String uri = snapshot.child("User Info")
+                                                String uri = snapshot.child("User_Info")
                                                         .child("Email").child(uid)
                                                         .child("avatarUrl").getValue(String.class);
                                                 new DownloadImage().execute(uri);
@@ -808,7 +808,7 @@ public class MainActivity extends AppCompatActivity {
                     if (snapshot.child(logintype).child(uid).exists()) {
                         if(logintype.equals("Google"))
                         animation.start ();
-                        String uri = snapshot.child("User Info").child(logintype)
+                        String uri = snapshot.child("User_Info").child(logintype)
                                 .child(uid).child("avatarUrl")
                                 .getValue(String.class);
                         new DownloadImage().execute(uri);

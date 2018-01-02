@@ -25,6 +25,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +49,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 
 import android.widget.NumberPicker;
@@ -64,6 +66,8 @@ import com.android.volley.toolbox.Volley;
 import com.facebook.login.LoginManager;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -88,14 +92,23 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -112,8 +125,10 @@ import static java.lang.Math.abs;
 import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -203,6 +218,8 @@ public class MapsActivity extends AppCompatActivity
     private int agerange2;
     private Place creategameplace = null;
     private String gametype = "";
+    private String weatherdiscription = "";
+    private int HighTemp,Temp,LowTemp;
 
 
     private String birthday;
@@ -229,6 +246,17 @@ public class MapsActivity extends AppCompatActivity
     //camera
     private boolean hasvideo = false;
 
+    //display game
+    private LatLng currentdisplaylatlng = null;
+    private Button displaygameinitial;
+    private String displaytype;
+    private ArrayList<Marker> displaymarker = new ArrayList<Marker>();
+    private Map<Double,Map<Double,Marker>> displaylatlngmap= new HashMap<Double,Map<Double,Marker>>();
+    private Map<Marker,ArrayList<String>> displaymarkerkeymap= new HashMap<Marker,ArrayList<String>>();
+    private ImageView displaygameicon;
+    private String HosterUID;
+
+
 
     //set font
     @Override
@@ -236,7 +264,7 @@ public class MapsActivity extends AppCompatActivity
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
-    //weather forecast Monkie
+    //weather forecast Monkie. is it all good? wait let me check.ok
 //    timestampstring= year + "-" + month + "-" + day + "T" + hour + ":" + minute + ":" + second + "GMT"  ;
 //    Log.v("TIME given", "TIME=" + timestampstring);
     final String URL_BASE="http://api.openweathermap.org/data/2.5/forecast";
@@ -342,6 +370,7 @@ public class MapsActivity extends AppCompatActivity
             }
         });
         Volley.newRequestQueue(this).add(jsonRequest);
+
     }
 
 
@@ -820,7 +849,7 @@ public class MapsActivity extends AppCompatActivity
                     String gamekey = gamecoordinateref.push().getKey();
                     DatabaseReference  gamepostref= cracc.child("Game Post").child(countryCreated).child(gametype).child(gamekey).child("Information");
 
-                    GeoFire geoFire = new GeoFire(gamecoordinateref.child(gamekey));
+                    GeoFire geoFire = new GeoFire(gamecoordinateref);
                     geoFire.setLocation(gamekey, new GeoLocation(lat,lon));
 
                     String uri = settings.getString(value.PHOTOAVATAR, "");
@@ -836,11 +865,19 @@ public class MapsActivity extends AppCompatActivity
                             hour = 0;
                         }
                     }
-                    cal.set(timepicker.getYear(dateref),timepicker.getMonth(dateref),timepicker.getDay(dateref),hour,minute);
+                    cal.set(timepicker.getYear(dateref),timepicker.getMonth(dateref),timepicker.getDay(dateref),hour,minute,0);
 
                     String chatKey = cracc.child("Game Chat").push().getKey();
-                    DatabaseReference chatref = cracc.child("Game Chat").child(chatKey).child("message");
 
+
+                    if(weatherdiscription.equals(""))
+                    {
+                        updateUI();
+                    }
+
+
+                    gamepostref.child("Country").setValue(countryCreated);
+                    gamepostref.child("DescriptionWeather").setValue(weatherdiscription);
                     gamepostref.child("GameID").setValue(gamekey);
                     gamepostref.child("HosterUID").setValue(uid);
                     gamepostref.child("VideoUrl").setValue("nil");
@@ -851,14 +888,37 @@ public class MapsActivity extends AppCompatActivity
                     gamepostref.child("name").setValue(typeinname.getText().toString());
                     gamepostref.child("numberOfPeople").setValue(typeinnumpeople.getText().toString());
                     gamepostref.child("ownerName").setValue(Name);
-                    gamepostref.child("temperature").setValue("");
+                    gamepostref.child("temperature").setValue(Temp);
                     gamepostref.child("time").setValue(cal.getTimeInMillis());
                     gamepostref.child("timestamp").setValue(timestamp);
                     gamepostref.child("type").setValue(gametype);
-                    gamepostref.child("weatherDescription").setValue("");
+                    gamepostref.child("weatherDescription").setValue(weatherdiscription);
                     gamepostref.child("chatKey").setValue(chatKey);
-                    gamepostref.child("highTemp").setValue("");
-                    gamepostref.child("lowTemp").setValue("");
+                    gamepostref.child("highTemp").setValue(HighTemp);
+                    gamepostref.child("lowTemp").setValue(LowTemp);
+
+                    DatabaseReference chatref = cracc.child("Game Chat").child(chatKey).child("user").child(uid);
+                    chatref.child("avatarUrl").setValue(uri);
+                    chatref.child("chatKey").setValue(chatKey);
+                    chatref.child("timestamp").setValue(timestamp);
+                    chatref.child("userUID").setValue(uid);
+
+                    DatabaseReference userchatlistref =  cracc.child("User").child(LoginType).child(uid).child("Chat List").child(gamekey);
+                    userchatlistref.child("Count").setValue(1);
+                    userchatlistref.child("HosterUID").setValue(uid);
+                    userchatlistref.child("chatKey").setValue(chatKey);
+                    userchatlistref.child("name").setValue(typeinname.getText().toString());
+                    userchatlistref.child("time").setValue(cal.getTimeInMillis());
+                    userchatlistref.child("type").setValue(gametype);
+                    DatabaseReference usermygameref =  cracc.child("User").child(LoginType).child(uid).child("My Game").child(gamekey);
+                    usermygameref.child("GameID").setValue(gamekey);
+                    usermygameref.child("country").setValue(countryCreated);
+                    usermygameref.child("hosterUID").setValue(uid);
+                    usermygameref.child("locationName").setValue(creategameplace.getName());
+                    usermygameref.child("name").setValue(typeinname.getText().toString());
+                    usermygameref.child("timePlay").setValue(cal.getTimeInMillis());
+                    usermygameref.child("timestamp").setValue(timestamp);
+                    usermygameref.child("type").setValue(gametype);
 
                     cracc.child("User").child(LoginType).child(uid).child("Game Created").child(gamekey).setValue(gamekey);
 
@@ -871,6 +931,9 @@ public class MapsActivity extends AppCompatActivity
                     typeinage.setText("");
                     typeingender.setText("");
                     gametype = "";
+                    creategameplace = null;
+                    date = null;
+                    weatherdiscription = "";
                     setAllFrametoInvisible();
 
 
@@ -889,6 +952,80 @@ public class MapsActivity extends AppCompatActivity
                     alertDialog.show();
                 }
 
+            }
+        });
+
+        //====================display game=======================================================
+
+        displaygameinitial = findViewById(R.id.displaygameinitial);
+        displaygameinitial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final FrameLayout rootLayout = (FrameLayout) findViewById(android.R.id.content);
+                View.inflate(content, R.layout.displaygamebar, rootLayout);
+                ConstraintLayout basketballicon = findViewById(R.id.displaybasketballicon);
+                ConstraintLayout cricketicon = findViewById(R.id.displaycricketicon);
+                ConstraintLayout footballicon = findViewById(R.id.displayfootballicon);
+                ConstraintLayout poolicon = findViewById(R.id.displaypoolicon);
+                ConstraintLayout soccericon = findViewById(R.id.displaysoccericon);
+                ImageView displaygamefinal1 = findViewById(R.id.displaygamefinal1);
+
+                displaygamefinal1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.displaygamelayout));
+                        displaygameinitial.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                basketballicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.displaygamelayout));
+                        displaygameinitial.setVisibility(View.VISIBLE);
+                        displaygame("Basketball");
+                    }
+                });
+
+                cricketicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.displaygamelayout));
+                        displaygameinitial.setVisibility(View.VISIBLE);
+                        displaygame("Cricket");
+                    }
+                });
+
+
+                footballicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.displaygamelayout));
+                        displaygameinitial.setVisibility(View.VISIBLE);
+                        displaygame("Football");
+                    }
+                });
+
+
+                poolicon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.displaygamelayout));
+                        displaygameinitial.setVisibility(View.VISIBLE);
+                        displaygame("Pool");
+                    }
+                });
+
+
+                soccericon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        rootLayout.removeView(findViewById(R.id.displaygamelayout));
+                        displaygameinitial.setVisibility(View.VISIBLE);
+                        displaygame("Soccer");
+                    }
+                });
+                displaygameinitial.setVisibility(View.GONE);
             }
         });
 
@@ -930,6 +1067,364 @@ public class MapsActivity extends AppCompatActivity
             videotexture.setVisibility(View.VISIBLE);
         }
 
+
+
+    }
+
+    //display game function
+    private void displaygame(final String displaygametype)
+    {
+        displaytype = displaygametype;
+        if(currentdisplaylatlng != null)
+        {
+
+            if(displaymarker.size() != 0)
+            {
+                int i1 = displaymarker.size()-1;
+                for(int i = i1; i >= 0; i--)
+                {
+                    displaymarker.get(i).remove();
+                    displaymarker.remove(i);
+                }
+            }
+            displaylatlngmap.clear();
+            displaymarkerkeymap.clear();
+
+            double lat = currentdisplaylatlng.latitude;
+            double lon = currentdisplaylatlng.longitude;
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            String countrydispla = "";
+            try {
+                countrydispla = geocoder.getFromLocation(lat, lon, 1).get(0).getCountryName();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            final String countrydisplay = countrydispla;
+            Bitmap marker2 = null;
+            switch (displaygametype) {
+                case "Basketball":
+                    marker2 = BitmapFactory.decodeResource(getResources(), R.drawable.basketball2);
+                    break;
+                case "Cricket":
+                    marker2 = BitmapFactory.decodeResource(getResources(), R.drawable.cricket2);
+                    break;
+                case "Football":
+                    marker2 = BitmapFactory.decodeResource(getResources(), R.drawable.football2);
+                    break;
+                case "Pool":
+                    marker2 = BitmapFactory.decodeResource(getResources(), R.drawable.pool2);
+                    break;
+                case "Soccer":
+                    marker2 = BitmapFactory.decodeResource(getResources(), R.drawable.soccer2);
+            }
+            final Bitmap marker1 = marker2;
+
+
+            //Query query = cracc.child("Game Coordinate").child(countrydisplay).child(displaygametype).orderByChild("id").equalTo(0);
+            DatabaseReference gamecoordinateref =  cracc.child("Game Coordinate").child(countrydisplay).child(displaygametype);
+            GeoFire geoFire = new GeoFire(gamecoordinateref);
+            final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(lat, lon), 50);
+            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                @Override
+                public void onKeyEntered(final String key, final GeoLocation location) {
+                    System.out.println(String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
+                    cracc.child("Game Post").child(countrydisplay).child(displaygametype).child(key).child("Information").child("time").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.getValue(long.class) - System.currentTimeMillis() >= 0 )
+                            {
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position(new LatLng(location.latitude, location.longitude));
+                                int size = getResources().getInteger(R.integer.displaymarker);
+                                Bitmap marker = Bitmap.createScaledBitmap(marker1, size, size, false);
+                                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(marker));
+                                Marker tempmarker = mGoogleMap.addMarker(markerOptions);
+                                displaymarker.add(tempmarker);
+
+                                if(displaylatlngmap.get(location.latitude) == null)
+                                {
+                                    Map<Double,Marker> amap = new HashMap<Double,Marker>();
+                                    amap.put(location.longitude,tempmarker);
+                                    displaylatlngmap.put(location.latitude,amap);
+                                    ArrayList<String> alist= new ArrayList<String>();
+                                    alist.add(key);
+                                    displaymarkerkeymap.put(tempmarker,alist);
+                                }
+                                else
+                                {
+                                    if( displaylatlngmap.get(location.latitude).get(location.longitude)== null)
+                                    {
+                                        displaylatlngmap.get(location.latitude).put(location.longitude,tempmarker);
+                                        ArrayList<String> alist= new ArrayList<String>();
+                                        alist.add(key);
+                                        displaymarkerkeymap.put(tempmarker,alist);
+                                    }
+                                    else
+                                    {
+                                        tempmarker.remove();
+                                        displaymarkerkeymap.get(displaylatlngmap.get(location.latitude).get(location.longitude)).add(key);
+                                        //overlap
+                                    }
+                                }
+
+//                                private Map<Double,Map<Double,Integer>> displaylatlngmap= new HashMap<Double,Map<Double,Integer>>();
+//                                private Map<Marker,ArrayList<String>> displaymarkerkeymap= new HashMap<Marker,ArrayList<String>>();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+
+                }
+
+                @Override
+                public void onKeyExited(String key) {
+                    System.out.println(String.format("Key %s is no longer in the search area", key));
+                }
+
+                @Override
+                public void onKeyMoved(String key, GeoLocation location) {
+                    System.out.println(String.format("Key %s moved within the search area to [%f,%f]", key, location.latitude, location.longitude));
+                }
+
+                @Override
+                public void onGeoQueryReady() {
+                    geoQuery.removeAllListeners();
+                }
+
+                @Override
+                public void onGeoQueryError(DatabaseError error) {
+                    System.err.println("There was an error with this query: " + error);
+                }
+            });
+
+        }
+        else
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            alertDialog.setTitle("Can Not display the game");
+            alertDialog.setMessage("Please either search a place or set back to current possition");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+        }
+    }
+
+    private void displaygamemarkerhelper()
+    {
+
+    }
+
+    //marker click display game utlize in initialize
+    private void displaygamemarker()
+    {
+        final Context content = this;
+        mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                ArrayList<String> stringlist = displaymarkerkeymap.get(marker);
+                if(stringlist == null)
+                    return false;
+
+                if(stringlist.size() == 1)
+                {
+                    // one key case
+                    //                  private Map<Double,Map<Double,Integer>> displaylatlngmap= new HashMap<Double,Map<Double,Integer>>();
+                    //                  private Map<Marker,ArrayList<String>> displaymarkerkeymap= new HashMap<Marker,ArrayList<String>>();
+                    final String gamekey = stringlist.get(0);
+                    Geocoder geocoder = new Geocoder(content, Locale.getDefault());
+                    String countrydispla = "";
+                    try {
+                        countrydispla = geocoder.getFromLocation(currentdisplaylatlng.latitude, currentdisplaylatlng.longitude, 1).get(0).getCountryName();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    final String countrydisplay = countrydispla;
+                    final DatabaseReference gamecoordinateref =  cracc.child("Game Post").child(countrydisplay).child(displaytype).child(gamekey).child("Information");
+                    gamecoordinateref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            final long timestamp = dataSnapshot.child("time").getValue(long.class);
+                            final String location = dataSnapshot.child("locationName").getValue(String.class);
+                            String weatherDescription = dataSnapshot.child("weatherDescription").getValue(String.class);
+                            String numberOfPeople = dataSnapshot.child("numberOfPeople").getValue(String.class);
+                            double latitude = dataSnapshot.child("lat").getValue(Double.class);
+                            double lontitude = dataSnapshot.child("lon").getValue(double.class);
+                            final String gamename = dataSnapshot.child("name").getValue(String.class);
+                            String hosturl = dataSnapshot.child("avatarUrl").getValue(String.class);
+                            final String chatKey = dataSnapshot.child("chatKey").getValue(String.class);
+                            HosterUID = dataSnapshot.child("HosterUID").getValue(String.class);
+
+
+                            final FrameLayout rootLayout = (FrameLayout) findViewById(android.R.id.content);
+                            View.inflate(content, R.layout.displaygameboardguest, rootLayout);
+                            displaygameicon = findViewById(R.id.displaygameicon);
+
+                            if(value.uidavatarmap.get(HosterUID) != null)
+                            {
+                                displaygameicon.setImageBitmap(BitMapstore.getBitmapFromMemCache(HosterUID));
+                            }
+                            else
+                            {
+                                value.uidavatarmap.put(HosterUID,1);
+                                new MapsActivity.DownloadImage().execute(hosturl);
+                            }
+                            ImageView gametypeicon = findViewById(R.id.gametypeicon);
+                            TextView gamedistance = findViewById(R.id.gamedistance);
+                            ImageView gameweather = findViewById(R.id.gameweather);
+                            TextView gameweatherdiscription = findViewById(R.id.gameweatherdiscription);
+                            TextView displaygamename = findViewById(R.id.displaygamename);
+
+
+                            TextView displaytime = findViewById(R.id.displaytime);
+                            TextView displaydate = findViewById(R.id.displaydate);
+                            TextView displaylocation = findViewById(R.id.displaylocation);
+                            TextView displaypeople = findViewById(R.id.displaypeople);
+
+                            Button direction = findViewById(R.id.direction);
+                            Button join = findViewById(R.id.join);
+                            join.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    String uri = settings.getString(value.PHOTOAVATAR, "");
+                                    DatabaseReference chatref = cracc.child("Game Chat").child(chatKey).child("user").child(uid);
+                                    chatref.child("Count").setValue(1);
+                                    chatref.child("HosterUID").setValue(HosterUID);
+                                    chatref.child("avatarUrl").setValue(uri);
+                                    chatref.child("chatKey").setValue(chatKey);
+                                    chatref.child("name").setValue(gamename);
+                                    chatref.child("time").setValue(timestamp);
+                                    chatref.child("type").setValue(displaytype);
+
+
+                                    long localtimestamp = System.currentTimeMillis();
+                                    gamecoordinateref.child("Joined User").child(uid).child("JoinedAvatarUrl").setValue(uri);
+                                    gamecoordinateref.child("Joined User").child(uid).child("JoinedTimestamp").setValue(localtimestamp);
+                                    gamecoordinateref.child("Joined User").child(uid).child("Joinedname").setValue(Name);
+                                    gamecoordinateref.child("Joined User").child(uid).child("JoineduserUID").setValue(uid);
+
+                                    DatabaseReference joinref = cracc.child("User").child(LoginType).child(uid).child("Chat List").child(chatKey);
+                                    joinref.child("Count").setValue(1);
+                                    joinref.child("HosterUID").setValue(HosterUID);
+                                    joinref.child("avatarUrl").setValue(uri);
+                                    joinref.child("chatKey").setValue(chatKey);
+                                    joinref.child("name").setValue(gamename);
+                                    joinref.child("time").setValue(timestamp);
+                                    joinref.child("type").setValue(displaytype);
+
+                                    DatabaseReference joinref1 = cracc.child("User").child(LoginType).child(uid).child("Game Joined").child(gamekey);
+                                    joinref1.child("GameID").setValue(gamekey);
+                                    joinref1.child("country").setValue(countrydisplay);
+                                    joinref1.child("HosterUID").setValue(HosterUID);
+                                    joinref1.child("locationName").setValue(location);
+                                    joinref1.child("name").setValue(gamename);
+                                    joinref1.child("timePlay").setValue(timestamp);
+                                    joinref1.child("timestamp").setValue(localtimestamp);
+                                    joinref1.child("type").setValue(displaytype);
+
+                                }
+                            });
+                            ConstraintLayout weatherbutton = findViewById(R.id.gameweatherlayout);
+                            RelativeLayout returntomap = findViewById(R.id.returntomap);
+                            returntomap.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    rootLayout.removeView(findViewById(R.id.displaygameboardguest));
+                                }
+                            });
+
+
+
+
+
+                            displaylocation.setText(location);
+                            displaypeople.setText( "0 out of "+ numberOfPeople);
+
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
+                            String myDate = dateFormat.format(new Date(timestamp));
+
+                            SimpleDateFormat dateFormat1 = new SimpleDateFormat("hh:mm a");
+                            String myTime = dateFormat1.format(new Date(timestamp));
+                            displaydate.setText(myDate);
+                            displaytime.setText(myTime);
+
+
+
+                            displaygamename.setText(gamename);
+                            gameweatherdiscription.setText(weatherDescription);
+                            Location a = new Location("newlocation");
+                            a.setLatitude(latitude);
+                            a.setLongitude(lontitude);
+                            Location b = new Location("newlocation");
+                            b.setLatitude(currentdisplaylatlng.latitude);
+                            b.setLongitude(currentdisplaylatlng.longitude);
+                            double distance1 = b.distanceTo(a);
+                            distance1 = distance1 * 0.000621371192;
+                            String distance = new DecimalFormat("#.#").format(distance1);
+                            gamedistance.setText(distance+" miles");
+
+                            switch (displaytype) {
+                                case "Basketball":
+                                    gametypeicon.setBackgroundResource(R.drawable.basketball);
+                                    break;
+                                case "Cricket":
+                                    gametypeicon.setBackgroundResource(R.drawable.cricket);
+                                    break;
+                                case "Football":
+                                    gametypeicon.setBackgroundResource(R.drawable.football);
+                                    break;
+                                case "Pool":
+                                    gametypeicon.setBackgroundResource(R.drawable.pool);
+                                    break;
+                                case "Soccer":
+                                    gametypeicon.setBackgroundResource(R.drawable.soccer);
+                            }
+
+                            switch (weatherDescription) {
+                                case "Clear":
+                                    gameweather.setBackgroundResource(R.drawable.sunny);
+                                    break;
+                                case "Snow":
+                                    gameweather.setBackgroundResource(R.drawable.snowwhite);
+                                    break;
+                                case "Rain":
+                                    gameweather.setBackgroundResource(R.drawable.rain);
+                                    break;
+                                case "Cloudy":
+                                    gameweather.setBackgroundResource(R.drawable.cloudy);
+                                    break;
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+                }
+                else
+                {
+                    //mutiple key case
+                }
+
+
+                return true;
+            }
+        });
     }
 
     //this function is for empty call which can be set on the empty frame to prevent frome exit
@@ -987,25 +1482,44 @@ public class MapsActivity extends AppCompatActivity
             NumberPicker ampm1 = d.findViewById(R.id.numberPickerampm);
             DisplayMetrics metrics = getResources().getDisplayMetrics();
             timepicker.timepicker1(this, date1, hour1, minute1, ampm1, d);
-            Calendar cal = Calendar.getInstance();
-            date1.setValue(0);
-            hour1.setValue(cal.get(Calendar.HOUR));
-            minute1.setValue(cal.get(Calendar.MINUTE));
-            int AM_PM = cal.get(Calendar.AM_PM);
-            if (AM_PM == 0) {
-                ampm1.setValue(0);
-                ampm = "AM";
-            } else {
-                ampm1.setValue(1);
-                ampm = "PM";
+            if(date == null) {
+                Calendar cal = Calendar.getInstance();
+                dateref = 0;
+                date = timepicker.getString(dateref);
+                date1.setValue(dateref);
+                hour = cal.get(Calendar.HOUR);
+                hour1.setValue(hour);
+                minute = cal.get(Calendar.MINUTE);
+                minute1.setValue(minute);
+                int AM_PM = cal.get(Calendar.AM_PM);
+                if (AM_PM == 0) {
+                    ampm1.setValue(0);
+                    ampm = "AM";
+                } else {
+                    ampm1.setValue(1);
+                    ampm = "PM";
+                }
+                updateUI();
+
+            }
+            else
+            {
+                date1.setValue(dateref);
+                hour1.setValue(hour);
+                minute1.setValue(minute);
+                if (ampm.equals("AM")) {
+                    ampm1.setValue(0);
+                } else {
+                    ampm1.setValue(1);
+                }
             }
 
             typeintime.setText(timepicker.getString(0) + " " + hour1.getValue() + ":" + minute1.getValue() + ":" + "00 " + ampm);
             date1.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
                 @Override
                 public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                    date = timepicker.getString(newVal);
                     dateref = newVal;
+                    date = timepicker.getString(dateref);
                     typeintime.setText(date + " " + hour + ":" + minute + ":" + "00 " + ampm);
                     updateUI();
                 }
@@ -1043,63 +1557,73 @@ public class MapsActivity extends AppCompatActivity
     }
 
     public void updateUI(){
-        timestampstring = date + " " + hour + ":" + minute + ":" + "00 " + ampm ;
-        Log.v("TIME given", "TIME=" + timestampstring);
-        try {
-            timestampInput= searchingweather(timestampstring);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Log.v("TIME given", "there is an error");
-        }
-        Log.v("TIME given", "TIME=" + timestampInput);
-        int closest = 0;
-        int x = this.weatherReportList.size();
-
-        DailyWeatherReport report = weatherReportList.get(0);
-        timestampbefore=report.getweatherDate();
-        Log.v("try variable","variable:"+ timestampbefore);
-
-        for (int i = 1; i < x; i++){
-
-            report = weatherReportList.get(i);
-            timestampnow=report.getweatherDate();
-            rawdateoutput=report.getRawDate();
-            long thisdif=(abs(timestampnow-timestampInput));
-            long oridif=(abs(timestampbefore-timestampInput));
-            if (thisdif<oridif){
-                closest=i;
-                timestampbefore=timestampnow;
-
-                Log.v("try variable","variable:"+ timestampnow);
+        if(creategameplace != null && date != null) {
+            timestampstring = date + " " + hour + ":" + minute + ":" + "00 " + ampm;
+            Log.v("TIME given", "TIME=" + timestampstring);
+            try {
+                timestampInput = searchingweather(timestampstring);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                Log.v("TIME given", "there is an error");
             }
-            Log.v("closest", "timeStampinput:" +timestampInput);
-            Log.v("closest","thisdif: "+String.valueOf(thisdif)+"   oridif: "+String.valueOf(oridif)+" closest:  "+closest);
-            Log.v("try variable","variable print x:"+ x);
-        }
-        if (weatherReportList.size()>0){
-            report = weatherReportList.get(closest);
+            Log.v("TIME given", "TIME=" + timestampInput);
+            int closest = 0;
+            int x = this.weatherReportList.size();
 
-            switch (report.getWeather()){
-                case DailyWeatherReport.WEATHER_TYPE_CLEAR:
-                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.sunny));
-                    break;
-                case DailyWeatherReport.WEATHER_TYPE_CLOUDS:
-                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.cloudy));
-                    break;
-                case DailyWeatherReport.WEATHER_TYPE_RAIN:
-                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.rain));
-                    break;
+            DailyWeatherReport report = weatherReportList.get(0);
+            timestampbefore = report.getweatherDate();
+            Log.v("try variable", "variable:" + timestampbefore);
+
+            for (int i = 1; i < x; i++) {
+
+                report = weatherReportList.get(i);
+                timestampnow = report.getweatherDate();
+                rawdateoutput = report.getRawDate();
+                long thisdif = (abs(timestampnow - timestampInput));
+                long oridif = (abs(timestampbefore - timestampInput));
+                if (thisdif < oridif) {
+                    closest = i;
+                    timestampbefore = timestampnow;
+
+                    Log.v("try variable", "variable:" + timestampnow);
+                }
+                Log.v("closest", "timeStampinput:" + timestampInput);
+                Log.v("closest", "thisdif: " + String.valueOf(thisdif) + "   oridif: " + String.valueOf(oridif) + " closest:  " + closest);
+                Log.v("try variable", "variable print x:" + x);
+            }
+            if (weatherReportList.size() > 0) {
+                report = weatherReportList.get(closest);
+                HighTemp = report.getMaxTemp();
+                LowTemp = report.getMinTemp();
+                Temp = report.getCurrentTemp();
+
+                switch (report.getWeather()) {
+                    case DailyWeatherReport.WEATHER_TYPE_CLEAR:
+                        weathericon.setImageDrawable(getResources().getDrawable(R.drawable.sunny));
+                        weatherdiscription = "Clear";
+                        break;
+                    case DailyWeatherReport.WEATHER_TYPE_CLOUDS:
+                        weathericon.setImageDrawable(getResources().getDrawable(R.drawable.cloudy));
+                        weatherdiscription = "Clouds";
+                        break;
+                    case DailyWeatherReport.WEATHER_TYPE_RAIN:
+                        weathericon.setImageDrawable(getResources().getDrawable(R.drawable.rain));
+                        weatherdiscription = "Rain";
+                        break;
 /*                case DailyWeatherReport.WEATHER_TYPE_WIND:
                     weathericon.setImageDrawable(getResources().getDrawable(R.drawable.light_rain));
                     break;*/
-                case DailyWeatherReport.WEATHER_TYPE_SNOW:
-                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.snowwhite));
-                    break;
-                default:
-                    weathericon.setImageDrawable(getResources().getDrawable(R.drawable.sunny));
+                    case DailyWeatherReport.WEATHER_TYPE_SNOW:
+                        weathericon.setImageDrawable(getResources().getDrawable(R.drawable.snowwhite));
+                        weatherdiscription = "Snow";
+                        break;
+                    default:
+                        weathericon.setImageDrawable(getResources().getDrawable(R.drawable.sunny));
+                        weatherdiscription = "Clear";
+                }
             }
+            dateout.setText(report.getRawDate());//can delete
         }
-        dateout.setText(report.getRawDate());//can delete
     }
 
 
@@ -1285,9 +1809,10 @@ public class MapsActivity extends AppCompatActivity
         } else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(this, data);
+                currentdisplaylatlng = place.getLatLng();
                 Log.i(TAG, "Place: " + place.getName());
-                if (mChooseLocationMarker != null) {
-                    mChooseLocationMarker.remove();
+                if (mCurrLocationMarker != null) {
+                    mCurrLocationMarker.remove();
                 }
                 mapsearchbar.setText(place.getName());
                 MarkerOptions markerOptions = new MarkerOptions();
@@ -1296,10 +1821,10 @@ public class MapsActivity extends AppCompatActivity
                 int size = getResources().getInteger(R.integer.mapmarker);
                 Bitmap marker = Bitmap.createScaledBitmap(marker1, size, size, false);
                 markerOptions.icon(BitmapDescriptorFactory.fromBitmap(marker));
-                mChooseLocationMarker = mGoogleMap.addMarker(markerOptions);
+                mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
                 //move map camera and set the zoom in percentage
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 15));
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 11));
 
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -1314,6 +1839,7 @@ public class MapsActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 creategameplace = PlaceAutocomplete.getPlace(this, data);
                 typeinlocation.setText(creategameplace.getName());
+                downloadWeatherData(creategameplace);
 
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
@@ -1324,7 +1850,7 @@ public class MapsActivity extends AppCompatActivity
                 // The user canceled the operation.
             }
         }
-        downloadWeatherData(creategameplace);
+
 
     }
 
@@ -1332,6 +1858,16 @@ public class MapsActivity extends AppCompatActivity
 /*------------------------------ The code below is for google map and check permission----------------------*/
 
     private void getMyLocation() {
+        currentdisplaylatlng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        if(displaymarker.size() != 0)
+        {
+            int i1 = displaymarker.size()-1;
+            for(int i = i1; i >= 0; i--)
+            {
+                displaymarker.get(i).remove();
+                displaymarker.remove(i);
+            }
+        }
 
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
@@ -1347,7 +1883,7 @@ public class MapsActivity extends AppCompatActivity
                         getResources(), R.drawable.direction), size, size, false)));
         mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 15));
+                new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()), 11));
     }
 
     @Override
@@ -1428,6 +1964,7 @@ public class MapsActivity extends AppCompatActivity
             mGoogleMap.setMyLocationEnabled(true);
             mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
+        displaygamemarker();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -1443,8 +1980,8 @@ public class MapsActivity extends AppCompatActivity
     public void onConnected(Bundle bundle) {
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(100000);
-        mLocationRequest.setFastestInterval(100000);
+        mLocationRequest.setInterval(60000);
+        mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -1472,6 +2009,7 @@ public class MapsActivity extends AppCompatActivity
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         //markerOptions.title("Current Position");
@@ -1483,7 +2021,7 @@ public class MapsActivity extends AppCompatActivity
 
         //move map camera and set the zoom in percentage
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
-                location.getLongitude()), 15));
+                location.getLongitude()), 11));
 
     }
 
@@ -1950,6 +2488,47 @@ public class MapsActivity extends AppCompatActivity
 // in terminal ---> cd Desktop ---> git clone https://android.googlesource.com/platform/frameworks/volley
 // in AndroidStudio ---> import new module ----> import gradle project ---> volley
 // go to binray.gradle in volley and change has() to hasProperty()
+
+    private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Create a progressdialog
+
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... URL) {
+
+            Bitmap bitmap = null;
+
+                try {
+                    // Download Image from URL
+
+                    InputStream input = new java.net.URL(URL[0]).openStream();
+                    bitmap = BitmapFactory.decodeStream(input);
+
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+            return LoginProcess.getCroppedBitmap(bitmap,80);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+
+            BitMapstore.addBitmapToMemoryCache(HosterUID, result);
+
+            displaygameicon.setImageBitmap(result);
+
+
+        }
+    }
 
 
 }

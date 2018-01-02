@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="mapmarker">85</integer>
+    <integer name="displaymarker">160</integer>
     <fraction name="controlboardbutton">50%</fraction>
     <fraction name="controlboardbuttonlayout">15%</fraction>
     <fraction name="controlboardbuttonratio">90%</fraction>

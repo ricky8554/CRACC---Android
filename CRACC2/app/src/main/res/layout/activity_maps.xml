@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -18,7 +18,12 @@
 
         />
 
-
+    <android.support.constraint.Guideline
+        android:id="@+id/Top_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6" />
 
 
     <!--This layout set the size and location of the location button it contain the location button
@@ -26,12 +31,11 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/locationlayout"
-        android:gravity="center"
         android:layout_width="30sp"
-        android:layout_alignParentEnd="true"
-        app:layout_marginTopPercent="60%"
         android:layout_height="30sp"
-        android:layout_gravity="end">
+        android:gravity="center"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/Top_guideline">
 
         <Button
             android:id="@+id/location"
@@ -45,105 +49,172 @@
     <!--This layout contain the top control bar which included game management button, chat button,
     and main control button(image icon), the sublayout is operatorbar.xml-->
     <include
+        layout="@layout/operatorbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/operatorbar" />
+        android:layout_height="match_parent" />
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/Top_guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.13" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/Left_guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.075" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/Right_guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.925" />
 
     <!--This layout is map search layout-->
-    <android.support.percent.PercentRelativeLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/mapsearchlayout"
-        app:layout_marginTopPercent="13%"
-        android:layout_centerHorizontal="true"
-        app:layout_widthPercent="85%"
-        app:layout_aspectRatio="800%"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@drawable/typeinbox"
-        >
+        app:layout_constraintDimensionRatio="H,8:1"
+        app:layout_constraintLeft_toLeftOf="@+id/Left_guideline1"
+        app:layout_constraintRight_toRightOf="@+id/Right_guideline1"
+        app:layout_constraintTop_toTopOf="@+id/Top_guideline1">
+
+
+        <android.support.constraint.Guideline
+            android:id="@+id/Left_guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.13" />
+
 
         <Button
             android:id="@+id/mapsearchbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_marginStartPercent="13%"
-            android:gravity="start|center_vertical"
             android:background="@drawable/typeinbox"
+            android:gravity="start|center_vertical"
+            android:onClick="mapsearch"
             android:text=""
             android:textAllCaps="false"
-            android:textSize="16sp"
             android:textColor="#000000"
-            android:onClick="mapsearch"/>
+            android:textSize="16sp"
+            android:paddingStart="50dp"
+            app:layout_constraintLeft_toLeftOf="@+id/Left_guideline2" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/Left_guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.03" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/Top_guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.15" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/Bottom_guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.85" />
+
         <Button
             android:id="@+id/mapsearchbutton"
-            app:layout_marginLeftPercent="3%"
-            android:layout_centerVertical="true"
-            app:layout_widthPercent="8%"
-            app:layout_aspectRatio="100%"
-            android:background="@drawable/searchbarok" />
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/searchbarok"
+            app:layout_constraintBottom_toBottomOf="@+id/Bottom_guideline3"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintLeft_toLeftOf="@+id/Left_guideline3"
+            app:layout_constraintTop_toTopOf="@+id/Top_guideline3" />
 
-    </android.support.percent.PercentRelativeLayout>
+    </android.support.constraint.ConstraintLayout>
+
+    <Button
+        android:id="@+id/displaygameinitial"
+        android:layout_width="10dp"
+        android:layout_height="80dp"
+        android:background="@drawable/displaygameroundrectangle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/locationlayout" />
+
+
+
 
     <!--This layout is intend to create a empty base layout, when calling the function
     the location is matter-->
     <FrameLayout
+        android:id="@+id/activity_maps_base_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/activity_maps_base_frame"
-        android:background="#aa000000"/>
+        android:background="#aa000000" />
+
 
     <!--The layout contain the game management board, the sublayout is gamemanagement.xml-->
     <include
+        layout="@layout/gamemanagement"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/gamemanagement" />
+        android:layout_height="match_parent" />
 
     <!--The layout contain the chat board, the sublayout is chatboard.xml-->
     <include
+        layout="@layout/chatboard"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/chatboard" />
+        android:layout_height="match_parent" />
 
     <!--The layout contain the control board call by the main icon, the layout included create
     new game button, information button, interested button, community button, logout button,
      the sublayout is controlboard.xml-->
     <include
+        layout="@layout/controlboard"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/controlboard" />
+        android:layout_height="match_parent" />
 
     <!--The layout is the frame for create game page call by create game button,
      the sublayout is creategameframe.xml-->
     <include
+        layout="@layout/creategameframe"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/creategameframe" />
+        android:layout_height="match_parent" />
 
     <!--The layout is the frame for information page call by information button,
      the sublayout is creategameframe.xml-->
     <include
+        layout="@layout/informationframe"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/informationframe" />
+        android:layout_height="match_parent" />
 
     <!--The layout is the frame for interest page call by interested button,
      the sublayout is interestframe.xml-->
     <include
+        layout="@layout/interestframe"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/interestframe" />
+        android:layout_height="match_parent" />
 
     <!--The layout is the frame for community page call by community button,
      the sublayout is communityframe.xml-->
     <include
+        layout="@layout/communityframe"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/communityframe" />
+        android:layout_height="match_parent" />
 
     <include
+        layout="@layout/informationsetting"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/informationsetting" />
+        android:layout_height="match_parent" />
 
 
-
-
-
-</android.support.percent.PercentRelativeLayout>
+</android.support.constraint.ConstraintLayout>
