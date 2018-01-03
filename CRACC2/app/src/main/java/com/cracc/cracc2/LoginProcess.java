@@ -32,13 +32,13 @@ public class LoginProcess{
         String gender = snapshot.child("User_Info").child(logintype).child(uid).child("Gender").getValue(String.class);
         String uri = snapshot.child("User_Info").child(logintype).child(uid).child("avatarUrl").getValue(String.class);
 
-        editor.putString("emailKey", Email);
-        editor.putString("genderKey", gender);
-        editor.putString("namekey", Name);
-        editor.putString("birthdaykey", birthday);
-        editor.putInt("starskey", Stars);
-        editor.putString("UserId", uid);
-        editor.putString("LoginType", logintype);
+        editor.putString(value.EMAIL, Email);
+        editor.putString(value.GENDER, gender);
+        editor.putString(value.NAME, Name);
+        editor.putString(value.BIRTHDAY, birthday);
+        editor.putInt(value.STARS, Stars);
+        editor.putString(value.USERID, uid);
+        editor.putString(value.LOGINTYPE, logintype);
         editor.putString(value.PHOTOAVATAR, uri);
         editor.commit();
 
@@ -144,6 +144,23 @@ public class LoginProcess{
         canvas.drawBitmap(sbmp, rect, rect, paint);
 
         return output;
+    }
+    public static Bitmap getscaledBitmap(Bitmap bmp)
+    {
+        final int maxSize = 500;
+        int outWidth;
+        int outHeight;
+        int inWidth = bmp.getWidth();
+        int inHeight = bmp.getHeight();
+        if(inWidth > inHeight){
+            outWidth = maxSize;
+            outHeight = (inHeight * maxSize) / inWidth;
+        } else {
+            outHeight = maxSize;
+            outWidth = (inWidth * maxSize) / inHeight;
+        }
+
+        return Bitmap.createScaledBitmap(bmp, outWidth, outHeight, false);
     }
 
 

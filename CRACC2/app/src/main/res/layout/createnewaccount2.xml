@@ -87,6 +87,7 @@
 
             <EditText
                 android:id="@+id/createaccount2birthday"
+                android:focusable="false"
                 app:layout_widthPercent="80%"
                 app:layout_aspectRatio="900%"
                 android:layout_centerHorizontal="true"

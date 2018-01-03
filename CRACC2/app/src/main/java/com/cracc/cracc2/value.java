@@ -21,5 +21,8 @@ public class value {
     public static final String USERID = "UserId";
     public static final String LOGINTYPE = "LoginType";
     public static final String HASVIDEO = "HasVideo";
+
+    public static final String ICONBITMAP = "iconbitmap";
+
     public static Map<String,Integer> uidavatarmap= new HashMap<String,Integer>();
 }

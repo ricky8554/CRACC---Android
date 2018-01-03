@@ -2,7 +2,9 @@ package com.cracc.cracc2;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,17 +20,22 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.percent.PercentRelativeLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -67,9 +74,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -176,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     private PercentRelativeLayout mainpage;
 
     //delete
-    private Bitmap bm;                      //bit map
+    private Bitmap emailsignupbm = null;                      //bit map
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -232,14 +241,15 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if(currentUser!=null) {
-            Bitmap a = BitMapstore.getBitmapFromMemCache("iconbitmap");
+            animation.start();
+            Bitmap a = BitMapstore.getBitmapFromMemCache(value.ICONBITMAP);
             if(a == null)
             {
                 BitMapstore bitmapcache = new BitMapstore(context);
-                File f = bitmapcache.getFile("iconbitmap");
+                File f = bitmapcache.getFile(value.ICONBITMAP);
                 Bitmap bmap = BitmapFactory.decodeFile(f.getAbsolutePath());
                 if(bmap != null) {
-                    BitMapstore.addBitmapToMemoryCache("iconbitmap", bmap);
+                    BitMapstore.addBitmapToMemoryCache(value.ICONBITMAP, bmap);
                     mainpage("login");
 
                 }
@@ -347,6 +357,29 @@ public class MainActivity extends AppCompatActivity {
 
         createaccount2back = findViewById(R.id.createaccount2back);
         createaccount2birthday = findViewById(R.id.createaccount2birthday);
+        final Activity content = this;
+        createaccount2birthday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomSheetDialog dialog = Utils.bottomsheetdialog(content, R.layout.datepicker);
+                final DatePicker num = dialog.findViewById(R.id.datePicker);
+                num.setMaxDate(System.currentTimeMillis());
+                final Calendar a = Calendar.getInstance();
+                num.updateDate(a.get(Calendar.YEAR),a.get(Calendar.MONTH),a.get(Calendar.DAY_OF_MONTH));
+                num.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        a.set(num.getYear(),num.getMonth(),num.getDayOfMonth());
+                        SimpleDateFormat birthformat = new SimpleDateFormat("MMM d,yyyy ");
+                        String birth = birthformat.format(a.getTime());
+                        createaccount2birthday.setText(birth);
+
+                    }
+                });
+                dialog.show();
+            }
+        });
         createaccount2next = findViewById(R.id.createaccount2next);
 
         createaccountframe3 = findViewById(R.id.createaccountframe3);
@@ -361,6 +394,28 @@ public class MainActivity extends AppCompatActivity {
         createaccountgoooglemale = findViewById(R.id.createaccountgoooglemale);
         createaccountgoooglefemale = findViewById(R.id.createaccountgoooglefemale);
         createaccountgoooglebirthday = findViewById(R.id.createaccountgoooglebirthday);
+        createaccountgoooglebirthday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BottomSheetDialog dialog = Utils.bottomsheetdialog(content, R.layout.datepicker);
+                final DatePicker num = dialog.findViewById(R.id.datePicker);
+                num.setMaxDate(System.currentTimeMillis());
+                final Calendar a = Calendar.getInstance();
+                num.updateDate(a.get(Calendar.YEAR),a.get(Calendar.MONTH),a.get(Calendar.DAY_OF_MONTH));
+                num.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        a.set(num.getYear(),num.getMonth(),num.getDayOfMonth());
+                        SimpleDateFormat birthformat = new SimpleDateFormat("MMM d,yyyy ");
+                        String birth = birthformat.format(a.getTime());
+                        createaccountgoooglebirthday.setText(birth);
+
+                    }
+                });
+                dialog.show();
+            }
+        });
         createaccountgooogleframe = findViewById(R.id.createaccountgooogleframe);
 
         mainpage = findViewById(R.id.mainpage);
@@ -449,6 +504,13 @@ public class MainActivity extends AppCompatActivity {
 
     protected void googlesigningfinal() {
         createaccountgooogleframe.setVisibility(View.VISIBLE);
+        if (gender.equals("")) {
+            createaccountgoooglemale.setBackgroundResource(R.drawable.genderbutton2);
+            createaccountgoooglemale.setTextColor(Color.parseColor("#FFFFFF"));
+            createaccountgoooglefemale.setBackgroundResource(R.drawable.genderbutton1);
+            createaccountgoooglefemale.setTextColor(Color.parseColor("#6e6e6e"));
+            gender = "male";
+        }
 
     }
 
@@ -458,8 +520,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createaccount3(View v) {
-        birthday = createaccount2birthday.getText().toString();
-        createaccountframe3.setVisibility(View.VISIBLE);
+        if(createaccount2birthday.getText().toString().equals(""))
+        {
+            missingdialog("Missing Field", "Please fill in all the black");
+        }
+        else {
+            birthday = createaccount2birthday.getText().toString();
+            createaccountframe3.setVisibility(View.VISIBLE);
+        }
     }
 
     public void gender(View v) {
@@ -498,15 +566,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createaccount2(View v) {
-        Name = createaccountfirstname.getText().toString() + createaccountlastname.getText().toString();
-
-
-        createaccountframe2.setVisibility(View.VISIBLE);
+        if(createaccountfirstname.getText().toString().equals("") || createaccountlastname.getText().toString().equals(""))
+        {
+            missingdialog("Missing Field", "Please fill in all the black");
+        }
+        else
+        {
+            Name = createaccountfirstname.getText().toString() + createaccountlastname.getText().toString();
+            createaccountframe2.setVisibility(View.VISIBLE);
+            if (gender.equals("")) {
+                createaccount2male.setBackgroundResource(R.drawable.genderbutton2);
+                createaccount2male.setTextColor(Color.parseColor("#FFFFFF"));
+                createaccount2female.setBackgroundResource(R.drawable.genderbutton1);
+                createaccount2female.setTextColor(Color.parseColor("#6e6e6e"));
+                gender = "male";
+            }
+        }
     }
 
     public void createaccount1(View v) {
-        createaccountframe1.setVisibility(View.VISIBLE);
-        signuptype = "Email";
+
+            createaccountframe1.setVisibility(View.VISIBLE);
+            signuptype = "Email";
+
+    }
+    private void missingdialog(String title, String message)
+    {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(message);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 
     public void getPicture(View v) {
@@ -548,40 +643,63 @@ public class MainActivity extends AppCompatActivity {
             mainpage("login");
 
         } else if (v == createaccount3signup) {
-            animation.start ();
-            mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
-            Email = createaccount3email.getText().toString();
-            mAuth.createUserWithEmailAndPassword(Email, createaccount3password.getText().toString())
-                    .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
 
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                uid = user.getUid();
-                                String result = UUID.nameUUIDFromBytes(uid.getBytes()).toString();
-                                FirebaseStorage storage = FirebaseStorage.getInstance();
-                                StorageReference storageRef = storage.getReference().child("Avatar");
-                                filepath = storageRef.child(result.toUpperCase());
+            if(createaccount3email.getText().toString().equals("")||createaccount3password.getText().toString().equals("")||createaccount3confirmpassword.getText().toString().equals(""))
+            {
+                missingdialog("Missing Field", "Please fill in all the black");
+            }
+            else if(!createaccount3password.getText().toString().equals(createaccount3confirmpassword.getText().toString()))
+            {
+                missingdialog("Password Did Not Match", "Please confirm your inputpassword");
+            }
+            else {
+                animation.start();
+                mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
+                Email = createaccount3email.getText().toString();
+                mAuth.createUserWithEmailAndPassword(Email, createaccount3password.getText().toString())
+                        .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
 
-                                new DownloadImage().execute("emails");
-                                LoginProcess.settingSignup("Email", uid, cracc, Email, Name, gender, birthday);
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    uid = user.getUid();
+                                    String result = UUID.nameUUIDFromBytes(uid.getBytes()).toString();
+                                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                                    StorageReference storageRef = storage.getReference().child("Avatar");
+                                    filepath = storageRef.child(result.toUpperCase());
 
-                                mainpage("email");
+                                    new DownloadImage().execute("emails");
+                                    LoginProcess.settingSignup("Email", uid, cracc, Email, Name, gender, birthday);
+                                    editor = sharedpreferences.edit();
+                                    editor.putString(value.EMAIL, Email);
+                                    editor.putString(value.GENDER, gender);
+                                    editor.putString(value.NAME, Name);
+                                    editor.putString(value.BIRTHDAY, birthday);
+                                    editor.putInt(value.STARS, 0);
+                                    editor.putString(value.USERID, uid);
+                                    editor.putString(value.LOGINTYPE, signuptype);
 
-                            } else {
+                                    editor.commit();
 
-                                // If sign in fails, display a message to the user.
-                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                updateUI(null,null,null);
+                                    mainpage("email");
+
+                                } else {
+                                    progressBar.clearAnimation();
+
+                                    // If sign in fails, display a message to the user.
+                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                    missingdialog("The given password is invalid", "Password should be at least 6 characters");
+                                    updateUI(null, null, null);
+                                }
                             }
-                        }
-                    });
+                        });
+            }
 
 
         } else if (v == login) {
             if (loginemail.getText().toString().isEmpty() || loginpass.getText().toString().isEmpty()) {
-
+                missingdialog("Missing Field", "Please fill in all the black");
             } else {
                 animation.start ();
                 mainpage.getBackground().setColorFilter(Color.parseColor("#CC000000"), PorterDuff.Mode.SRC_ATOP);
@@ -646,6 +764,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void mainpage(String s) {
+        progressBar.clearAnimation();
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
@@ -662,18 +781,35 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-            bm = LoginProcess.getScaledBitmap(picturePath, 100, 100);
-            BitMapstore.addBitmapToMemoryCache("iconbitmap", bm);
-            profileimage.setBackground(new BitmapDrawable(getResources(),
-                    LoginProcess.getCroppedBitmap(BitmapFactory.decodeFile(picturePath), 400)));
-            profileimage.setText("");
+//            Uri selectedImage = data.getData();
+//            String result;
+//            Cursor cursor = getContentResolver().query(selectedImage, null, null, null, null);
+//            if (cursor == null) { // Source is Dropbox or other similar local file path
+//                result = selectedImage.getPath();
+//            } else {
+//                cursor.moveToFirst();
+//                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+//                result = cursor.getString(idx);
+//                cursor.close();
+//            }
+//
+//            profileimage.setBackground(new BitmapDrawable(getResources(),
+//                    LoginProcess.getCroppedBitmap(BitmapFactory.decodeFile(result), 200)));
+//
+            try {
+                final Uri imageUri = data.getData();
+                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                //final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                emailsignupbm = LoginProcess.getscaledBitmap(BitmapFactory.decodeStream(imageStream));
+                BitMapstore.addBitmapToMemoryCache(value.ICONBITMAP, emailsignupbm);
+                profileimage.setBackground(new BitmapDrawable(getResources(),
+                    LoginProcess.getCroppedBitmap(emailsignupbm, 200)));
+                profileimage.setText("");
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+            }
 
         } else if (requestCode == RC_SIGN_IN) { //delete
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
@@ -863,7 +999,8 @@ public class MainActivity extends AppCompatActivity {
             String imageURL = URL[0];
             if(imageURL.equals("emails"))
             {
-                bitmap = bm;
+                bitmap = emailsignupbm;
+
                 firsttimelogin =1;
             }
             else {
@@ -872,11 +1009,11 @@ public class MainActivity extends AppCompatActivity {
 
                     InputStream input = new java.net.URL(imageURL).openStream();
                     bitmap = BitmapFactory.decodeStream(input);
-                    BitMapstore.addBitmapToMemoryCache("iconbitmap", bitmap);
+                    BitMapstore.addBitmapToMemoryCache(value.ICONBITMAP, bitmap);
                     //save the
 
                     BitMapstore bitmapcache = new BitMapstore(context);
-                    File f = bitmapcache.getFile("iconbitmap");
+                    File f = bitmapcache.getFile(value.ICONBITMAP);
                     OutputStream os = new FileOutputStream(f);
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
                     os.close();
@@ -893,6 +1030,11 @@ public class MainActivity extends AppCompatActivity {
             }
             //move above part to main
             File file = Downloadimage.createImageFile(getApplicationContext(), uid);
+            if(bitmap == null)
+            {
+                bitmap = BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher);
+                BitMapstore.addBitmapToMemoryCache(value.ICONBITMAP, bitmap);
+            }
             iconuri = Downloadimage.downloaduriimage(bitmap,firsttimelogin ,file);
             Downloadimage.uploadtoFirebase(cracc, filepath, uid, iconuri, firsttimelogin, signuptype,context );
 
@@ -904,6 +1046,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Bitmap result) {
             // Set the bitmap into ImageView
+            super.onPostExecute( result);
             progressBar.clearAnimation();
         }
     }

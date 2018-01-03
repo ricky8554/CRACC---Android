@@ -591,7 +591,7 @@ public class MapsActivity extends AppCompatActivity
         LoginType = settings.getString(value.LOGINTYPE, "");
         Email = settings.getString(value.EMAIL, "");
         for (int i = 0; i < 20; i++) {
-            if (BitMapstore.getBitmapFromMemCache("iconbitmap") != null) {
+            if (BitMapstore.getBitmapFromMemCache(value.ICONBITMAP) != null) {
                 break;
             }
             try {
@@ -600,9 +600,9 @@ public class MapsActivity extends AppCompatActivity
                 Thread.currentThread().interrupt();
             }
         }
-        if (BitMapstore.getBitmapFromMemCache("iconbitmap") != null) {
+        if (BitMapstore.getBitmapFromMemCache(value.ICONBITMAP) != null) {
             System.out.println("hello");
-            iconbitmap = LoginProcess.getCroppedBitmap(BitMapstore.getBitmapFromMemCache("iconbitmap"), 200);
+            iconbitmap = LoginProcess.getCroppedBitmap(BitMapstore.getBitmapFromMemCache(value.ICONBITMAP), 200);
             BitmapDrawable bdrawable = new BitmapDrawable(this.getResources(), iconbitmap);
             BitmapDrawable bd1 = new BitmapDrawable(this.getResources(), iconbitmap);
             BitmapDrawable bd2 = new BitmapDrawable(this.getResources(), iconbitmap);
