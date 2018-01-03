@@ -108,7 +108,7 @@ public class Downloadimage {
                     downloadUrl = taskSnapshot.getDownloadUrl();
 
                     ///change this with google
-                    cracc.child("User Info").child(signintype).child(uid).child("avatarUrl").setValue(downloadUrl.toString());
+                    cracc.child("User_Info").child(signintype).child(uid).child("avatarUrl").setValue(downloadUrl.toString());
                     SharedPreferences sharedpreferences;
                     SharedPreferences.Editor editor = context.getSharedPreferences(value.MyPREFERENCES, Context.MODE_PRIVATE).edit();
                     editor.putString(value.PHOTOAVATAR, downloadUrl.toString());

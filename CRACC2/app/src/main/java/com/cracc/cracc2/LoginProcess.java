@@ -25,12 +25,12 @@ public class LoginProcess{
     public static String settingsignin(String logintype, String uid, DataSnapshot snapshot,
                                        SharedPreferences.Editor editor)
     {
-        String birthday = snapshot.child("User Info").child(logintype).child(uid).child("Birthday").getValue(String.class);
-        String Name = snapshot.child("User Info").child(logintype).child(uid).child("Name").getValue(String.class);
-        int Stars = snapshot.child("User Info").child(logintype).child(uid).child("Stars").getValue(Integer.class);
-        String Email = snapshot.child("User Info").child(logintype).child(uid).child("Email").getValue(String.class);
-        String gender = snapshot.child("User Info").child(logintype).child(uid).child("Gender").getValue(String.class);
-        String uri = snapshot.child("User Info").child(logintype).child(uid).child("avatarUrl").getValue(String.class);
+        String birthday = snapshot.child("User_Info").child(logintype).child(uid).child("Birthday").getValue(String.class);
+        String Name = snapshot.child("User_Info").child(logintype).child(uid).child("Name").getValue(String.class);
+        int Stars = snapshot.child("User_Info").child(logintype).child(uid).child("Stars").getValue(Integer.class);
+        String Email = snapshot.child("User_Info").child(logintype).child(uid).child("Email").getValue(String.class);
+        String gender = snapshot.child("User_Info").child(logintype).child(uid).child("Gender").getValue(String.class);
+        String uri = snapshot.child("User_Info").child(logintype).child(uid).child("avatarUrl").getValue(String.class);
 
         editor.putString("emailKey", Email);
         editor.putString("genderKey", gender);
@@ -67,15 +67,15 @@ public class LoginProcess{
         cracc.child("User").child(SignupType).child(uid).child("Game Joined").child("default").setValue("defaults");
         cracc.child("User").child(SignupType).child(uid).child("Interested List").child("default").setValue("defaults");
 
-        cracc.child("User Info").child(SignupType).child(uid).child("Birthday").setValue(birthday);
-        cracc.child("User Info").child(SignupType).child(uid).child("Email").setValue(Email);
-        cracc.child("User Info").child(SignupType).child(uid).child("Gender").setValue(gender);
-        cracc.child("User Info").child(SignupType).child(uid).child("Name").setValue(Name);
-        cracc.child("User Info").child(SignupType).child(uid).child("Stars").setValue(0);
-        cracc.child("User Info").child(SignupType).child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
-        cracc.child("User Info").child(SignupType).child(uid).child("Type").setValue(SignupType);
+        cracc.child("User_Info").child(SignupType).child(uid).child("Birthday").setValue(birthday);
+        cracc.child("User_Info").child(SignupType).child(uid).child("Email").setValue(Email);
+        cracc.child("User_Info").child(SignupType).child(uid).child("Gender").setValue(gender);
+        cracc.child("User_Info").child(SignupType).child(uid).child("Name").setValue(Name);
+        cracc.child("User_Info").child(SignupType).child(uid).child("Stars").setValue(0);
+        cracc.child("User_Info").child(SignupType).child(uid).child("Timestamp").setValue(ServerValue.TIMESTAMP);
+        cracc.child("User_Info").child(SignupType).child(uid).child("Type").setValue(SignupType);
         if(!SignupType.equals("Email"))
-        cracc.child("User Info").child(SignupType).child(uid).child("avatarUrl").setValue("");
+        cracc.child("User_Info").child(SignupType).child(uid).child("avatarUrl").setValue("");
     }
 
     public static Bitmap getScaledBitmap(String picturePath, int width, int height) {
